@@ -2,7 +2,7 @@
   "name": "bc-cms-rewrite-node-ms",
   "version": "1.0.0",
   "description": "Node.js layer that serves api to front end and fetches data from Mongo (Backend for Frontend)",
-  "main": "index.js",
+  "main": "server.js",
   "scripts": {
     "dev": "NODE_ENV=development node server.js",
     "server": "node server.js",
