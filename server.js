@@ -13,7 +13,7 @@ app.get('/mock', (req, res) => {
 });
 
 app.get('/', (req, res) => {
-  console.log('Calling / api !!!');
+  console.log('Calling / api !!!!!!!');
   res.send("new api");
 });
 
