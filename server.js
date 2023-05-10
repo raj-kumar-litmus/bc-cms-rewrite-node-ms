@@ -14,7 +14,7 @@ app.get('/mock', (req, res) => {
 
 app.get('/', (req, res) => {
   console.log('Calling / api !!!');
-  res.sendStatus(200);
+  res.send("new api");
 });
 
 const fetchClientToken = async (token) => {
