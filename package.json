@@ -4,6 +4,7 @@
   "description": "Node.js layer that serves api to front end and fetches data from Mongo (Backend for Frontend)",
   "main": "index.js",
   "scripts": {
+    "dev": "NODE_ENV=development node server.js",
     "server": "node server.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
@@ -19,6 +20,8 @@
   },
   "homepage": "https://github.com/raj-kumar-litmus/bc-cms-rewrite-node-ms#readme",
   "dependencies": {
-    "express": "^4.18.2"
+    "express": "^4.18.2",
+    "node-fetch": "^2.6.10",
+    "validate-azure-ad-token": "^2.1.2"
   }
 }
