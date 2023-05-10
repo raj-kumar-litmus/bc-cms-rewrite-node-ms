@@ -12,6 +12,11 @@ app.get('/mock', (req, res) => {
   res.sendStatus(200)
 });
 
+app.get('/', (req, res) => {
+  console.log('Calling / api !!!');
+  res.sendStatus(200);
+});
+
 const fetchClientToken = async (token) => {
   const { tenantId, hostnameClient, msLoginHostName, defaultMsGraphScope, clientId, clientSecret } = configurations[process.env.NODE_ENV];
 
