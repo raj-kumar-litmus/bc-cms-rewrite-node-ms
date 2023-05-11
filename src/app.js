@@ -23,10 +23,14 @@ app.get('/', (_, res) => {
   });
 });
 
-const config = {
-  headers: {
-    Cookie: 'JSESSIONID=6677E756EC081AF2EC210678A4961C9A'
-  }
+const getConfig = (req) => {
+  const { cookie: Cookie } = req.headers; // Retrieve the Cookie header value
+
+  return {
+    headers: {
+      Cookie
+    }
+  };
 };
 
 app.get('/style/:sId/techSpecs', async (req, res) => {
@@ -37,7 +41,7 @@ app.get('/style/:sId/techSpecs', async (req, res) => {
       data: {
         item: { techSpecs }
       }
-    } = await axios.get(url, config);
+    } = await axios.get(url, getConfig(req));
 
     res.send(techSpecs);
   } catch (error) {
@@ -49,7 +53,7 @@ app.get('/style/:sId/techSpecs', async (req, res) => {
 app.get('/genus', async (req, res) => {
   const url = `${process.env.backContryAPI}/dataNormalization/rest/genus`;
   try {
-    const { data } = await axios.get(url, config);
+    const { data } = await axios.get(url, getConfig(req));
     res.send(data);
   } catch (error) {
     console.error(error.message);
@@ -61,7 +65,7 @@ app.get('/genus/:gId/species', async (req, res) => {
   const { gId } = req.params;
   const url = `${process.env.backContryAPI}/dataNormalization/rest/genus/${gId}/species`;
   try {
-    const { data } = await axios.get(url, config);
+    const { data } = await axios.get(url, getConfig(req));
     res.send(data);
   } catch (error) {
     console.error(error.message);
@@ -73,7 +77,7 @@ app.get('/genus/:gId/species/:sId/hAttributes', async (req, res) => {
   const { gId, sId } = req.params;
   const url = `${process.env.backContryAPI}/dataNormalization/rest/genus/${gId}/species/${sId}/hAttributes`;
   try {
-    const { data } = await axios.get(url, config);
+    const { data } = await axios.get(url, getConfig(req));
     res.send(data);
   } catch (error) {
     console.error(error.message);
