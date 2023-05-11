@@ -8,7 +8,7 @@ const axios = require('axios');
 require('dotenv').config();
 
 const middlewares = require('./middlewares');
-const api = require('./api');
+const modules = require('./modules');
 
 const app = express();
 
@@ -81,7 +81,7 @@ app.get('/genus/:gId/species/:sId/hAttributes', async (req, res) => {
   }
 });
 
-app.use('/api/v1', api);
+app.use('/api/v1', modules);
 
 app.use(middlewares.notFound);
 app.use(middlewares.errorHandler);

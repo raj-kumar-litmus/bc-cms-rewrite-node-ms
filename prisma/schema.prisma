@@ -18,47 +18,62 @@ type WorkbenchAuditTechspecs {
   Responsible_Collection String @map("Responsible Collection")
 }
 
+enum CreateProcess {
+  TOPIC
+  WRITER_INTERFACE
+}
+
+enum Status {
+  WAITING_FOR_WRITER
+  ASSIGNED_TO_WRITER
+  WRITING_INPROGRESS
+  WRITING_COMPLETE
+  ASSIGNED_TO_EDITOR
+  EDITING_IN_PROGRESS
+  EDITING_COMPLETE
+}
+
 /// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.
-model workbench_audit {
-  id                              String                        @id @default(auto()) @map("_id") @db.ObjectId
-  assignee                        String
-  bullet_points                   String
-  competitive_cyclist_description String
-  competitive_cyclist_topline     String
-  detailed_description            String
-  genus                           String
-  harmonizing_data                WorkbenchAuditHarmonizingData
-  is_published                    Boolean
-  list_description                String
-  product_title                   String
-  sizing_chart                    String
-  species                         String
-  status                          String
-  style_id                        String
-  techspecs                       WorkbenchAuditTechspecs
-  top_line                        String
-  version_reason                  String
-  version_ts                      DateTime                      @db.Date
-  workflow_id                     String                        @db.ObjectId
-  workflow                        workflow                      @relation(fields: [workflow_id], references: [id])
+model workbenchAudit {
+  id                            String                        @id @default(auto()) @map("_id") @db.ObjectId
+  assignee                      String
+  bulletPoints                  String
+  competitiveCyclistDescription String
+  competitiveCyclistTopline     String
+  detailedDescription           String
+  genus                         String
+  harmonizingData               WorkbenchAuditHarmonizingData
+  isPubblished                  Boolean
+  listSescription               String
+  productTitle                  String
+  sizingChart                   String
+  species                       String
+  status                        String
+  styleId                       String
+  techspecs                     WorkbenchAuditTechspecs
+  topLine                       String
+  versionReason                 String
+  versionTs                     DateTime                      @db.Date
+  workflowId                    String                        @db.ObjectId
+  workflow                      workflow                      @relation(fields: [workflowId], references: [id])
 }
 
 /// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.
 model workflow {
-  id                     String            @id @default(auto()) @map("_id") @db.ObjectId
-  admin                  String
-  brand                  String
-  create_process         String
-  create_ts              DateTime          @db.Date
-  editor                 String
-  editor_review          Boolean
-  last_edit_complete_ts  DateTime          @db.Date
-  last_update_ts         DateTime          @db.Date
-  last_updated_by        String
-  last_write_complete_ts DateTime          @db.Date
-  status                 String
-  style_id               String            @unique
-  title                  String
-  writer                 String
-  workbench_audits       workbench_audit[]
+  id                  String           @id @default(auto()) @map("_id") @db.ObjectId
+  admin               String?
+  brand               String
+  createProcess       CreateProcess
+  createTs            DateTime         @default(now()) @db.Date
+  editor              String?
+  editorReview        Boolean?
+  lastEditCompleteTs  DateTime?        @db.Date
+  lastUpdateTs        DateTime         @default(now()) @db.Date
+  lastUpdatedBy       String?
+  lastWriteCompleteTs DateTime?        @db.Date
+  status              Status           @default(WAITING_FOR_WRITER)
+  styleId             String           @unique
+  title               String
+  writer              String?
+  workbenchAudits     workbenchAudit[]
 }

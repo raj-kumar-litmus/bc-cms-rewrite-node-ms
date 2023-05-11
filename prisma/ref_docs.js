@@ -1,5 +1,5 @@
 const workflow = {
-  style_id: 'CPJ17Y',
+  styleId: 'CPJ17Y',
   create_ts: {
     $date: '2023-03-28T23:58:18.000Z'
   },
@@ -27,7 +27,7 @@ const workflow = {
 
 const workbenchAudit = {
   workflow_id: 155,
-  style_id: 'CPJ17Y',
+  styleId: 'CPJ17Y',
   genus: 'Climbing accessories',
   species: 'Belay Devices',
   harmonizing_data: {

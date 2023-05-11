@@ -1,5 +1,9 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
+const { PrismaClient, Prisma } = require('@prisma/client');
+
+const { validateMiddleware } = require('../../middlewares');
+const { CreateProcess } = require('./enums');
+const { createWorkflowDto, updatedWorkflowDto } = require('./dtos');
 
 const router = express.Router();
 
@@ -8,17 +12,36 @@ const prisma = new PrismaClient({
 });
 
 // Endpoint to initiate a workflow
-router.post('/', async (req, res) => {
+router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
   try {
-    const { body: data } = req;
+    const {
+      body: { styleId, brand, title }
+    } = req;
+
     const workflow = await prisma.workflow.create({
-      data
+      data: {
+        styleId,
+        brand,
+        title,
+        createProcess: CreateProcess.WRITER_INTERFACE
+      }
     });
 
-    res.json(workflow);
+    return res.json(workflow);
   } catch (error) {
     console.error(error);
-    res
+    if (error instanceof Prisma.PrismaClientKnownRequestError) {
+      if (error.code === 'P2002') {
+        return res.status(409).json({
+          error:
+            'There is a unique constraint violation, a workflow cannot be created with this styleId'
+        });
+      }
+      return res
+        .status(500)
+        .json({ error: 'An error occurred while creating the workflow.' });
+    }
+    return res
       .status(500)
       .json({ error: 'An error occurred while creating the workflow.' });
   }
@@ -44,7 +67,7 @@ router.get('/search', async (req, res) => {
 
     const workflows = await prisma.workflow.findMany({
       where: {
-        style_id: {
+        styleId: {
           contains: query,
           mode: 'insensitive'
         }
@@ -66,7 +89,7 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
     const workflow = await prisma.workflow.findUnique({
       where: {
-        style_id: id
+        styleId: id
       }
     });
 
@@ -83,28 +106,32 @@ router.get('/:id', async (req, res) => {
 });
 
 // Endpoint to update a workflow
-router.patch('/:id', async (req, res) => {
-  try {
-    const {
-      params: { id },
-      body: data
-    } = req;
+router.patch(
+  '/:id',
+  validateMiddleware(updatedWorkflowDto),
+  async (req, res) => {
+    try {
+      const {
+        params: { id },
+        body: data
+      } = req;
 
-    const updatedWorkflow = await prisma.workflow.update({
-      where: {
-        style_id: id
-      },
-      data
-    });
+      const updatedWorkflow = await prisma.workflow.update({
+        where: {
+          styleId: id
+        },
+        data
+      });
 
-    res.json(updatedWorkflow);
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ error: 'An error occurred while updating the workflow.' });
+      res.json(updatedWorkflow);
+    } catch (error) {
+      console.error(error);
+      res
+        .status(500)
+        .json({ error: 'An error occurred while updating the workflow.' });
+    }
   }
-});
+);
 
 // Endpoint to delete a workflow
 router.delete('/:id', async (req, res) => {
@@ -113,7 +140,7 @@ router.delete('/:id', async (req, res) => {
 
     await prisma.workflow.delete({
       where: {
-        style_id: id
+        styleId: id
       }
     });
 
