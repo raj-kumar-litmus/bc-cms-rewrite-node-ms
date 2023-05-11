@@ -1,0 +1,64 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mongodb"
+  url      = env("DATABASE_URL")
+}
+
+type WorkbenchAuditHarmonizingData {
+  Recommended_Use String[] @map("Recommended Use")
+  Rope_Diameter   String[] @map("Rope Diameter")
+  Type            String[]
+}
+
+type WorkbenchAuditTechspecs {
+  Material               String
+  Responsible_Collection String @map("Responsible Collection")
+}
+
+/// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.
+model workbench_audit {
+  id                              String                        @id @default(auto()) @map("_id") @db.ObjectId
+  assignee                        String
+  bullet_points                   String
+  competitive_cyclist_description String
+  competitive_cyclist_topline     String
+  detailed_description            String
+  genus                           String
+  harmonizing_data                WorkbenchAuditHarmonizingData
+  is_published                    Boolean
+  list_description                String
+  product_title                   String
+  sizing_chart                    String
+  species                         String
+  status                          String
+  style_id                        String
+  techspecs                       WorkbenchAuditTechspecs
+  top_line                        String
+  version_reason                  String
+  version_ts                      DateTime                      @db.Date
+  workflow_id                     String                        @db.ObjectId
+  workflow                        workflow                      @relation(fields: [workflow_id], references: [id])
+}
+
+/// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.
+model workflow {
+  id                     String            @id @default(auto()) @map("_id") @db.ObjectId
+  admin                  String
+  brand                  String
+  create_process         String
+  create_ts              DateTime          @db.Date
+  editor                 String
+  editor_review          Boolean
+  last_edit_complete_ts  DateTime          @db.Date
+  last_update_ts         DateTime          @db.Date
+  last_updated_by        String
+  last_write_complete_ts DateTime          @db.Date
+  status                 String
+  style_id               String            @unique
+  title                  String
+  writer                 String
+  workbench_audits       workbench_audit[]
+}
