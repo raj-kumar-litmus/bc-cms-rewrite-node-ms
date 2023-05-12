@@ -4,8 +4,8 @@ const { Status } = require('./enums');
 
 const createWorkflowDto = Joi.object({
   styleId: Joi.string().required(),
-  brand: Joi.string().required(),
-  title: Joi.string().required()
+  brand: Joi.string(),
+  title: Joi.string()
 });
 
 const updatedWorkflowDto = Joi.object({

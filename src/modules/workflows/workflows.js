@@ -20,7 +20,7 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
 
     const workflow = await prisma.workflow.create({
       data: {
-        styleId,
+        styleId: styleId.toUpperCase(),
         brand,
         title,
         createProcess: CreateProcess.WRITER_INTERFACE
@@ -44,6 +44,8 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
     return res
       .status(500)
       .json({ error: 'An error occurred while creating the workflow.' });
+  } finally {
+    await prisma.$disconnect();
   }
 });
 
@@ -57,6 +59,8 @@ router.get('/', async (req, res) => {
     res
       .status(500)
       .json({ error: 'An error occurred while retrieving the workflows.' });
+  } finally {
+    await prisma.$disconnect();
   }
 });
 
@@ -80,6 +84,8 @@ router.get('/search', async (req, res) => {
     res
       .status(500)
       .json({ error: 'An error occurred while searching workflows.' });
+  } finally {
+    await prisma.$disconnect();
   }
 });
 
@@ -89,7 +95,7 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
     const workflow = await prisma.workflow.findUnique({
       where: {
-        styleId: id
+        styleId: id.toUpperCase()
       }
     });
 
@@ -102,6 +108,8 @@ router.get('/:id', async (req, res) => {
     return res
       .status(500)
       .json({ error: 'An error occurred while retrieving the workflow.' });
+  } finally {
+    await prisma.$disconnect();
   }
 });
 
@@ -118,7 +126,7 @@ router.patch(
 
       const updatedWorkflow = await prisma.workflow.update({
         where: {
-          styleId: id
+          styleId: id.toUpperCase()
         },
         data
       });
@@ -129,6 +137,8 @@ router.patch(
       res
         .status(500)
         .json({ error: 'An error occurred while updating the workflow.' });
+    } finally {
+      await prisma.$disconnect();
     }
   }
 );
@@ -150,6 +160,8 @@ router.delete('/:id', async (req, res) => {
     res
       .status(500)
       .json({ error: 'An error occurred while deleting the workflow.' });
+  } finally {
+    await prisma.$disconnect();
   }
 });
 

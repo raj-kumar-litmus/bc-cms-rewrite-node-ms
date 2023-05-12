@@ -62,7 +62,7 @@ model workbenchAudit {
 model workflow {
   id                  String           @id @default(auto()) @map("_id") @db.ObjectId
   admin               String?
-  brand               String
+  brand               String?
   createProcess       CreateProcess
   createTs            DateTime         @default(now()) @db.Date
   editor              String?
@@ -73,7 +73,7 @@ model workflow {
   lastWriteCompleteTs DateTime?        @db.Date
   status              Status           @default(WAITING_FOR_WRITER)
   styleId             String           @unique
-  title               String
+  title               String?
   writer              String?
   workbenchAudits     workbenchAudit[]
 }
