@@ -2,7 +2,7 @@ const request = require('supertest');
 const app = require('../src/app');
 
 describe('Workflow API', () => {
-  let styleId = 'qafr'.toUpperCase();
+  let styleId = 'qr'.toUpperCase();
 
   // Create Workflow Test Case
   it('should create a new workflow', async () => {
@@ -13,7 +13,7 @@ describe('Workflow API', () => {
       })
       .expect(201);
 
-    expect(response.body.ok).toBe(true);
+    expect(response.body.success).toBe(true);
   });
 
   // Read Workflow Test Case
@@ -22,8 +22,8 @@ describe('Workflow API', () => {
       .get(`/api/v1/workflows/${styleId}`)
       .expect(200);
 
-      expect(response.body.ok).toBe(true);
-    });
+    expect(response.body.success).toBe(true);
+  });
 
   // Update Workflow Test Case
   it('should update an existing workflow', async () => {
@@ -37,8 +37,8 @@ describe('Workflow API', () => {
       .send(updatedData)
       .expect(200);
 
-      expect(response.body.ok).toBe(true);
-    
+    expect(response.body.success).toBe(true);
+
     // expect(response.body.brand).toBe(updatedData.brand);
     // expect(response.body.title).toBe(updatedData.title);
   });

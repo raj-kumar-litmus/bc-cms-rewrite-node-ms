@@ -18,7 +18,7 @@ app.use(cors());
 app.use(express.json());
 
 app.get('/', (_, res) => {
-  res.json({
+  res.send(409).json({
     ok: true
   });
 });
@@ -86,7 +86,7 @@ app.get('/genus/:gId/species/:sId/hAttributes', async (req, res) => {
 });
 
 app.use(middlewares.responseInterceptor);
-app.use(middlewares.errorHandler);
+// app.use(middlewares.errorHandler);
 
 app.use('/api/v1', modules);
 

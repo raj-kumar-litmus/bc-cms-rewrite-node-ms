@@ -8,7 +8,7 @@ const { createWorkflowDto, updatedWorkflowDto } = require('./dtos');
 const router = express.Router();
 
 const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error']
+  // log: ['query', 'info', 'warn', 'error']
 });
 
 // Endpoint to initiate a workflow
@@ -27,38 +27,25 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
       }
     });
 
-    return res.status(201).json(workflow);
+    return res.sendResponse(workflow, 201);
   } catch (error) {
     console.error(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
       if (error.code === 'P2002') {
-        return res.status(409).json({
-          error:
-            'There is a unique constraint violation, a workflow cannot be created with this styleId'
-        });
+        return res.sendResponse(
+          'There is a unique constraint violation, a workflow cannot be created with this styleId',
+          409
+        );
       }
-      return res
-        .status(500)
-        .json({ error: 'An error occurred while creating the workflow.' });
+      return res.sendResponse(
+        'An error occurred while creating the workflow.',
+        500
+      );
     }
-    return res
-      .status(500)
-      .json({ error: 'An error occurred while creating the workflow.' });
-  } finally {
-    await prisma.$disconnect();
-  }
-});
-
-// Endpoint to retrieve all workflows
-router.get('/', async (req, res) => {
-  try {
-    const workflows = await prisma.workflow.findMany();
-    res.json(workflows);
-  } catch (error) {
-    console.error(error);
-    res
-      .status(500)
-      .json({ error: 'An error occurred while retrieving the workflows.' });
+    return res.sendResponse(
+      'An error occurred while creating the workflow.',
+      500
+    );
   } finally {
     await prisma.$disconnect();
   }
@@ -67,23 +54,89 @@ router.get('/', async (req, res) => {
 // Endpoint to search workflows by name
 router.get('/search', async (req, res) => {
   try {
-    const { query } = req.query;
+    const { query, page = 1, limit = 10 } = req.query;
+    const parsedLimit = parseInt(limit, 10);
+    const parsedPage = parseInt(page, 10);
 
-    const workflows = await prisma.workflow.findMany({
-      where: {
-        styleId: {
-          contains: query,
-          mode: 'insensitive'
+    const skip = (parsedPage - 1) * limit;
+    const [workflows, total] = await Promise.all([
+      prisma.workflow.findMany({
+        where: {
+          styleId: {
+            contains: query,
+            mode: 'insensitive'
+          }
+        },
+        skip,
+        take: parsedLimit
+      }),
+      prisma.workflow.count({
+        where: {
+          styleId: {
+            contains: query,
+            mode: 'insensitive'
+          }
         }
+      })
+    ]);
+
+    const pageCount = Math.ceil(total / parsedLimit);
+    const currentPageCount = workflows.length;
+
+    return res.sendResponse({
+      workflows,
+      pagination: {
+        total,
+        pageCount,
+        currentPage: parsedPage,
+        currentPageCount
       }
     });
-
-    res.json(workflows);
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ error: 'An error occurred while searching workflows.' });
+    return res.sendResponse(
+      'An error occurred while searching workflows.',
+      500
+    );
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+// Endpoint to retrieve all workflows
+router.get('/', async (req, res) => {
+  try {
+    const { page = 1, limit = 10 } = req.query;
+    const parsedLimit = parseInt(limit, 10);
+    const parsedPage = parseInt(page, 10);
+    const skip = (parsedPage - 1) * limit;
+
+    const [workflows, total] = await Promise.all([
+      prisma.workflow.findMany({
+        skip,
+        take: parsedLimit
+      }),
+      prisma.workflow.count()
+    ]);
+
+    const pageCount = Math.ceil(total / parsedLimit);
+    const currentPageCount = workflows.length;
+
+    return res.sendResponse({
+      workflows,
+      pagination: {
+        total,
+        pageCount,
+        currentPage: parsedPage,
+        currentPageCount
+      }
+    });
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse(
+      'An error occurred while retrieving the workflows.',
+      500
+    );
   } finally {
     await prisma.$disconnect();
   }
@@ -100,14 +153,16 @@ router.get('/:id', async (req, res) => {
     });
 
     if (!workflow) {
-      return res.status(404).json({ error: 'Workflow not found.' });
+      return res.sendResponse('Workflow not found.', 404);
     }
-    return res.json(workflow);
+
+    return res.sendResponse(workflow);
   } catch (error) {
     console.error(error);
-    return res
-      .status(500)
-      .json({ error: 'An error occurred while retrieving the workflow.' });
+    return res.sendResponse(
+      'An error occurred while retrieving the workflow.',
+      500
+    );
   } finally {
     await prisma.$disconnect();
   }
@@ -131,12 +186,13 @@ router.patch(
         data
       });
 
-      res.json(updatedWorkflow);
+      return res.sendResponse(updatedWorkflow);
     } catch (error) {
       console.error(error);
-      res
-        .status(500)
-        .json({ error: 'An error occurred while updating the workflow.' });
+      return res.sendResponse(
+        'An error occurred while updating the workflow.',
+        500
+      );
     } finally {
       await prisma.$disconnect();
     }
@@ -154,12 +210,13 @@ router.delete('/:id', async (req, res) => {
       }
     });
 
-    res.json({ message: 'Workflow deleted successfully.' });
+    return res.sendResponse({ message: 'Workflow deleted successfully.' });
   } catch (error) {
     console.error(error);
-    res
-      .status(500)
-      .json({ error: 'An error occurred while deleting the workflow.' });
+    return res.sendResponse(
+      'An error occurred while deleting the workflow.',
+      500
+    );
   } finally {
     await prisma.$disconnect();
   }

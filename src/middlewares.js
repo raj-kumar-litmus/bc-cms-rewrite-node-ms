@@ -4,14 +4,14 @@ const notFound = (req, res, next) => {
   next(error);
 };
 
-const errorHandler = (err, req, res) => {
-  const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
-  res.status(statusCode);
-  res.json({
-    message: err.message,
-    stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
-  });
-};
+// const errorHandler = (err, req, res) => {
+//   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
+//   res.status(statusCode);
+//   res.json({
+//     message: err.message,
+//     stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
+//   });
+// };
 
 const validateMiddleware = (schema) => (req, res, next) => {
   const { error } = schema.validate(req.body);
@@ -21,36 +21,32 @@ const validateMiddleware = (schema) => (req, res, next) => {
   return next();
 };
 
-const responseInterceptor = (_, res, next) => {
-  const originalJson = res.json;
+const responseInterceptor = (req, res, next) => {
+  const sendResponse = (dataOrError, statusCode = 200) => {
+    let responseData;
 
-  res.json = function responseJson(data) {
-    const response = {
-      ok: true,
-      data
-    };
-    originalJson.call(this, response);
-  };
-
-  const originalStatus = res.status;
-
-  res.status = function responseStatus(code, ...args) {
-    if (code >= 400) {
-      const response = {
-        ok: false,
-        error: 'An error occurred'
+    if (statusCode >= 400) {
+      responseData = {
+        success: false,
+        error: dataOrError
       };
-      originalJson.call(this, response);
+    } else {
+      responseData = {
+        success: true,
+        data: dataOrError
+      };
     }
-    return originalStatus.apply(this, args);
+
+    res.status(statusCode).json(responseData);
   };
 
+  res.sendResponse = sendResponse;
   next();
 };
 
 module.exports = {
   notFound,
-  errorHandler,
+  // errorHandler,
   validateMiddleware,
   responseInterceptor
 };
