@@ -189,6 +189,14 @@ router.patch(
       return res.sendResponse(updatedWorkflow);
     } catch (error) {
       console.error(error);
+
+      if (
+        error instanceof Prisma.PrismaClientKnownRequestError &&
+        error.code === 'P2025'
+      ) {
+        return res.sendResponse('Workflow not found.', 404);
+      }
+
       return res.sendResponse(
         'An error occurred while updating the workflow.',
         500
