@@ -26,7 +26,7 @@ enum CreateProcess {
 enum Status {
   WAITING_FOR_WRITER
   ASSIGNED_TO_WRITER
-  WRITING_INPROGRESS
+  WRITING_IN_PROGRESS
   WRITING_COMPLETE
   ASSIGNED_TO_EDITOR
   EDITING_IN_PROGRESS
@@ -43,8 +43,8 @@ model workbenchAudit {
   detailedDescription           String
   genus                         String
   harmonizingData               WorkbenchAuditHarmonizingData
-  isPubblished                  Boolean
-  listSescription               String
+  isPublished                   Boolean
+  listDescription               String
   productTitle                  String
   sizingChart                   String
   species                       String

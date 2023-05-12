@@ -1,7 +1,7 @@
 {
-  "name": "express-api-starter",
-  "version": "1.2.0",
-  "description": "A basic starter for an express.js API",
+  "name": "bc-cms-api",
+  "version": "0.0.1",
+  "description": "Back Country CMS application API",
   "main": "index.js",
   "scripts": {
     "start": "node src/index.js",

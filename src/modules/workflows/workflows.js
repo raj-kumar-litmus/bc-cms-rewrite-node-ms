@@ -27,7 +27,7 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
       }
     });
 
-    return res.json(workflow);
+    return res.status(201).json(workflow);
   } catch (error) {
     console.error(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {

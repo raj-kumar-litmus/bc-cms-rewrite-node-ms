@@ -9,9 +9,9 @@ const createWorkflowDto = Joi.object({
 });
 
 const updatedWorkflowDto = Joi.object({
-  status: Joi.string()
-    .valid(...Object.values(Status))
-    .required()
+  status: Joi.string().valid(...Object.values(Status)),
+  brand: Joi.string(),
+  title: Joi.string()
 });
 
 module.exports = {

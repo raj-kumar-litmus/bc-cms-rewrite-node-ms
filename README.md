@@ -1,10 +1,4 @@
-# Express API Starter
-
-How to use this template:
-
-```sh
-npx create-express-api --directory my-api-name
-```
+# Back Country CMS application API
 
 Includes API Server utilities:
 
