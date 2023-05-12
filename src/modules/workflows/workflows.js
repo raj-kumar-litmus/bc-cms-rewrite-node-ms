@@ -15,19 +15,44 @@ const prisma = new PrismaClient({
 router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
   try {
     const {
-      body: { styleId, brand, title }
+      body: { styles }
     } = req;
 
-    const workflow = await prisma.workflow.create({
-      data: {
+    const existingWorkflows = await prisma.workflow.findMany({
+      where: {
+        styleId: {
+          in: styles.map(({ styleId }) => styleId),
+          mode: 'insensitive'
+        }
+      }
+    });
+
+    const duplicateStyleIds = existingWorkflows.map(({ styleId }) => styleId);
+
+    const nonDuplicateStyleIds = styles.filter(
+      ({ styleId }) => !duplicateStyleIds.includes(styleId.toUpperCase())
+    );
+
+    if (!nonDuplicateStyleIds.length) {
+      return res.status(201).json({
+        success: [],
+        duplicates: duplicateStyleIds
+      });
+    }
+
+    const createdWorkflows = await prisma.workflow.createMany({
+      data: nonDuplicateStyleIds.map(({ styleId, brand, title }) => ({
         styleId: styleId.toUpperCase(),
         brand,
         title,
         createProcess: CreateProcess.WRITER_INTERFACE
-      }
+      }))
     });
 
-    return res.status(201).json(workflow);
+    return res.status(201).json({
+      success: createdWorkflows,
+      duplicates: duplicateStyleIds
+    });
   } catch (error) {
     console.error(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
@@ -50,10 +75,12 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
 });
 
 // Endpoint to retrieve all workflows
-router.get('/', async (req, res) => {
+router.get('/', async (req, res, next) => {
   try {
     const workflows = await prisma.workflow.findMany();
+
     res.json(workflows);
+    // res.json(workflows);
   } catch (error) {
     console.error(error);
     res
@@ -61,6 +88,7 @@ router.get('/', async (req, res) => {
       .json({ error: 'An error occurred while retrieving the workflows.' });
   } finally {
     await prisma.$disconnect();
+    next();
   }
 });
 
