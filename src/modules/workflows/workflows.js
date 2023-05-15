@@ -8,8 +8,10 @@ const { createWorkflowDto, updatedWorkflowDto } = require('./dtos');
 const router = express.Router();
 
 const prisma = new PrismaClient({
-  // log: ['query', 'info', 'warn', 'error']
+  log: ['query', 'info', 'warn', 'error']
 });
+
+const validWorkflowColumns = ['brand', 'styleId', 'title'];
 
 // Endpoint to initiate a workflow
 router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
@@ -51,33 +53,39 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
   }
 });
 
-// Endpoint to search workflows by name
+// Endpoint to search workflows
 router.get('/search', async (req, res) => {
   try {
-    const { query, page = 1, limit = 10 } = req.query;
+    const { page = 1, limit = 10, ...filters } = req.query;
     const parsedLimit = parseInt(limit, 10);
     const parsedPage = parseInt(page, 10);
 
-    const skip = (parsedPage - 1) * limit;
+    if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
+      return res.status(400).json({ error: 'Invalid page or limit value.' });
+    }
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const where = {};
+
+    Object.keys(filters).forEach((param) => {
+      if (validWorkflowColumns.includes(param)) {
+        where[param] = {
+          contains: filters[param],
+          mode: 'insensitive'
+        };
+      } else {
+        console.warn(`Ignoring unknown filter parameter: ${param}`);
+      }
+    });
+
     const [workflows, total] = await Promise.all([
       prisma.workflow.findMany({
-        where: {
-          styleId: {
-            contains: query,
-            mode: 'insensitive'
-          }
-        },
+        where,
         skip,
         take: parsedLimit
       }),
-      prisma.workflow.count({
-        where: {
-          styleId: {
-            contains: query,
-            mode: 'insensitive'
-          }
-        }
-      })
+      prisma.workflow.count({ where })
     ]);
 
     const pageCount = Math.ceil(total / parsedLimit);
