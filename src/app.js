@@ -17,8 +17,8 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (_, res) => {
-  res.send(409).json({
+app.get('/sanity', (_, res) => {
+  res.send(200).json({
     ok: true
   });
 });
