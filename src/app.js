@@ -17,8 +17,8 @@ app.use(helmet());
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (_, res) => {
-  res.json({
+app.get('/sanity', (_, res) => {
+  res.send(200).json({
     ok: true
   });
 });
@@ -85,9 +85,11 @@ app.get('/genus/:gId/species/:sId/hAttributes', async (req, res) => {
   }
 });
 
+app.use(middlewares.responseInterceptor);
+// app.use(middlewares.errorHandler);
+
 app.use('/api/v1', modules);
 
 app.use(middlewares.notFound);
-app.use(middlewares.errorHandler);
 
 module.exports = app;
