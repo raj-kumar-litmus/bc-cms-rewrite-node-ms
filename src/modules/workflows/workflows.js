@@ -8,18 +8,10 @@ const { createWorkflowDto, updatedWorkflowDto } = require('./dtos');
 const router = express.Router();
 
 const prisma = new PrismaClient({
-  // log: ['query', 'info', 'warn', 'error']
+  log: ['query', 'info', 'warn', 'error']
 });
 
-const validWorkflowColumns = [
-  'brand',
-  'createProcess',
-  'editor',
-  'status',
-  'styleId',
-  'title',
-  'writer'
-];
+const validWorkflowColumns = ['brand', 'styleId', 'title'];
 
 // Endpoint to initiate a workflow
 router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
