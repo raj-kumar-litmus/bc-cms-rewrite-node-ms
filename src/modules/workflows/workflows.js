@@ -51,10 +51,34 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
   }
 });
 
+router.get('/search/all/:searchBy', async (req, res) => {
+  try {
+    const { searchBy } = req.params;
+    const [workflowBrands] = await Promise.all([
+      prisma.workflow.findMany({
+        select: {
+          [searchBy]: true
+        }
+      })
+    ]);
+    return res.sendResponse({
+      details : [... new Set(workflowBrands.map(e => e[searchBy]))].filter(Boolean)
+    });
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse(
+      'An error occurred while searching workflows.',
+      500
+    );
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
 // Endpoint to search workflows by name
 router.get('/search', async (req, res) => {
   try {
-    const { query, page = 1, limit = 10 } = req.query;
+    const { query, page = 1, limit = 10, filterBy = 'styleId' } = req.query;
     const parsedLimit = parseInt(limit, 10);
     const parsedPage = parseInt(page, 10);
 
@@ -62,7 +86,7 @@ router.get('/search', async (req, res) => {
     const [workflows, total] = await Promise.all([
       prisma.workflow.findMany({
         where: {
-          styleId: {
+          [filterBy]: {
             contains: query,
             mode: 'insensitive'
           }
@@ -72,7 +96,7 @@ router.get('/search', async (req, res) => {
       }),
       prisma.workflow.count({
         where: {
-          styleId: {
+          [filterBy]: {
             contains: query,
             mode: 'insensitive'
           }
