@@ -11,6 +11,16 @@ const prisma = new PrismaClient({
   // log: ['query', 'info', 'warn', 'error']
 });
 
+const validWorkflowColumns = [
+  'brand',
+  'createProcess',
+  'editor',
+  'status',
+  'styleId',
+  'title',
+  'writer'
+];
+
 // Endpoint to initiate a workflow
 router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
   try {
@@ -51,57 +61,40 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
   }
 });
 
-router.get('/search/all/:searchBy', async (req, res) => {
-  try {
-    const { searchBy } = req.params;
-    const [workflowBrands] = await Promise.all([
-      prisma.workflow.findMany({
-        select: {
-          [searchBy]: true
-        }
-      })
-    ]);
-    return res.sendResponse({
-      details : [... new Set(workflowBrands.map(e => e[searchBy]))].filter(Boolean)
-    });
-  } catch (error) {
-    console.error(error);
-    return res.sendResponse(
-      'An error occurred while searching workflows.',
-      500
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
-});
-
-// Endpoint to search workflows by name
+// Endpoint to search workflows
 router.get('/search', async (req, res) => {
   try {
-    const { query, page = 1, limit = 10, filterBy = 'styleId' } = req.query;
+    const { page = 1, limit = 10, ...filters } = req.query;
     const parsedLimit = parseInt(limit, 10);
     const parsedPage = parseInt(page, 10);
 
-    const skip = (parsedPage - 1) * limit;
+    if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
+      return res.status(400).json({ error: 'Invalid page or limit value.' });
+    }
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    const where = {};
+
+    Object.keys(filters).forEach((param) => {
+      if (validWorkflowColumns.includes(param)) {
+        const value = filters[param].toLowerCase();
+        where[param] = {
+          contains: value,
+          mode: 'insensitive'
+        };
+      } else {
+        console.warn(`Ignoring unknown filter parameter: ${param}`);
+      }
+    });
+
     const [workflows, total] = await Promise.all([
       prisma.workflow.findMany({
-        where: {
-          [filterBy]: {
-            contains: query,
-            mode: 'insensitive'
-          }
-        },
+        where,
         skip,
         take: parsedLimit
       }),
-      prisma.workflow.count({
-        where: {
-          [filterBy]: {
-            contains: query,
-            mode: 'insensitive'
-          }
-        }
-      })
+      prisma.workflow.count({ where })
     ]);
 
     const pageCount = Math.ceil(total / parsedLimit);
