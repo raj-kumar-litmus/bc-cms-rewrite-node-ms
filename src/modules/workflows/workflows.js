@@ -70,9 +70,8 @@ router.get('/search', async (req, res) => {
 
     Object.keys(filters).forEach((param) => {
       if (validWorkflowColumns.includes(param)) {
-        const value = filters[param].toLowerCase();
         where[param] = {
-          contains: value,
+          contains: filters[param],
           mode: 'insensitive'
         };
       } else {
