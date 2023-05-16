@@ -4,6 +4,7 @@ const { PrismaClient, Prisma } = require('@prisma/client');
 const { validateMiddleware } = require('../../middlewares');
 const { CreateProcess } = require('./enums');
 const { createWorkflowDto, updatedWorkflowDto } = require('./dtos');
+const workflowEngine = require('./workflowEngine');
 
 const router = express.Router();
 
@@ -61,7 +62,9 @@ router.get('/search', async (req, res) => {
     const parsedPage = parseInt(page, 10);
 
     if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
-      return res.status(400).json({ error: 'Invalid page or limit value.' });
+      return res.status(400).json({
+        error: 'Invalid page or limit value.'
+      });
     }
 
     const skip = (parsedPage - 1) * parsedLimit;
@@ -176,35 +179,49 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Endpoint to update a workflow
+// Update workflow status and assign user API
 router.patch(
   '/:id',
   validateMiddleware(updatedWorkflowDto),
   async (req, res) => {
     try {
-      const {
-        params: { id },
-        body: data
-      } = req;
+      const { id } = req.params;
+      const { status, ...updatedFields } = req.body;
 
+      // Find the workflow by ID
+      const workflow = await prisma.workflow.findUnique({
+        where: {
+          styleId: id.toUpperCase()
+        }
+      });
+
+      if (!workflow) {
+        return res.sendResponse('Workflow not found.', 404);
+      }
+
+      if (status) {
+        try {
+          workflowEngine(workflow, status, updatedFields);
+        } catch (error) {
+          console.error(error);
+          return res.sendResponse(
+            error.message || 'Invalid state transition.',
+            400
+          );
+        }
+      }
+
+      // Update the workflow in the database
       const updatedWorkflow = await prisma.workflow.update({
         where: {
           styleId: id.toUpperCase()
         },
-        data
+        data: { ...updatedFields, status }
       });
 
       return res.sendResponse(updatedWorkflow);
     } catch (error) {
       console.error(error);
-
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        return res.sendResponse('Workflow not found.', 404);
-      }
-
       return res.sendResponse(
         'An error occurred while updating the workflow.',
         500
@@ -226,7 +243,9 @@ router.delete('/:id', async (req, res) => {
       }
     });
 
-    return res.sendResponse({ message: 'Workflow deleted successfully.' });
+    return res.sendResponse({
+      message: 'Workflow deleted successfully.'
+    });
   } catch (error) {
     console.error(error);
     return res.sendResponse(

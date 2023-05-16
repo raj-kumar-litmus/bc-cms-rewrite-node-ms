@@ -1,403 +1,359 @@
 {
-	"info": {
-		"_postman_id": "e17c5ddd-7776-4115-a093-3c1087370c00",
-		"name": "New Collection",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
-	},
-	"item": [
-		{
-			"name": "Workflows",
-			"item": [
-				{
-					"name": "workflow",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n   \"styleId\":   \"awe\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}workflows",
-							"host": [
-								"{{url}}workflows"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "workflowMany",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"XZCV\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        },\r\n        {\r\n            \"styleId\": \"ZA1SDC\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        }\r\n    ]\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}workflows",
-							"host": [
-								"{{url}}workflows"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "workflows",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{url}}workflows?page=2&limit=20",
-							"host": [
-								"{{url}}workflows"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "2"
-								},
-								{
-									"key": "limit",
-									"value": "20"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "workflow",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{url}}workflows/te2@",
-							"host": [
-								"{{url}}workflows"
-							],
-							"path": [
-								"te2@"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "workflows/search",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{url}}workflows/search?brand=nike&styleId=ab",
-							"host": [
-								"{{url}}workflows"
-							],
-							"path": [
-								"search"
-							],
-							"query": [
-								{
-									"key": "brand",
-									"value": "nike"
-								},
-								{
-									"key": "styleId",
-									"value": "ab"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "workflow",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    // \"admin\": \"The 1234567\",\r\n    // \"status\": \"ASSIGNED_TO_WRITER\",\r\n    \"brand\": \"Nike\",\r\n    \"title\": \"My product title231\"\r\n    // \"create_ts\": \"2023-03-28T23:58:18.000Z\",\r\n    // \"editor\": \"The Editor\",\r\n    // \"editor_review\": true,\r\n    // \"last_edit_complete_ts\": \"2023-03-30T23:58:18.000Z\",\r\n    // \"last_update_ts\": \"2023-03-30T23:58:18.000Z\",\r\n    // \"last_updated_by\": \"Andrew Smith\",\r\n    // \"last_write_complete_ts\": \"2023-03-29T23:58:18.000Z\",\r\n    // \"writer\": \"The Writer\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}workflows/ABCDRF",
-							"host": [
-								"{{url}}workflows"
-							],
-							"path": [
-								"ABCDRF"
-							]
-						}
-					},
-					"response": []
-				}
-			],
-			"event": [
-				{
-					"listen": "prerequest",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							""
-						]
-					}
-				},
-				{
-					"listen": "test",
-					"script": {
-						"type": "text/javascript",
-						"exec": [
-							"// // Test the POST /workflows endpoint",
-							"// pm.test(\"Create Workflow\", function () {",
-							"//     pm.sendRequest({",
-							"//         url: pm.variables.get(\"url\") + \"/workflows\",",
-							"//         method: \"POST\",",
-							"//         header: {",
-							"//             \"Content-Type\": \"application/json\"",
-							"//         },",
-							"//         body: {",
-							"            ",
-							"//         \"admin\": \"The Admin\",",
-							"//         \"brand\": \"My Brand1\",",
-							"//         \"create_process\": \"WRITER_INTERFACE\",",
-							"//         \"create_ts\": \"2023-03-28T23:58:18.000Z\",",
-							"//         \"editor\": \"The Editor\",",
-							"//         \"editor_review\": true,",
-							"//         \"last_edit_complete_ts\": \"2023-03-30T23:58:18.000Z\",",
-							"//         \"last_update_ts\": \"2023-03-30T23:58:18.000Z\",",
-							"//         \"last_updated_by\": \"Andrew Smith\",",
-							"//         \"last_write_complete_ts\": \"2023-03-29T23:58:18.000Z\",",
-							"//         \"status\": \"WAITING_FOR_WRITER\",",
-							"//         \"style_id\": pm.variables.get(\"workflowId\"),",
-							"//         \"title\": \"My product title1\",",
-							"//         \"writer\": \"The Writer\"",
-							"//         }",
-							"//     }, function (err, response) {",
-							"//         pm.expect(err).to.be.null;",
-							"//         pm.expect(response).to.have.status(200);",
-							"//         pm.expect(response.json()).to.have.property(\"workflow\");",
-							"//         // Add additional assertions as needed",
-							"//     });",
-							"// });",
-							"",
-							"// // Test the GET /workflows endpoint",
-							"// pm.test(\"Get Workflows\", function () {",
-							"//     pm.sendRequest({",
-							"//         url: pm.variables.get(\"url\") + \"/workflows\",",
-							"//         method: \"GET\",",
-							"//         header: {",
-							"//             \"Content-Type\": \"application/json\"",
-							"//         }",
-							"//     }, function (err, response) {",
-							"//         pm.expect(err).to.be.null;",
-							"//         pm.expect(response).to.have.status(200);",
-							"//         pm.expect(response.json()).to.have.property(\"workflows\");",
-							"//         // Add additional assertions as needed",
-							"//     });",
-							"// });",
-							"",
-							"// // Test the GET /workflows/:id endpoint",
-							"// pm.test(\"Get Workflow by ID\", function () {",
-							"//     pm.sendRequest({",
-							"//         url: pm.variables.get(\"url\") + \"/workflows/{{workflowId}}\",",
-							"//         method: \"GET\",",
-							"//         header: {",
-							"//             \"Content-Type\": \"application/json\"",
-							"//         }",
-							"//     }, function (err, response) {",
-							"//         pm.expect(err).to.be.null;",
-							"//         pm.expect(response).to.have.status(200);",
-							"//         pm.expect(response.json()).to.have.property(\"workflow\");",
-							"//         // Add additional assertions as needed",
-							"//     });",
-							"// });",
-							"",
-							"// // Test the GET /workflows/search endpoint",
-							"// pm.test(\"Search Workflows\", function () {",
-							"//     pm.sendRequest({",
-							"//         url: pm.variables.get(\"url\") + \"/workflows/search\",",
-							"//         method: \"GET\",",
-							"//         header: {",
-							"//             \"Content-Type\": \"application/json\"",
-							"//         },",
-							"//         params: {",
-							"//             query: \"searchQuery\"",
-							"//         }",
-							"//     }, function (err, response) {",
-							"//         pm.expect(err).to.be.null;",
-							"//         pm.expect(response).to.have.status(200);",
-							"//         pm.expect(response.json()).to.have.property(\"workflows\");",
-							"//         // Add additional assertions as needed",
-							"//     });",
-							"// });",
-							"",
-							"// // Test the PATCH /workflows/:id endpoint",
-							"// pm.test(\"Update Workflow\", function () {",
-							"//     pm.sendRequest({",
-							"//         url: pm.variables.get(\"url\") + \"/workflows/{{workflowId}}\",",
-							"//         method: \"PATCH\",",
-							"//         header: {",
-							"//             \"Content-Type\": \"application/json\"",
-							"//         },",
-							"//         body: {",
-							"//             mode: \"raw\",",
-							"//             raw: JSON.stringify({",
-							"//                 // Provide the necessary data for updating the workflow",
-							"//                 // e.g., name, description, etc.",
-							"//             })",
-							"//         }",
-							"//     }, function (err, response) {",
-							"//         pm.expect(err).to.be.null;",
-							"//         pm.expect(response).to.have.status(200);",
-							"//         pm.expect(response.json()).to.have.property(\"workflow\");",
-							"//         // Add additional assertions as needed",
-							"//     });",
-							"// });",
-							"",
-							"// // Test the DELETE /workflows/:id endpoint",
-							"// pm.test(\"Delete Workflow\", function () {",
-							"//     pm.sendRequest({",
-							"//         url: pm.variables.get(\"url\") + \"/workflows/{{workflowId}}\",",
-							"//         method: \"DELETE\",",
-							"//         header: {",
-							"//             \"Content-Type\": \"application/json\"",
-							"//         }",
-							"//     },function (err, response) {",
-							"//         pm.expect(err).to.be.null;",
-							"//         pm.expect(response).to.have.status(200);",
-							"//         pm.expect(response.json()).to.have.property(\"workflow\");",
-							"//         // Add additional assertions as needed",
-							"//     });",
-							"// });"
-						]
-					}
-				}
-			]
-		},
-		{
-			"name": "genus",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Cookie",
-						"value": "{{cookie}}",
-						"type": "default"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:5000/genus",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"genus"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "techSpecs",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/style/ATRQ03Y/techSpecs?Cookie={{cookie}}",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"style",
-						"ATRQ03Y",
-						"techSpecs"
-					],
-					"query": [
-						{
-							"key": "Cookie",
-							"value": "{{cookie}}"
-						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "genus/:id/speices",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Cookie",
-						"value": "{{cookie}}",
-						"type": "default"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:5000/genus/22/species",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"genus",
-						"22",
-						"species"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/genus/:gId/species/:sId/hAttributes",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/genus/22/species/197/hAttributes?Cookie={{cookie}}",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"genus",
-						"22",
-						"species",
-						"197",
-						"hAttributes"
-					],
-					"query": [
-						{
-							"key": "Cookie",
-							"value": "{{cookie}}"
-						}
-					]
-				}
-			},
-			"response": []
-		}
-	]
+  "info": {
+    "_postman_id": "e17c5ddd-7776-4115-a093-3c1087370c00",
+    "name": "New Collection",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "Workflows",
+      "item": [
+        {
+          "name": "workflow",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n   \"styleId\":   \"awe\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}workflows",
+              "host": ["{{url}}workflows"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "workflowMany",
+          "request": {
+            "method": "POST",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"XZCV\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        },\r\n        {\r\n            \"styleId\": \"ZA1SDC\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        }\r\n    ]\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}workflows",
+              "host": ["{{url}}workflows"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "workflows",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}workflows?page=2&limit=20",
+              "host": ["{{url}}workflows"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "2"
+                },
+                {
+                  "key": "limit",
+                  "value": "20"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "workflow",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}workflows/te2@",
+              "host": ["{{url}}workflows"],
+              "path": ["te2@"]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "workflows/search",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{url}}workflows/search?brand=nike&styleId=ab",
+              "host": ["{{url}}workflows"],
+              "path": ["search"],
+              "query": [
+                {
+                  "key": "brand",
+                  "value": "nike"
+                },
+                {
+                  "key": "styleId",
+                  "value": "ab"
+                }
+              ]
+            }
+          },
+          "response": []
+        },
+        {
+          "name": "workflow",
+          "request": {
+            "method": "PATCH",
+            "header": [],
+            "body": {
+              "mode": "raw",
+              "raw": "{\r\n    // \"admin\": \"The 1234567\",\r\n    // \"status\": \"ASSIGNED_TO_WRITER\",\r\n    \"brand\": \"Nike\",\r\n    \"title\": \"My product title231\"\r\n    // \"create_ts\": \"2023-03-28T23:58:18.000Z\",\r\n    // \"editor\": \"The Editor\",\r\n    // \"editor_review\": true,\r\n    // \"last_edit_complete_ts\": \"2023-03-30T23:58:18.000Z\",\r\n    // \"last_update_ts\": \"2023-03-30T23:58:18.000Z\",\r\n    // \"last_updated_by\": \"Andrew Smith\",\r\n    // \"last_write_complete_ts\": \"2023-03-29T23:58:18.000Z\",\r\n    // \"writer\": \"The Writer\"\r\n}",
+              "options": {
+                "raw": {
+                  "language": "json"
+                }
+              }
+            },
+            "url": {
+              "raw": "{{url}}workflows/ABCDRF",
+              "host": ["{{url}}workflows"],
+              "path": ["ABCDRF"]
+            }
+          },
+          "response": []
+        }
+      ],
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "type": "text/javascript",
+            "exec": [""]
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "type": "text/javascript",
+            "exec": [
+              "// // Test the POST /workflows endpoint",
+              "// pm.test(\"Create Workflow\", function () {",
+              "//     pm.sendRequest({",
+              "//         url: pm.variables.get(\"url\") + \"/workflows\",",
+              "//         method: \"POST\",",
+              "//         header: {",
+              "//             \"Content-Type\": \"application/json\"",
+              "//         },",
+              "//         body: {",
+              "            ",
+              "//         \"admin\": \"The Admin\",",
+              "//         \"brand\": \"My Brand1\",",
+              "//         \"create_process\": \"WRITER_INTERFACE\",",
+              "//         \"create_ts\": \"2023-03-28T23:58:18.000Z\",",
+              "//         \"editor\": \"The Editor\",",
+              "//         \"editor_review\": true,",
+              "//         \"last_edit_complete_ts\": \"2023-03-30T23:58:18.000Z\",",
+              "//         \"last_update_ts\": \"2023-03-30T23:58:18.000Z\",",
+              "//         \"last_updated_by\": \"Andrew Smith\",",
+              "//         \"last_write_complete_ts\": \"2023-03-29T23:58:18.000Z\",",
+              "//         \"status\": \"WAITING_FOR_WRITER\",",
+              "//         \"style_id\": pm.variables.get(\"workflowId\"),",
+              "//         \"title\": \"My product title1\",",
+              "//         \"writer\": \"The Writer\"",
+              "//         }",
+              "//     }, function (err, response) {",
+              "//         pm.expect(err).to.be.null;",
+              "//         pm.expect(response).to.have.status(200);",
+              "//         pm.expect(response.json()).to.have.property(\"workflow\");",
+              "//         // Add additional assertions as needed",
+              "//     });",
+              "// });",
+              "",
+              "// // Test the GET /workflows endpoint",
+              "// pm.test(\"Get Workflows\", function () {",
+              "//     pm.sendRequest({",
+              "//         url: pm.variables.get(\"url\") + \"/workflows\",",
+              "//         method: \"GET\",",
+              "//         header: {",
+              "//             \"Content-Type\": \"application/json\"",
+              "//         }",
+              "//     }, function (err, response) {",
+              "//         pm.expect(err).to.be.null;",
+              "//         pm.expect(response).to.have.status(200);",
+              "//         pm.expect(response.json()).to.have.property(\"workflows\");",
+              "//         // Add additional assertions as needed",
+              "//     });",
+              "// });",
+              "",
+              "// // Test the GET /workflows/:id endpoint",
+              "// pm.test(\"Get Workflow by ID\", function () {",
+              "//     pm.sendRequest({",
+              "//         url: pm.variables.get(\"url\") + \"/workflows/{{workflowId}}\",",
+              "//         method: \"GET\",",
+              "//         header: {",
+              "//             \"Content-Type\": \"application/json\"",
+              "//         }",
+              "//     }, function (err, response) {",
+              "//         pm.expect(err).to.be.null;",
+              "//         pm.expect(response).to.have.status(200);",
+              "//         pm.expect(response.json()).to.have.property(\"workflow\");",
+              "//         // Add additional assertions as needed",
+              "//     });",
+              "// });",
+              "",
+              "// // Test the GET /workflows/search endpoint",
+              "// pm.test(\"Search Workflows\", function () {",
+              "//     pm.sendRequest({",
+              "//         url: pm.variables.get(\"url\") + \"/workflows/search\",",
+              "//         method: \"GET\",",
+              "//         header: {",
+              "//             \"Content-Type\": \"application/json\"",
+              "//         },",
+              "//         params: {",
+              "//             query: \"searchQuery\"",
+              "//         }",
+              "//     }, function (err, response) {",
+              "//         pm.expect(err).to.be.null;",
+              "//         pm.expect(response).to.have.status(200);",
+              "//         pm.expect(response.json()).to.have.property(\"workflows\");",
+              "//         // Add additional assertions as needed",
+              "//     });",
+              "// });",
+              "",
+              "// // Test the PATCH /workflows/:id endpoint",
+              "// pm.test(\"Update Workflow\", function () {",
+              "//     pm.sendRequest({",
+              "//         url: pm.variables.get(\"url\") + \"/workflows/{{workflowId}}\",",
+              "//         method: \"PATCH\",",
+              "//         header: {",
+              "//             \"Content-Type\": \"application/json\"",
+              "//         },",
+              "//         body: {",
+              "//             mode: \"raw\",",
+              "//             raw: JSON.stringify({",
+              "//                 // Provide the necessary data for updating the workflow",
+              "//                 // e.g., name, description, etc.",
+              "//             })",
+              "//         }",
+              "//     }, function (err, response) {",
+              "//         pm.expect(err).to.be.null;",
+              "//         pm.expect(response).to.have.status(200);",
+              "//         pm.expect(response.json()).to.have.property(\"workflow\");",
+              "//         // Add additional assertions as needed",
+              "//     });",
+              "// });",
+              "",
+              "// // Test the DELETE /workflows/:id endpoint",
+              "// pm.test(\"Delete Workflow\", function () {",
+              "//     pm.sendRequest({",
+              "//         url: pm.variables.get(\"url\") + \"/workflows/{{workflowId}}\",",
+              "//         method: \"DELETE\",",
+              "//         header: {",
+              "//             \"Content-Type\": \"application/json\"",
+              "//         }",
+              "//     },function (err, response) {",
+              "//         pm.expect(err).to.be.null;",
+              "//         pm.expect(response).to.have.status(200);",
+              "//         pm.expect(response.json()).to.have.property(\"workflow\");",
+              "//         // Add additional assertions as needed",
+              "//     });",
+              "// });"
+            ]
+          }
+        }
+      ]
+    },
+    {
+      "name": "genus",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Cookie",
+            "value": "{{cookie}}",
+            "type": "default"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5000/genus",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["genus"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "techSpecs",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/style/ATRQ03Y/techSpecs?Cookie={{cookie}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["style", "ATRQ03Y", "techSpecs"],
+          "query": [
+            {
+              "key": "Cookie",
+              "value": "{{cookie}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "genus/:id/speices",
+      "request": {
+        "method": "GET",
+        "header": [
+          {
+            "key": "Cookie",
+            "value": "{{cookie}}",
+            "type": "default"
+          }
+        ],
+        "url": {
+          "raw": "http://localhost:5000/genus/22/species",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["genus", "22", "species"]
+        }
+      },
+      "response": []
+    },
+    {
+      "name": "/genus/:gId/species/:sId/hAttributes",
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "http://localhost:5000/genus/22/species/197/hAttributes?Cookie={{cookie}}",
+          "protocol": "http",
+          "host": ["localhost"],
+          "port": "5000",
+          "path": ["genus", "22", "species", "197", "hAttributes"],
+          "query": [
+            {
+              "key": "Cookie",
+              "value": "{{cookie}}"
+            }
+          ]
+        }
+      },
+      "response": []
+    }
+  ]
 }
