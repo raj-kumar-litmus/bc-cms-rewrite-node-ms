@@ -1,7 +1,7 @@
 {
 	"info": {
-		"_postman_id": "e17c5ddd-7776-4115-a093-3c1087370c00",
-		"name": "New Collection",
+		"_postman_id": "6ad534ec-e7c0-43e7-9b05-627e472545ef",
+		"name": "BC-CMS",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -15,30 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n   \"styleId\":   \"awe\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}workflows",
-							"host": [
-								"{{url}}workflows"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "workflowMany",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"XZCV\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        },\r\n        {\r\n            \"styleId\": \"ZA1SDC\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"cvbgdb\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        },\r\n        {\r\n            \"styleId\": \"stbdskdh\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"

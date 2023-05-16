@@ -17,19 +17,47 @@ const validWorkflowColumns = ['brand', 'styleId', 'title'];
 router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
   try {
     const {
-      body: { styleId, brand, title }
+      body: { styles }
     } = req;
 
-    const workflow = await prisma.workflow.create({
-      data: {
+    const existingWorkflows = await prisma.workflow.findMany({
+      where: {
+        styleId: {
+          in: styles.map(({ styleId }) => styleId),
+          mode: 'insensitive'
+        }
+      }
+    });
+
+    const duplicateStyleIds = existingWorkflows.map(({ styleId }) => styleId);
+
+    const nonDuplicateStyleIds = styles.filter(
+      ({ styleId }) => !duplicateStyleIds.includes(styleId.toUpperCase())
+    );
+
+    if (!nonDuplicateStyleIds.length) {
+      return res.status(201).json({
+        success: [],
+        duplicates: duplicateStyleIds
+      });
+    }
+
+    const createdWorkflows = await prisma.workflow.createMany({
+      data: nonDuplicateStyleIds.map(({ styleId, brand, title }) => ({
         styleId: styleId.toUpperCase(),
         brand,
         title,
         createProcess: CreateProcess.WRITER_INTERFACE
-      }
+      }))
     });
 
-    return res.sendResponse(workflow, 201);
+    return res.sendResponse(
+      {
+        success: createdWorkflows,
+        duplicates: duplicateStyleIds
+      },
+      201
+    );
   } catch (error) {
     console.error(error);
     if (error instanceof Prisma.PrismaClientKnownRequestError) {
