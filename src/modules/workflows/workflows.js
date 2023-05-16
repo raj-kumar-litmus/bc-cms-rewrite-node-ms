@@ -48,11 +48,14 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
     );
 
     if (!nonDuplicateStyles.length) {
-      return res.status(201).json({
-        success: [],
-        invalid: invalidStyles,
-        duplicates: duplicateStyles
-      });
+      return res.sendResponse(
+        {
+          success: [],
+          invalid: invalidStyles,
+          duplicates: duplicateStyles
+        },
+        201
+      );
     }
 
     const { count: createdCount } = await prisma.workflow.createMany({
