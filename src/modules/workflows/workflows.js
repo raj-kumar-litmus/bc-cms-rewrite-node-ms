@@ -2,7 +2,7 @@ const express = require('express');
 const { PrismaClient, Prisma } = require('@prisma/client');
 
 const { validateMiddleware } = require('../../middlewares');
-const { CreateProcess, Status } = require('./enums');
+const { CreateProcess } = require('./enums');
 const { createWorkflowDto, updatedWorkflowDto } = require('./dtos');
 
 const router = express.Router();
@@ -47,8 +47,7 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
         styleId: styleId.toUpperCase(),
         brand,
         title,
-        createProcess: CreateProcess.WRITER_INTERFACE,
-        status: Status.WAITING_FOR_WRITER
+        createProcess: CreateProcess.WRITER_INTERFACE
       }))
     });
 
