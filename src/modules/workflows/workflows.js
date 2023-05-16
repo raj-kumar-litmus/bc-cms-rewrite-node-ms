@@ -2,7 +2,7 @@ const express = require('express');
 const { PrismaClient, Prisma } = require('@prisma/client');
 
 const { validateMiddleware } = require('../../middlewares');
-const { CreateProcess } = require('./enums');
+const { CreateProcess, Status } = require('./enums');
 const { createWorkflowDto, updatedWorkflowDto } = require('./dtos');
 
 const router = express.Router();
@@ -29,32 +29,39 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
       }
     });
 
-    const duplicateStyleIds = existingWorkflows.map(({ styleId }) => styleId);
+    const duplicateStyles = existingWorkflows.map(({ styleId }) => styleId);
 
-    const nonDuplicateStyleIds = styles.filter(
-      ({ styleId }) => !duplicateStyleIds.includes(styleId.toUpperCase())
+    const nonDuplicateStyles = styles.filter(
+      ({ styleId }) => !duplicateStyles.includes(styleId.toUpperCase())
     );
 
-    if (!nonDuplicateStyleIds.length) {
+    if (!nonDuplicateStyles.length) {
       return res.status(201).json({
         success: [],
-        duplicates: duplicateStyleIds
+        duplicates: duplicateStyles
       });
     }
 
-    const createdWorkflows = await prisma.workflow.createMany({
-      data: nonDuplicateStyleIds.map(({ styleId, brand, title }) => ({
+    const { count: createdCount } = await prisma.workflow.createMany({
+      data: nonDuplicateStyles.map(({ styleId, brand, title }) => ({
         styleId: styleId.toUpperCase(),
         brand,
         title,
-        createProcess: CreateProcess.WRITER_INTERFACE
+        createProcess: CreateProcess.WRITER_INTERFACE,
+        status: Status.WAITING_FOR_WRITER
       }))
     });
 
+    const totalCount = nonDuplicateStyles.length;
+
+    if (createdCount !== totalCount) {
+      return res.sendResponse('Some records failed to insert.', 207);
+    }
+
     return res.sendResponse(
       {
-        success: createdWorkflows,
-        duplicates: duplicateStyleIds
+        success: nonDuplicateStyles.map(({ styleId }) => styleId),
+        duplicates: duplicateStyles
       },
       201
     );
