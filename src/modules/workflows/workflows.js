@@ -20,10 +20,22 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
       body: { styles }
     } = req;
 
+    // Validating styleId
+    const validStyles = [];
+    const invalidStyles = [];
+
+    styles.forEach(({ styleId, brand, title }) => {
+      if (styleId.length < 6) {
+        invalidStyles.push(styleId);
+      } else {
+        validStyles.push({ styleId, brand, title });
+      }
+    });
+
     const existingWorkflows = await prisma.workflow.findMany({
       where: {
         styleId: {
-          in: styles.map(({ styleId }) => styleId),
+          in: validStyles.map(({ styleId }) => styleId),
           mode: 'insensitive'
         }
       }
@@ -31,13 +43,14 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
 
     const duplicateStyles = existingWorkflows.map(({ styleId }) => styleId);
 
-    const nonDuplicateStyles = styles.filter(
+    const nonDuplicateStyles = validStyles.filter(
       ({ styleId }) => !duplicateStyles.includes(styleId.toUpperCase())
     );
 
     if (!nonDuplicateStyles.length) {
       return res.status(201).json({
         success: [],
+        invalid: invalidStyles,
         duplicates: duplicateStyles
       });
     }
@@ -60,6 +73,7 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
     return res.sendResponse(
       {
         success: nonDuplicateStyles.map(({ styleId }) => styleId),
+        invalid: invalidStyles,
         duplicates: duplicateStyles
       },
       201
