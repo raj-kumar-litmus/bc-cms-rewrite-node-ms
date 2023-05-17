@@ -181,17 +181,21 @@ router.get('/:id', async (req, res) => {
     const { id } = req.params;
     const workflow = await prisma.workflow.findUnique({
       where: {
-        styleId: id.toUpperCase()
+        id
       }
     });
-
-    if (!workflow) {
-      return res.sendResponse('Workflow not found.', 404);
-    }
 
     return res.sendResponse(workflow);
   } catch (error) {
     console.error(error);
+
+    if (
+      error.code === 'P2023' &&
+      error.meta?.message?.includes('Malformed ObjectID')
+    ) {
+      return res.sendResponse('Invalid workflow ID.', 400);
+    }
+
     return res.sendResponse(
       'An error occurred while retrieving the workflow.',
       500
