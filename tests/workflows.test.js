@@ -17,9 +17,9 @@ describe('Workflow API', () => {
     { styleId: 'STY', brand: 'Brand H', title: 'Title H' }
   ];
 
-  const duplicateStyles = [validStyles[0]];
+  const existingStyles = [validStyles[0]];
 
-  describe.skip('POST /', () => {
+  describe('POST /', () => {
     it('should create workflows for valid styles', async () => {
       const response = await request(app).post(url).send({
         styles: validStyles
@@ -30,19 +30,19 @@ describe('Workflow API', () => {
       expect(response.body.data).toEqual({
         success: validStyles.map(({ styleId }) => styleId),
         invalid: [],
-        duplicates: []
+        existing: []
       });
     });
 
-    it('should handle duplicate styles', async () => {
-      const styles = [...duplicateStyles];
+    it('should handle existing styles', async () => {
+      const styles = [...existingStyles];
 
       const response = await request(app).post(url).send({ styles });
 
       const expectedResponse = {
         success: [],
         invalid: [],
-        duplicates: ['STYLE001']
+        existing: ['STYLE001']
       };
 
       expect(response.statusCode).toBe(201);
@@ -58,7 +58,7 @@ describe('Workflow API', () => {
       const expectedResponse = {
         success: [],
         invalid: invalidStyles.map(({ styleId }) => styleId),
-        duplicates: []
+        existing: []
       };
 
       expect(response.statusCode).toBe(201);
@@ -154,7 +154,7 @@ describe('Workflow API', () => {
     });
   });
 
-  describe.skip('Delete /:id', () => {
+  describe('Delete /:id', () => {
     it('should delete an existing workflow', async () => {
       for (const { styleId } of validStyles) {
         await request(app).delete(`${url}/${styleId}`).expect(200);

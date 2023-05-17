@@ -41,25 +41,25 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
       }
     });
 
-    const duplicateStyles = existingWorkflows.map(({ styleId }) => styleId);
+    const existingStyles = existingWorkflows.map(({ styleId }) => styleId);
 
-    const nonDuplicateStyles = validStyles.filter(
-      ({ styleId }) => !duplicateStyles.includes(styleId.toUpperCase())
+    const nonExistingStyles = validStyles.filter(
+      ({ styleId }) => !existingStyles.includes(styleId.toUpperCase())
     );
 
-    if (!nonDuplicateStyles.length) {
+    if (!nonExistingStyles.length) {
       return res.sendResponse(
         {
           success: [],
           invalid: invalidStyles,
-          duplicates: duplicateStyles
+          existing: existingStyles
         },
         201
       );
     }
 
     const { count: createdCount } = await prisma.workflow.createMany({
-      data: nonDuplicateStyles.map(({ styleId, brand, title }) => ({
+      data: nonExistingStyles.map(({ styleId, brand, title }) => ({
         styleId: styleId.toUpperCase(),
         brand,
         title,
@@ -67,7 +67,7 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
       }))
     });
 
-    const totalCount = nonDuplicateStyles.length;
+    const totalCount = nonExistingStyles.length;
 
     if (createdCount !== totalCount) {
       return res.sendResponse('Some records failed to insert.', 207);
@@ -75,9 +75,9 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
 
     return res.sendResponse(
       {
-        success: nonDuplicateStyles.map(({ styleId }) => styleId),
+        success: nonExistingStyles.map(({ styleId }) => styleId),
         invalid: invalidStyles,
-        duplicates: duplicateStyles
+        existing: existingStyles
       },
       201
     );
