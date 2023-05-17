@@ -22,10 +22,10 @@ const updatedWorkflowDto = Joi.object({
 });
 
 const searchWorkflowDto = Joi.object({
-  page: Joi.number().integer().min(1),
-  limit: Joi.number().integer().min(1),
+  // page: Joi.number().integer().min(1),
+  // limit: Joi.number().integer().min(1),
   filters: Joi.object({
-    styleId: Joi.array().items(Joi.string().trim()),
+    styleId: Joi.string(),
     title: Joi.array().items(Joi.string().trim()),
     brand: Joi.array().items(Joi.string().trim()),
     status: Joi.array().items(Joi.string().valid(...Object.values(Status))),

@@ -67,14 +67,16 @@ describe('Workflow API', () => {
     });
   });
 
-  describe('GET /search', () => {
+  describe('POST /search', () => {
     it('should return workflows matching the filters', async () => {
-      const response = await request(app).get(`${url}/search`).query({
-        brand: 'Brand A',
-        title: 'Title A',
-        limit: 5,
-        page: 1
-      });
+      const response = await request(app)
+        .post(`${url}/search?page=1&limit=5`)
+        .send({
+          filters: {
+            brand: ['Brand A'],
+            title: ['Title A']
+          }
+        });
 
       expect(response.statusCode).toBe(200);
       expect(response.body.success).toBe(true);
@@ -86,11 +88,13 @@ describe('Workflow API', () => {
     });
 
     it('should return empty workflows when no filters match', async () => {
-      const response = await request(app).get(`${url}/search`).query({
-        brand: 'Brand-X',
-        limit: 5,
-        page: 1
-      });
+      const response = await request(app)
+        .post(`${url}/search?page=1&limit=5`)
+        .send({
+          filters: {
+            brand: ['Brand-X']
+          }
+        });
 
       expect(response.statusCode).toBe(200);
       expect(response.body.success).toBe(true);
@@ -102,34 +106,36 @@ describe('Workflow API', () => {
     });
 
     it('should handle invalid page or limit values', async () => {
-      const response = await request(app).get(`${url}/search`).query({
-        brand: 'Brand A',
-        title: 'Title A',
-        limit: 'invalid',
-        page: 'invalid'
-      });
+      const response = await request(app)
+        .post(`${url}/search?page=invalid&limit=invalid`)
+        .send({
+          filters: {
+            brand: ['Brand A'],
+            title: ['Title A']
+          }
+        });
 
       expect(response.statusCode).toBe(400);
       expect(response.body.error).toBe('Invalid page or limit value.');
     });
 
-    it('should ignore unknown filter parameters', async () => {
-      const response = await request(app).get(`${url}/search`).query({
-        brand: 'Brand A',
-        title: 'Title A',
-        invalidParam: 'value',
-        limit: 5,
-        page: 1
-      });
-
-      expect(response.statusCode).toBe(200);
-      expect(response.body.success).toBe(true);
-      expect(response.body.data.workflows).toHaveLength(1);
-      expect(response.body.data.pagination.total).toBe(1);
-      expect(response.body.data.pagination.pageCount).toBe(1);
-      expect(response.body.data.pagination.currentPage).toBe(1);
-      expect(response.body.data.pagination.currentPageCount).toBe(1);
+    it('should throw error on unknown filter parameters', async () => {
+      const response = await request(app)
+        .post(`${url}/search?page=1&limit=5`)
+        .send({
+          filters: {
+            brand: ['Brand A'],
+            title: ['Title A'],
+            invalidParam: 'value'
+          }
+        });
+    
+      expect(response.statusCode).toBe(400);
+      expect(response.body.success).toBe(false);
+      expect(response.body.error).toBe('"filters.invalidParam" is not allowed');
+      expect(response.body.data).toBeUndefined();
     });
+    
 
     it.skip('should handle errors while searching workflows', async () => {
       // Mock an error in the implementation
@@ -137,12 +143,14 @@ describe('Workflow API', () => {
         .spyOn(prisma.workflow, 'findMany')
         .mockRejectedValueOnce(new Error('Search error'));
 
-      const response = await request(app).get(`${url}/search`).query({
-        brand: 'Brand A',
-        title: 'Title A',
-        limit: 5,
-        page: 1
-      });
+      const response = await request(app)
+        .post(`${url}/search?page=1&limit=5`)
+        .send({
+          filters: {
+            brand: ['Brand A'],
+            title: ['Title A']
+          }
+        });
 
       expect(response.statusCode).toBe(500);
       expect(response.body.error).toBe(

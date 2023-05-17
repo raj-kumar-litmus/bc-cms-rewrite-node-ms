@@ -115,7 +115,8 @@ router.post(
   validateMiddleware(searchWorkflowDto),
   async (req, res) => {
     try {
-      const { page = 1, limit = 10, filters = {} } = req.body;
+      const { page = 1, limit = 10 } = req.query;
+      const { filters = {} } = req.body;
       const parsedLimit = parseInt(limit, 10);
       const parsedPage = parseInt(page, 10);
 
@@ -128,13 +129,14 @@ router.post(
       const where = {};
 
       Object.entries(filters).forEach(([param, values]) => {
-        if (param === 'status') {
+        if (Array.isArray(values)) {
           where[param] = {
-            in: values
+            in: values,
+            mode: param === 'status' ? undefined : 'insensitive'
           };
         } else {
           where[param] = {
-            in: values,
+            contains: values,
             mode: 'insensitive'
           };
         }
@@ -172,45 +174,6 @@ router.post(
     }
   }
 );
-
-// Endpoint to retrieve all workflows
-router.get('/', async (req, res) => {
-  try {
-    const { page = 1, limit = 10 } = req.query;
-    const parsedLimit = parseInt(limit, 10);
-    const parsedPage = parseInt(page, 10);
-    const skip = (parsedPage - 1) * limit;
-
-    const [workflows, total] = await Promise.all([
-      prisma.workflow.findMany({
-        skip,
-        take: parsedLimit
-      }),
-      prisma.workflow.count()
-    ]);
-
-    const pageCount = Math.ceil(total / parsedLimit);
-    const currentPageCount = workflows.length;
-
-    return res.sendResponse({
-      workflows,
-      pagination: {
-        total,
-        pageCount,
-        currentPage: parsedPage,
-        currentPageCount
-      }
-    });
-  } catch (error) {
-    console.error(error);
-    return res.sendResponse(
-      'An error occurred while retrieving the workflows.',
-      500
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
-});
 
 // Endpoint to retrieve a specific workflow
 router.get('/:id', async (req, res) => {
