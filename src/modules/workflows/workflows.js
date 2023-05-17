@@ -6,7 +6,8 @@ const { CreateProcess } = require('./enums');
 const {
   createWorkflowDto,
   updatedWorkflowDto,
-  searchWorkflowDto
+  searchWorkflowQueryDto,
+  searchWorkflowBodyDto
 } = require('./dtos');
 
 const router = express.Router();
@@ -112,10 +113,13 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
 // Endpoint to search workflows
 router.post(
   '/search',
-  validateMiddleware(searchWorkflowDto),
+  validateMiddleware({
+    query: searchWorkflowQueryDto,
+    body: searchWorkflowBodyDto
+  }),
   async (req, res) => {
     try {
-      const { page = 1, limit = 10 } = req.query;
+      const { page = 1, limit = 10, unique } = req.query;
       const { filters = {} } = req.body;
       const parsedLimit = parseInt(limit, 10);
       const parsedPage = parseInt(page, 10);
@@ -142,20 +146,52 @@ router.post(
         }
       });
 
-      const [workflows, total] = await Promise.all([
-        prisma.workflow.findMany({
-          where,
-          skip,
-          take: parsedLimit
-        }),
-        prisma.workflow.count({ where })
-      ]);
+      let workflows;
+      let total = 0;
+      let uniqueValues;
+
+      if (unique) {
+        [uniqueValues, total] = await Promise.all([
+          prisma.workflow.findMany({
+            distinct: [unique],
+            select: {
+              [unique]: true
+            },
+            where,
+            skip,
+            orderBy: {
+              [unique]: 'asc'
+            },
+            take: parsedLimit
+          }),
+          prisma.workflow
+            .findMany({
+              distinct: [unique],
+              select: {
+                [unique]: true
+              },
+              where
+            })
+            .then((result) => result.length)
+            .catch(() => 0) // Set the default count to 0 in case of errors
+        ]);
+      } else {
+        [workflows, total] = await Promise.all([
+          prisma.workflow.findMany({
+            where,
+            skip,
+            take: parsedLimit
+          }),
+          prisma.workflow.count({ where })
+        ]);
+      }
 
       const pageCount = Math.ceil(total / parsedLimit);
-      const currentPageCount = workflows.length;
+      const currentPageCount = unique ? uniqueValues.length : workflows.length;
 
       return res.sendResponse({
         workflows,
+        uniqueValues: uniqueValues?.map((obj) => obj[unique]),
         pagination: {
           total,
           pageCount,

@@ -13,12 +13,34 @@ const notFound = (req, res, next) => {
 //   });
 // };
 
-const validateMiddleware = (schema) => (req, res, next) => {
-  const { error } = schema.validate(req.body);
-  if (error) {
-    return res.sendResponse(error.details[0].message, 400);
-  }
-  return next();
+const validateMiddleware = (schemas) => (req, res, next) => {
+  /* eslint-disable consistent-return */
+  /* eslint-disable indent */
+  const getDataByType = (type) => {
+    switch (type) {
+      case 'params':
+        return req.params;
+      case 'query':
+        return req.query;
+      case 'body':
+        return req.body;
+      default:
+        return null;
+    }
+  };
+
+  /* eslint-disable consistent-return  */
+  Object.keys(schemas).forEach((key) => {
+    const schema = schemas[key];
+    const data = getDataByType(key);
+    const { error } = schema.validate(data);
+
+    if (error) {
+      return res.sendResponse(error.details[0].message, 400);
+    }
+  });
+
+  next();
 };
 
 const responseInterceptor = (req, res, next) => {

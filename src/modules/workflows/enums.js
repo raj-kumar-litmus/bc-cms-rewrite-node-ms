@@ -3,6 +3,24 @@ const CreateProcess = Object.freeze({
   WRITER_INTERFACE: 'WRITER_INTERFACE'
 });
 
+const WorkflowKeysEnum = {
+  id: 'id',
+  admin: 'admin',
+  brand: 'brand',
+  createProcess: 'createProcess',
+  createTs: 'createTs',
+  editor: 'editor',
+  editorReview: 'editorReview',
+  lastEditCompleteTs: 'lastEditCompleteTs',
+  lastUpdateTs: 'lastUpdateTs',
+  lastUpdatedBy: 'lastUpdatedBy',
+  lastWriteCompleteTs: 'lastWriteCompleteTs',
+  status: 'status',
+  styleId: 'styleId',
+  title: 'title',
+  writer: 'writer'
+};
+
 const Status = Object.freeze({
   WAITING_FOR_WRITER: 'WAITING_FOR_WRITER',
   ASSIGNED_TO_WRITER: 'ASSIGNED_TO_WRITER',
@@ -15,5 +33,6 @@ const Status = Object.freeze({
 
 module.exports = {
   CreateProcess,
-  Status
+  Status,
+  WorkflowKeysEnum
 };
