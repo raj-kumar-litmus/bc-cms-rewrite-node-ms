@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"cvbgdb\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        },\r\n        {\r\n            \"styleId\": \"stbdskdh\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"gffnvhh\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        },\r\n        {\r\n            \"styleId\": \"BNGBGFHH\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        },\r\n         {\r\n            \"styleId\": \"gfhvh\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -26,30 +26,6 @@
 							"raw": "{{url}}workflows",
 							"host": [
 								"{{url}}workflows"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "workflows",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{url}}workflows?page=2&limit=20",
-							"host": [
-								"{{url}}workflows"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "2"
-								},
-								{
-									"key": "limit",
-									"value": "20"
-								}
 							]
 						}
 					},
@@ -75,10 +51,19 @@
 				{
 					"name": "workflows/search",
 					"request": {
-						"method": "GET",
+						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"filters\": {\r\n        \"brand\": [\r\n            \"nike\"\r\n        ],\r\n        \"styleId\": \"ABCDRF\",\r\n        \"status\": [\"ASSIGNED_TO_WRITER\"]\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{url}}workflows/search?brand=nike&styleId=ab",
+							"raw": "{{url}}workflows/search?limit=10&page=3",
 							"host": [
 								"{{url}}workflows"
 							],
@@ -87,12 +72,12 @@
 							],
 							"query": [
 								{
-									"key": "brand",
-									"value": "nike"
+									"key": "limit",
+									"value": "10"
 								},
 								{
-									"key": "styleId",
-									"value": "ab"
+									"key": "page",
+									"value": "3"
 								}
 							]
 						}
@@ -106,7 +91,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    // \"admin\": \"The 1234567\",\r\n    // \"status\": \"ASSIGNED_TO_WRITER\",\r\n    \"brand\": \"Nike\",\r\n    \"title\": \"My product title231\"\r\n    // \"create_ts\": \"2023-03-28T23:58:18.000Z\",\r\n    // \"editor\": \"The Editor\",\r\n    // \"editor_review\": true,\r\n    // \"last_edit_complete_ts\": \"2023-03-30T23:58:18.000Z\",\r\n    // \"last_update_ts\": \"2023-03-30T23:58:18.000Z\",\r\n    // \"last_updated_by\": \"Andrew Smith\",\r\n    // \"last_write_complete_ts\": \"2023-03-29T23:58:18.000Z\",\r\n    // \"writer\": \"The Writer\"\r\n}",
+							"raw": "{\r\n    // \"admin\": \"The 1234567\",\r\n    // \"status\": \"ASSIGNED_TO_WRITER\",\r\n    // \"status\": \"WRITING_COMPLETE\"\r\n    // \"writer\": \"writer\"\r\n    // \"create_ts\": \"2023-03-28T23:58:18.000Z\",\r\n    // \"editor\": \"The Editor\",\r\n    // \"editor_review\": true,\r\n    // \"last_edit_complete_ts\": \"2023-03-30T23:58:18.000Z\",\r\n    // \"last_update_ts\": \"2023-03-30T23:58:18.000Z\",\r\n    // \"last_updated_by\": \"Andrew Smith\",\r\n    // \"last_write_complete_ts\": \"2023-03-29T23:58:18.000Z\",\r\n    // \"writer\": \"The Writer\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -114,12 +99,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows/ABCDRF",
+							"raw": "{{url}}workflows/STYleID",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"ABCDRF"
+								"STYleID"
 							]
 						}
 					},
@@ -269,112 +254,140 @@
 			]
 		},
 		{
-			"name": "genus",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Cookie",
-						"value": "{{cookie}}",
-						"type": "default"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:5000/genus",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"genus"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "techSpecs",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/style/ATRQ03Y/techSpecs?Cookie={{cookie}}",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"style",
-						"ATRQ03Y",
-						"techSpecs"
-					],
-					"query": [
-						{
-							"key": "Cookie",
-							"value": "{{cookie}}"
+			"name": "dataNormalization",
+			"item": [
+				{
+					"name": "genus",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{cookie}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}dataNormalization/genus",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"genus"
+							]
 						}
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "genus/:id/speices",
-			"request": {
-				"method": "GET",
-				"header": [
-					{
-						"key": "Cookie",
-						"value": "{{cookie}}",
-						"type": "default"
-					}
-				],
-				"url": {
-					"raw": "http://localhost:5000/genus/22/species",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"genus",
-						"22",
-						"species"
-					]
-				}
-			},
-			"response": []
-		},
-		{
-			"name": "/genus/:gId/species/:sId/hAttributes",
-			"request": {
-				"method": "GET",
-				"header": [],
-				"url": {
-					"raw": "http://localhost:5000/genus/22/species/197/hAttributes?Cookie={{cookie}}",
-					"protocol": "http",
-					"host": [
-						"localhost"
-					],
-					"port": "5000",
-					"path": [
-						"genus",
-						"22",
-						"species",
-						"197",
-						"hAttributes"
-					],
-					"query": [
-						{
-							"key": "Cookie",
-							"value": "{{cookie}}"
+					},
+					"response": []
+				},
+				{
+					"name": "genus/:id/speices",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{cookie}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}dataNormalization/genus/22/species",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"genus",
+								"22",
+								"species"
+							]
 						}
-					]
+					},
+					"response": []
+				},
+				{
+					"name": "styles/:id",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{cookie}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/ATRQ03Y",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"ATRQ03Y"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "techSpecs",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Cookie",
+								"value": "{{cookie}}",
+								"type": "default"
+							}
+						],
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/ATRQ03Y/techSpecs",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"ATRQ03Y",
+								"techSpecs"
+							],
+							"query": [
+								{
+									"key": "Cookie",
+									"value": "{{cookie}}",
+									"disabled": true
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/genus/:gId/species/:sId/hAttributes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}dataNormalization/genus/22/species/197/hAttributes?Cookie={{cookie}}",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"genus",
+								"22",
+								"species",
+								"197",
+								"hAttributes"
+							],
+							"query": [
+								{
+									"key": "Cookie",
+									"value": "{{cookie}}"
+								}
+							]
+						}
+					},
+					"response": []
 				}
-			},
-			"response": []
+			]
 		}
 	]
 }
