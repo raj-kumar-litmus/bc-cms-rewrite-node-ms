@@ -3,15 +3,17 @@ const { PrismaClient, Prisma } = require('@prisma/client');
 
 const { validateMiddleware } = require('../../middlewares');
 const { CreateProcess } = require('./enums');
-const { createWorkflowDto, updatedWorkflowDto } = require('./dtos');
+const {
+  createWorkflowDto,
+  updatedWorkflowDto,
+  searchWorkflowDto
+} = require('./dtos');
 
 const router = express.Router();
 
 const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error']
 });
-
-const validWorkflowColumns = ['brand', 'styleId', 'title'];
 
 // Endpoint to initiate a workflow
 router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
@@ -38,6 +40,9 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
           in: validStyles.map(({ styleId }) => styleId),
           mode: 'insensitive'
         }
+        // status: {
+        //   not: Status.EDITING_COMPLETE
+        // }
       }
     });
 
@@ -105,62 +110,68 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
 });
 
 // Endpoint to search workflows
-router.get('/search', async (req, res) => {
-  try {
-    const { page = 1, limit = 10, ...filters } = req.query;
-    const parsedLimit = parseInt(limit, 10);
-    const parsedPage = parseInt(page, 10);
+router.post(
+  '/search',
+  validateMiddleware(searchWorkflowDto),
+  async (req, res) => {
+    try {
+      const { page = 1, limit = 10, filters = {} } = req.body;
+      const parsedLimit = parseInt(limit, 10);
+      const parsedPage = parseInt(page, 10);
 
-    if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
-      return res.status(400).json({ error: 'Invalid page or limit value.' });
+      if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
+        return res.sendResponse('Invalid page or limit value.', 400);
+      }
+
+      const skip = (parsedPage - 1) * parsedLimit;
+
+      const where = {};
+
+      Object.entries(filters).forEach(([param, values]) => {
+        if (param === 'status') {
+          where[param] = {
+            in: values
+          };
+        } else {
+          where[param] = {
+            in: values,
+            mode: 'insensitive'
+          };
+        }
+      });
+
+      const [workflows, total] = await Promise.all([
+        prisma.workflow.findMany({
+          where,
+          skip,
+          take: parsedLimit
+        }),
+        prisma.workflow.count({ where })
+      ]);
+
+      const pageCount = Math.ceil(total / parsedLimit);
+      const currentPageCount = workflows.length;
+
+      return res.sendResponse({
+        workflows,
+        pagination: {
+          total,
+          pageCount,
+          currentPage: parsedPage,
+          currentPageCount
+        }
+      });
+    } catch (error) {
+      console.error(error);
+      return res.sendResponse(
+        'An error occurred while searching workflows.',
+        500
+      );
+    } finally {
+      await prisma.$disconnect();
     }
-
-    const skip = (parsedPage - 1) * parsedLimit;
-
-    const where = {};
-
-    Object.keys(filters).forEach((param) => {
-      if (validWorkflowColumns.includes(param)) {
-        where[param] = {
-          contains: filters[param],
-          mode: 'insensitive'
-        };
-      } else {
-        console.warn(`Ignoring unknown filter parameter: ${param}`);
-      }
-    });
-
-    const [workflows, total] = await Promise.all([
-      prisma.workflow.findMany({
-        where,
-        skip,
-        take: parsedLimit
-      }),
-      prisma.workflow.count({ where })
-    ]);
-
-    const pageCount = Math.ceil(total / parsedLimit);
-    const currentPageCount = workflows.length;
-
-    return res.sendResponse({
-      workflows,
-      pagination: {
-        total,
-        pageCount,
-        currentPage: parsedPage,
-        currentPageCount
-      }
-    });
-  } catch (error) {
-    console.error(error);
-    return res.sendResponse(
-      'An error occurred while searching workflows.',
-      500
-    );
-  } finally {
-    await prisma.$disconnect();
   }
-});
+);
 
 // Endpoint to retrieve all workflows
 router.get('/', async (req, res) => {

@@ -1,6 +1,6 @@
 const Joi = require('joi');
 
-const { Status } = require('./enums');
+const { Status, CreateProcess } = require('./enums');
 
 const createWorkflowDto = Joi.object({
   styles: Joi.array()
@@ -21,7 +21,22 @@ const updatedWorkflowDto = Joi.object({
   title: Joi.string()
 });
 
+const searchWorkflowDto = Joi.object({
+  page: Joi.number().integer().min(1),
+  limit: Joi.number().integer().min(1),
+  filters: Joi.object({
+    styleId: Joi.array().items(Joi.string().trim()),
+    title: Joi.array().items(Joi.string().trim()),
+    brand: Joi.array().items(Joi.string().trim()),
+    status: Joi.array().items(Joi.string().valid(...Object.values(Status))),
+    createProcess: Joi.array().items(
+      Joi.string().valid(...Object.values(CreateProcess))
+    )
+  })
+});
+
 module.exports = {
   createWorkflowDto,
-  updatedWorkflowDto
+  updatedWorkflowDto,
+  searchWorkflowDto
 };
