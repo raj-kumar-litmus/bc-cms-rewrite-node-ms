@@ -186,7 +186,7 @@ router.patch(
   async (req, res) => {
     try {
       const { id } = req.params;
-      const { status, ...updatedFields } = req.body;
+      const { ...updatedFields } = req.body;
 
       // Find the workflow by ID
       const workflow = await prisma.workflow.findUnique({
@@ -199,16 +199,14 @@ router.patch(
         return res.sendResponse('Workflow not found.', 404);
       }
 
-      if (status) {
-        try {
-          workflowEngine(workflow, status, updatedFields);
-        } catch (error) {
-          console.error(error);
-          return res.sendResponse(
-            error.message || 'Invalid state transition.',
-            400
-          );
-        }
+      try {
+        workflowEngine(workflow, updatedFields);
+      } catch (error) {
+        console.error(error);
+        return res.sendResponse(
+          error.message || 'Invalid state transition.',
+          400
+        );
       }
 
       // Update the workflow in the database
@@ -216,7 +214,7 @@ router.patch(
         where: {
           styleId: id.toUpperCase()
         },
-        data: { ...updatedFields, status }
+        data: workflow
       });
 
       return res.sendResponse(updatedWorkflow);
