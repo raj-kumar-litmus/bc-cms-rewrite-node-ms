@@ -55,7 +55,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        \"brand\": [\r\n            \"nike\"\r\n        ],\r\n        \"styleId\": \"ABCDRF\",\r\n        \"status\": [\"ASSIGNED_TO_WRITER\"]\r\n    }\r\n}",
+							"raw": "{\r\n    \"filters\": {\r\n        // \"brand\": [\r\n        //     \"nike\"\r\n        // ],\r\n        // \"styleId\": \"ABCDRF\",\r\n        \"status\": [\r\n            \"ASSIGNED_TO_WRITER\"\r\n        ],\r\n        \"lastUpdateTs\": {\r\n            \"min\": \"2023-05-12T00:00:00.000Z\",\r\n            \"max\": \"2023-05-12T05:32:49.981Z\"\r\n        }\r\n    },\r\n    \"orderBy\": {\r\n        \"styleId\": \"desc\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -99,7 +99,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows/search?limit=10&page=1&unique=styleId",
+							"raw": "{{url}}workflows/search?limit=10&page=1&unique=brand",
 							"host": [
 								"{{url}}workflows"
 							],
@@ -117,7 +117,7 @@
 								},
 								{
 									"key": "unique",
-									"value": "styleId"
+									"value": "brand"
 								}
 							]
 						}
