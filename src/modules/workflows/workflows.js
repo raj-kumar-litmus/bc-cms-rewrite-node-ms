@@ -69,7 +69,9 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
         styleId: styleId.toUpperCase(),
         brand,
         title,
-        createProcess: CreateProcess.WRITER_INTERFACE
+        createProcess: CreateProcess.WRITER_INTERFACE,
+        admin: 'admin user',
+        lastUpdatedBy: 'admin user'
       }))
     });
 
@@ -120,7 +122,7 @@ router.post(
   async (req, res) => {
     try {
       const { page = 1, limit = 10, unique } = req.query;
-      const { filters = {} } = req.body;
+      const { filters = {}, orderBy = {} } = req.body;
       const parsedLimit = parseInt(limit, 10);
       const parsedPage = parseInt(page, 10);
 
@@ -133,7 +135,12 @@ router.post(
       const where = {};
 
       Object.entries(filters).forEach(([param, values]) => {
-        if (Array.isArray(values)) {
+        if (param === 'lastUpdateTs') {
+          where[param] = {
+            gte: values.min,
+            lte: values.max
+          };
+        } else if (Array.isArray(values)) {
           where[param] = {
             in: values,
             mode: param === 'status' ? undefined : 'insensitive'
@@ -179,6 +186,7 @@ router.post(
         [workflows, total] = await Promise.all([
           prisma.workflow.findMany({
             where,
+            orderBy,
             skip,
             take: parsedLimit
           }),

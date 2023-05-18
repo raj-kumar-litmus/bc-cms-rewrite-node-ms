@@ -22,8 +22,6 @@ const updatedWorkflowDto = Joi.object({
 });
 
 const searchWorkflowBodyDto = Joi.object({
-  // page: Joi.number().integer().min(1),
-  // limit: Joi.number().integer().min(1),
   filters: Joi.object({
     styleId: Joi.string(),
     title: Joi.array().items(Joi.string().trim()),
@@ -31,7 +29,19 @@ const searchWorkflowBodyDto = Joi.object({
     status: Joi.array().items(Joi.string().valid(...Object.values(Status))),
     createProcess: Joi.array().items(
       Joi.string().valid(...Object.values(CreateProcess))
-    )
+    ),
+    lastUpdateTs: Joi.object({
+      min: Joi.date().iso(),
+      max: Joi.date().iso()
+    })
+  }),
+  orderBy: Joi.object({
+    styleId: Joi.string().valid('asc', 'desc'),
+    title: Joi.string().valid('asc', 'desc'),
+    brand: Joi.string().valid('asc', 'desc'),
+    status: Joi.string().valid('asc', 'desc'),
+    createProcess: Joi.string().valid('asc', 'desc'),
+    lastUpdateTs: Joi.string().valid('asc', 'desc')
   })
 });
 
