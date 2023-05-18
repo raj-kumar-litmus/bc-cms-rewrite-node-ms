@@ -136,13 +136,13 @@ router.post(
 
       Object.entries(filters).forEach(([param, values]) => {
         if (param === 'lastUpdateTs') {
-          const startDate = new Date(values);
-          const endDate = new Date(values);
-          endDate.setDate(endDate.getDate() + 1);
+          const date = new Date(values);
+          const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+          const endOfDay = new Date(date.setHours(23, 59, 59, 999));
 
           where[param] = {
-            gte: startDate,
-            lt: endDate
+            gte: startOfDay.toISOString(),
+            lt: endOfDay.toISOString()
           };
         } else if (param === 'assignee') {
           where[param] = {
@@ -205,7 +205,6 @@ router.post(
         ]);
         workflows.forEach((workflow) => {
           const workflowWithAssignee = { ...workflow };
-
           if (
             [
               'ASSIGNED_TO_WRITER',

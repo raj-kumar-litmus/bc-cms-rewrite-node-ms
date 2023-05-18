@@ -4,14 +4,19 @@ const notFound = (req, res, next) => {
   next(error);
 };
 
-// const errorHandler = (err, req, res) => {
+// /* eslint-disable no-unused-vars */
+// function errorHandler(err, req, res, next) {
+//   /* eslint-enable no-unused-vars */
 //   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
-//   res.status(statusCode);
-//   res.json({
-//     message: err.message,
-//     stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
-//   });
-// };
+//   res.sendResponse(
+//     {
+//       message: err.message,
+//       stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
+//     },
+//     statusCode
+//   );
+//   next();
+// }
 
 const validateMiddleware = (schemas) => (req, res, next) => {
   /* eslint-disable consistent-return */
@@ -30,17 +35,27 @@ const validateMiddleware = (schemas) => (req, res, next) => {
   };
 
   /* eslint-disable consistent-return  */
-  Object.keys(schemas).forEach((key) => {
+  const validationErrors = Object.keys(schemas).map((key) => {
     const schema = schemas[key];
     const data = getDataByType(key);
     const { error } = schema.validate(data);
 
     if (error) {
-      return res.sendResponse(error.details[0].message, 400);
+      return error.details[0].message;
     }
+    return null;
   });
 
-  next();
+  const hasErrors = validationErrors.some((error) => error !== null);
+
+  if (hasErrors) {
+    return res.sendResponse(
+      validationErrors.filter((error) => error !== null),
+      400
+    );
+  }
+
+  return next();
 };
 
 const responseInterceptor = (req, res, next) => {
