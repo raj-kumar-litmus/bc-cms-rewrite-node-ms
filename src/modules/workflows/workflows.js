@@ -140,6 +140,13 @@ router.post(
             gte: values.min,
             lte: values.max
           };
+        } else if (param === 'assignee') {
+          where[param] = {
+            OR: [
+              { writer: { in: values, mode: 'insensitive' } },
+              { editor: { in: values, mode: 'insensitive' } }
+            ]
+          };
         } else if (Array.isArray(values)) {
           where[param] = {
             in: values,

@@ -33,7 +33,8 @@ const searchWorkflowBodyDto = Joi.object({
     lastUpdateTs: Joi.object({
       min: Joi.date().iso(),
       max: Joi.date().iso()
-    })
+    }),
+    assignee: Joi.string()
   }),
   orderBy: Joi.object({
     styleId: Joi.string().valid('asc', 'desc'),
@@ -41,7 +42,8 @@ const searchWorkflowBodyDto = Joi.object({
     brand: Joi.string().valid('asc', 'desc'),
     status: Joi.string().valid('asc', 'desc'),
     createProcess: Joi.string().valid('asc', 'desc'),
-    lastUpdateTs: Joi.string().valid('asc', 'desc')
+    lastUpdateTs: Joi.string().valid('asc', 'desc'),
+    assignee: Joi.string().valid('asc', 'desc')
   })
 });
 
