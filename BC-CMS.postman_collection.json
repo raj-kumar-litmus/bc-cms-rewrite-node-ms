@@ -149,6 +149,23 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "counts",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}workflows/counts",
+							"host": [
+								"{{url}}workflows"
+							],
+							"path": [
+								"counts"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"event": [

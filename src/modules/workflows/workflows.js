@@ -2,7 +2,7 @@ const express = require('express');
 const { PrismaClient, Prisma } = require('@prisma/client');
 
 const { validateMiddleware } = require('../../middlewares');
-const { CreateProcess } = require('./enums');
+const { CreateProcess, Status } = require('./enums');
 const {
   createWorkflowDto,
   updatedWorkflowDto,
@@ -242,6 +242,56 @@ router.post(
     }
   }
 );
+
+// Endpoint to retrieve workflow counts
+router.get('/counts', async (req, res) => {
+  try {
+    const counts = {
+      unassigned: await prisma.workflow.count({
+        where: { status: Status.WAITING_FOR_WRITER }
+      }),
+      assigned: await prisma.workflow.count({
+        where: {
+          OR: [
+            { status: Status.ASSIGNED_TO_WRITER },
+            { status: Status.WRITING_IN_PROGRESS },
+            { status: Status.WRITING_COMPLETE },
+            { status: Status.ASSIGNED_TO_EDITOR },
+            { status: Status.EDITING_IN_PROGRESS },
+            { status: Status.EDITING_COMPLETE }
+          ]
+        }
+      }),
+      inProgress: await prisma.workflow.count({
+        where: {
+          OR: [
+            { status: Status.ASSIGNED_TO_WRITER },
+            { status: Status.WRITING_IN_PROGRESS },
+            { status: Status.WRITING_COMPLETE },
+            { status: Status.ASSIGNED_TO_EDITOR },
+            { status: Status.EDITING_IN_PROGRESS },
+            { status: Status.EDITING_COMPLETE }
+          ]
+        }
+      }),
+      completed: await prisma.workflow.count({
+        where: {
+          status: Status.EDITING_COMPLETE
+        }
+      })
+    };
+
+    return res.sendResponse(counts);
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse(
+      'An error occurred while fetching workflow counts.',
+      500
+    );
+  } finally {
+    await prisma.$disconnect();
+  }
+});
 
 // Endpoint to retrieve a specific workflow
 router.get('/:id', async (req, res) => {
