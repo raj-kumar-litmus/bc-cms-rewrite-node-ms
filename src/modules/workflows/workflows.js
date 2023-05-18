@@ -114,78 +114,71 @@ const prisma = new PrismaClient({
 // });
 
 // Endpoint to initiate a workflow
-router.post(
-  '/',
-  validateMiddleware({ body: createWorkflowDto }),
-  async (req, res) => {
-    try {
-      const {
-        body: { styles }
-      } = req;
+router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, res) => {
+  try {
+    const {
+      body: { styles }
+    } = req;
 
-      const validStyles = [];
-      const invalidStyles = [];
-      const createdWorkflows = [];
-      const failedWorkflows = [];
+    const validStyles = [];
+    const invalidStyles = [];
+    const createdWorkflows = [];
+    const failedWorkflows = [];
 
-      styles.forEach(({ styleId, brand, title }) => {
-        // Check the necessity
-        if (styleId.length < 6) {
-          invalidStyles.push(styleId);
-        } else {
-          validStyles.push({ styleId, brand, title });
-        }
-      });
-
-      await Promise.all(
-        validStyles.map(async ({ styleId, brand, title }) => {
-          try {
-            const workflow = await prisma.workflow.create({
-              data: {
-                styleId: styleId.toUpperCase(),
-                brand,
-                title,
-                createProcess: CreateProcess.WRITER_INTERFACE,
-                admin: 'admin user',
-                lastUpdatedBy: 'admin user'
-              }
-            });
-            createdWorkflows.push(workflow);
-          } catch (error) {
-            failedWorkflows.push({ styleId, brand, title });
-          }
-        })
-      );
-
-      if (failedWorkflows.length > 0) {
-        return res.sendResponse(
-          {
-            success: createdWorkflows,
-            failed: failedWorkflows,
-            invalid: invalidStyles
-          },
-          207
-        );
+    styles.forEach(({ styleId, brand, title }) => {
+      // Check the necessity
+      if (styleId.length < 6) {
+        invalidStyles.push(styleId);
+      } else {
+        validStyles.push({ styleId, brand, title });
       }
+    });
 
+    await Promise.all(
+      validStyles.map(async ({ styleId, brand, title }) => {
+        try {
+          const workflow = await prisma.workflow.create({
+            data: {
+              styleId: styleId.toUpperCase(),
+              brand,
+              title,
+              createProcess: CreateProcess.WRITER_INTERFACE,
+              admin: 'admin user',
+              lastUpdatedBy: 'admin user'
+            }
+          });
+          createdWorkflows.push(workflow);
+        } catch (error) {
+          failedWorkflows.push({ styleId, brand, title });
+        }
+      })
+    );
+
+    if (failedWorkflows.length > 0) {
       return res.sendResponse(
         {
           success: createdWorkflows,
+          failed: failedWorkflows,
           invalid: invalidStyles
         },
-        201
+        207
       );
-    } catch (error) {
-      console.error(error);
-      return res.sendResponse(
-        'An error occurred while creating the workflows.',
-        500
-      );
-    } finally {
-      await prisma.$disconnect();
     }
+
+    return res.sendResponse(
+      {
+        success: createdWorkflows,
+        invalid: invalidStyles
+      },
+      201
+    );
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse('An error occurred while creating the workflows.', 500);
+  } finally {
+    await prisma.$disconnect();
   }
-);
+});
 
 // Endpoint to search workflows
 router.post(
@@ -281,19 +274,15 @@ router.post(
         workflows.forEach((workflow) => {
           const workflowWithAssignee = { ...workflow };
           if (
-            [
-              'ASSIGNED_TO_WRITER',
-              'WRITING_IN_PROGRESS',
-              'WRITING_COMPLETE'
-            ].includes(workflow.status)
+            ['ASSIGNED_TO_WRITER', 'WRITING_IN_PROGRESS', 'WRITING_COMPLETE'].includes(
+              workflow.status
+            )
           ) {
             workflowWithAssignee.assignee = workflow.writer;
           } else if (
-            [
-              'ASSIGNED_TO_EDITOR',
-              'EDITING_IN_PROGRESS',
-              'EDITING_COMPLETE'
-            ].includes(workflow.status)
+            ['ASSIGNED_TO_EDITOR', 'EDITING_IN_PROGRESS', 'EDITING_COMPLETE'].includes(
+              workflow.status
+            )
           ) {
             workflowWithAssignee.assignee = workflow.editor;
           } else {
@@ -318,10 +307,7 @@ router.post(
       });
     } catch (error) {
       console.error(error);
-      return res.sendResponse(
-        'An error occurred while searching workflows.',
-        500
-      );
+      return res.sendResponse('An error occurred while searching workflows.', 500);
     } finally {
       await prisma.$disconnect();
     }
@@ -369,10 +355,7 @@ router.get('/counts', async (req, res) => {
     return res.sendResponse(counts);
   } catch (error) {
     console.error(error);
-    return res.sendResponse(
-      'An error occurred while fetching workflow counts.',
-      500
-    );
+    return res.sendResponse('An error occurred while fetching workflow counts.', 500);
   } finally {
     await prisma.$disconnect();
   }
@@ -392,72 +375,56 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    if (
-      error.code === 'P2023' &&
-      error.meta?.message?.includes('Malformed ObjectID')
-    ) {
+    if (error.code === 'P2023' && error.meta?.message?.includes('Malformed ObjectID')) {
       return res.sendResponse('Invalid workflow ID.', 400);
     }
 
-    return res.sendResponse(
-      'An error occurred while retrieving the workflow.',
-      500
-    );
+    return res.sendResponse('An error occurred while retrieving the workflow.', 500);
   } finally {
     await prisma.$disconnect();
   }
 });
 
 // Update workflow status and assign user API
-router.patch(
-  '/:id',
-  validateMiddleware(updatedWorkflowDto),
-  async (req, res) => {
+router.patch('/:id/next', validateMiddleware({ body: updatedWorkflowDto }), async (req, res) => {
+  try {
+    const { id } = req.params;
+    const { ...updatedFields } = req.body;
+
+    // Find the workflow by ID
+    const workflow = await prisma.workflow.findUnique({
+      where: {
+        id
+      }
+    });
+
+    if (!workflow) {
+      return res.sendResponse('Workflow not found.', 404);
+    }
+
     try {
-      const { id } = req.params;
-      const { ...updatedFields } = req.body;
+      const changeLog = workflowEngine(workflow, updatedFields);
+      changeLog.lastUpdatedBy = 'temp user';
 
-      // Find the workflow by ID
-      const workflow = await prisma.workflow.findUnique({
-        where: {
-          styleId: id.toUpperCase()
-        }
-      });
-
-      if (!workflow) {
-        return res.sendResponse('Workflow not found.', 404);
-      }
-
-      try {
-        workflowEngine(workflow, updatedFields);
-      } catch (error) {
-        console.error(error);
-        return res.sendResponse(
-          error.message || 'Invalid state transition.',
-          400
-        );
-      }
-
-      // Update the workflow in the database
       const updatedWorkflow = await prisma.workflow.update({
         where: {
-          styleId: id.toUpperCase()
+          id
         },
-        data: workflow
+        data: changeLog
       });
 
-      return res.sendResponse(updatedWorkflow);
+      return res.sendResponse({ workflow: updatedWorkflow, changeLog });
     } catch (error) {
       console.error(error);
-      return res.sendResponse(
-        'An error occurred while updating the workflow.',
-        500
-      );
-    } finally {
-      await prisma.$disconnect();
+      return res.sendResponse(error.message, 400);
     }
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse('An error occurred while updating the workflow.', 500);
+  } finally {
+    await prisma.$disconnect();
   }
-);
+});
 
 // Endpoint to delete a workflow
 router.delete('/:id', async (req, res) => {
@@ -475,10 +442,7 @@ router.delete('/:id', async (req, res) => {
     });
   } catch (error) {
     console.error(error);
-    return res.sendResponse(
-      'An error occurred while deleting the workflow.',
-      500
-    );
+    return res.sendResponse('An error occurred while deleting the workflow.', 500);
   } finally {
     await prisma.$disconnect();
   }
