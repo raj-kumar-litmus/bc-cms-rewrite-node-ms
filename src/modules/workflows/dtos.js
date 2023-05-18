@@ -24,7 +24,7 @@ const updatedWorkflowDto = Joi.object({
 const searchWorkflowBodyDto = Joi.object({
   filters: Joi.object({
     styleId: Joi.string(),
-    title: Joi.array().items(Joi.string().trim()),
+    title: Joi.string(),
     brand: Joi.array().items(Joi.string().trim()),
     status: Joi.array().items(Joi.string().valid(...Object.values(Status))),
     createProcess: Joi.array().items(
