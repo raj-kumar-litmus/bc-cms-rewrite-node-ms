@@ -3,8 +3,6 @@ const morgan = require('morgan');
 const helmet = require('helmet');
 const cors = require('cors');
 
-const axios = require('axios');
-
 require('dotenv').config();
 
 const middlewares = require('./middlewares');
@@ -21,68 +19,6 @@ app.get('/sanity', (_, res) => {
   res.send(200).json({
     ok: true
   });
-});
-
-const getConfig = (req) => {
-  const { cookie: Cookie } = req.headers; // Retrieve the Cookie header value
-
-  return {
-    headers: {
-      Cookie
-    }
-  };
-};
-
-app.get('/style/:sId/techSpecs', async (req, res) => {
-  const { sId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${sId}`;
-  try {
-    const {
-      data: {
-        item: { techSpecs }
-      }
-    } = await axios.get(url, getConfig(req));
-
-    res.send(techSpecs);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
-app.get('/genus', async (req, res) => {
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/genus`;
-  try {
-    const { data } = await axios.get(url, getConfig(req));
-    res.send(data);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
-app.get('/genus/:gId/species', async (req, res) => {
-  const { gId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/genus/${gId}/species`;
-  try {
-    const { data } = await axios.get(url, getConfig(req));
-    res.send(data);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Internal Server Error');
-  }
-});
-
-app.get('/genus/:gId/species/:sId/hAttributes', async (req, res) => {
-  const { gId, sId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/genus/${gId}/species/${sId}/hAttributes`;
-  try {
-    const { data } = await axios.get(url, getConfig(req));
-    res.send(data);
-  } catch (error) {
-    console.error(error.message);
-    res.status(500).send('Internal Server Error');
-  }
 });
 
 app.use(middlewares.responseInterceptor);

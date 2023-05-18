@@ -4,20 +4,57 @@ const notFound = (req, res, next) => {
   next(error);
 };
 
-// const errorHandler = (err, req, res) => {
+// /* eslint-disable no-unused-vars */
+// function errorHandler(err, req, res, next) {
+//   /* eslint-enable no-unused-vars */
 //   const statusCode = res.statusCode !== 200 ? res.statusCode : 500;
-//   res.status(statusCode);
-//   res.json({
-//     message: err.message,
-//     stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
-//   });
-// };
+//   res.sendResponse(
+//     {
+//       message: err.message,
+//       stack: process.env.NODE_ENV === 'production' ? '🥞' : err.stack
+//     },
+//     statusCode
+//   );
+//   next();
+// }
 
-const validateMiddleware = (schema) => (req, res, next) => {
-  const { error } = schema.validate(req.body);
-  if (error) {
-    return res.status(400).json({ error: error.details[0].message });
+const validateMiddleware = (schemas) => (req, res, next) => {
+  /* eslint-disable consistent-return */
+  /* eslint-disable indent */
+  const getDataByType = (type) => {
+    switch (type) {
+      case 'params':
+        return req.params;
+      case 'query':
+        return req.query;
+      case 'body':
+        return req.body;
+      default:
+        return null;
+    }
+  };
+
+  /* eslint-disable consistent-return  */
+  const validationErrors = Object.keys(schemas).map((key) => {
+    const schema = schemas[key];
+    const data = getDataByType(key);
+    const { error } = schema.validate(data);
+
+    if (error) {
+      return error.details[0].message;
+    }
+    return null;
+  });
+
+  const hasErrors = validationErrors.some((error) => error !== null);
+
+  if (hasErrors) {
+    return res.sendResponse(
+      validationErrors.filter((error) => error !== null),
+      400
+    );
   }
+
   return next();
 };
 
