@@ -136,9 +136,13 @@ router.post(
 
       Object.entries(filters).forEach(([param, values]) => {
         if (param === 'lastUpdateTs') {
+          const startDate = new Date(values);
+          const endDate = new Date(values);
+          endDate.setDate(endDate.getDate() + 1);
+
           where[param] = {
-            gte: values.min,
-            lte: values.max
+            gte: startDate,
+            lt: endDate
           };
         } else if (param === 'assignee') {
           where[param] = {
