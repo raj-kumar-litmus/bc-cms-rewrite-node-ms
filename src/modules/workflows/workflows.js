@@ -98,15 +98,9 @@ router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
           409
         );
       }
-      return res.sendResponse(
-        'An error occurred while creating the workflow.',
-        500
-      );
+      return res.sendResponse('An error occurred while creating the workflow.', 500);
     }
-    return res.sendResponse(
-      'An error occurred while creating the workflow.',
-      500
-    );
+    return res.sendResponse('An error occurred while creating the workflow.', 500);
   } finally {
     await prisma.$disconnect();
   }
@@ -206,19 +200,15 @@ router.post(
         workflows.forEach((workflow) => {
           const workflowWithAssignee = { ...workflow };
           if (
-            [
-              'ASSIGNED_TO_WRITER',
-              'WRITING_IN_PROGRESS',
-              'WRITING_COMPLETE'
-            ].includes(workflow.status)
+            ['ASSIGNED_TO_WRITER', 'WRITING_IN_PROGRESS', 'WRITING_COMPLETE'].includes(
+              workflow.status
+            )
           ) {
             workflowWithAssignee.assignee = workflow.writer;
           } else if (
-            [
-              'ASSIGNED_TO_EDITOR',
-              'EDITING_IN_PROGRESS',
-              'EDITING_COMPLETE'
-            ].includes(workflow.status)
+            ['ASSIGNED_TO_EDITOR', 'EDITING_IN_PROGRESS', 'EDITING_COMPLETE'].includes(
+              workflow.status
+            )
           ) {
             workflowWithAssignee.assignee = workflow.editor;
           } else {
@@ -243,10 +233,7 @@ router.post(
       });
     } catch (error) {
       console.error(error);
-      return res.sendResponse(
-        'An error occurred while searching workflows.',
-        500
-      );
+      return res.sendResponse('An error occurred while searching workflows.', 500);
     } finally {
       await prisma.$disconnect();
     }
@@ -294,10 +281,7 @@ router.get('/counts', async (req, res) => {
     return res.sendResponse(counts);
   } catch (error) {
     console.error(error);
-    return res.sendResponse(
-      'An error occurred while fetching workflow counts.',
-      500
-    );
+    return res.sendResponse('An error occurred while fetching workflow counts.', 500);
   } finally {
     await prisma.$disconnect();
   }
@@ -317,60 +301,44 @@ router.get('/:id', async (req, res) => {
   } catch (error) {
     console.error(error);
 
-    if (
-      error.code === 'P2023' &&
-      error.meta?.message?.includes('Malformed ObjectID')
-    ) {
+    if (error.code === 'P2023' && error.meta?.message?.includes('Malformed ObjectID')) {
       return res.sendResponse('Invalid workflow ID.', 400);
     }
 
-    return res.sendResponse(
-      'An error occurred while retrieving the workflow.',
-      500
-    );
+    return res.sendResponse('An error occurred while retrieving the workflow.', 500);
   } finally {
     await prisma.$disconnect();
   }
 });
 
 // Endpoint to update a workflow
-router.patch(
-  '/:id',
-  validateMiddleware(updatedWorkflowDto),
-  async (req, res) => {
-    try {
-      const {
-        params: { id },
-        body: data
-      } = req;
+router.patch('/:id', validateMiddleware(updatedWorkflowDto), async (req, res) => {
+  try {
+    const {
+      params: { id },
+      body: data
+    } = req;
 
-      const updatedWorkflow = await prisma.workflow.update({
-        where: {
-          styleId: id.toUpperCase()
-        },
-        data
-      });
+    const updatedWorkflow = await prisma.workflow.update({
+      where: {
+        styleId: id.toUpperCase()
+      },
+      data
+    });
 
-      return res.sendResponse(updatedWorkflow);
-    } catch (error) {
-      console.error(error);
+    return res.sendResponse(updatedWorkflow);
+  } catch (error) {
+    console.error(error);
 
-      if (
-        error instanceof Prisma.PrismaClientKnownRequestError &&
-        error.code === 'P2025'
-      ) {
-        return res.sendResponse('Workflow not found.', 404);
-      }
-
-      return res.sendResponse(
-        'An error occurred while updating the workflow.',
-        500
-      );
-    } finally {
-      await prisma.$disconnect();
+    if (error instanceof Prisma.PrismaClientKnownRequestError && error.code === 'P2025') {
+      return res.sendResponse('Workflow not found.', 404);
     }
+
+    return res.sendResponse('An error occurred while updating the workflow.', 500);
+  } finally {
+    await prisma.$disconnect();
   }
-);
+});
 
 // Endpoint to delete a workflow
 router.delete('/:id', async (req, res) => {
@@ -386,10 +354,7 @@ router.delete('/:id', async (req, res) => {
     return res.sendResponse({ message: 'Workflow deleted successfully.' });
   } catch (error) {
     console.error(error);
-    return res.sendResponse(
-      'An error occurred while deleting the workflow.',
-      500
-    );
+    return res.sendResponse('An error occurred while deleting the workflow.', 500);
   } finally {
     await prisma.$disconnect();
   }
