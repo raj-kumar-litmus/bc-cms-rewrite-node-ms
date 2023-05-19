@@ -103,12 +103,10 @@ router.post(
             lt: endOfDay.toISOString()
           };
         } else if (param === 'assignee') {
-          where[param] = {
-            OR: [
-              { writer: { in: values, mode: 'insensitive' } },
-              { editor: { in: values, mode: 'insensitive' } }
-            ]
-          };
+          where.OR = [
+            { writer: { contains: values, mode: 'insensitive' } },
+            { editor: { contains: values, mode: 'insensitive' } }
+          ];
         } else if (Array.isArray(values)) {
           where[param] = {
             in: values,
