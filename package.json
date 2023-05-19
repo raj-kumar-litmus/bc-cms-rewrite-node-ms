@@ -12,10 +12,10 @@
     "postinstall": "prisma generate"
   },
   "keywords": [],
-  "author": "CJ R. <cj@null.computer> (https://w3cj.now.sh)",
+  "author": "nikhil.s@litmus7.com",
   "repository": {
     "type": "git",
-    "url": "git+https://github.com/w3cj/express-api-starter.git"
+    "url": "git+https://github.com/raj-kumar-litmus/bc-cms-rewrite-node-ms"
   },
   "license": "MIT",
   "dependencies": {
@@ -26,9 +26,7 @@
     "express": "^4.18.2",
     "helmet": "^6.0.1",
     "joi": "^17.9.2",
-    "morgan": "^1.10.0",
-    "xml-js": "^1.6.11",
-    "xml2js": "^0.5.0"
+    "morgan": "^1.10.0"
   },
   "devDependencies": {
     "eslint": "^8.40.0",
@@ -47,9 +45,9 @@
     "supertest": "^6.3.3"
   },
   "bugs": {
-    "url": "https://github.com/w3cj/express-api-starter/issues"
+    "url": "https://github.com/raj-kumar-litmus/bc-cms-rewrite-node-ms/issues"
   },
-  "homepage": "https://github.com/w3cj/express-api-starter#readme",
+  "homepage": "https://github.com/raj-kumar-litmus/bc-cms-rewrite-node-ms/blob/main/README.md",
   "directories": {
     "test": "test"
   },

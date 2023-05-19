@@ -120,22 +120,11 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
       body: { styles }
     } = req;
 
-    const validStyles = [];
-    const invalidStyles = [];
     const createdWorkflows = [];
     const failedWorkflows = [];
 
-    styles.forEach(({ styleId, brand, title }) => {
-      // Check the necessity
-      if (styleId.length < 6) {
-        invalidStyles.push(styleId);
-      } else {
-        validStyles.push({ styleId, brand, title });
-      }
-    });
-
     await Promise.all(
-      validStyles.map(async ({ styleId, brand, title }) => {
+      styles.map(async ({ styleId, brand, title }) => {
         try {
           const workflow = await prisma.workflow.create({
             data: {
@@ -158,23 +147,15 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
       return res.sendResponse(
         {
           success: createdWorkflows,
-          failed: failedWorkflows,
-          invalid: invalidStyles
+          failed: failedWorkflows
         },
         207
       );
     }
 
-    return res.sendResponse(
-      {
-        success: createdWorkflows,
-        invalid: invalidStyles
-      },
-      201
-    );
-  } catch (error) {
-    console.error(error);
-    return res.sendResponse('An error occurred while creating the workflows.', 500);
+    return res.sendResponse({
+      success: createdWorkflows
+    });
   } finally {
     await prisma.$disconnect();
   }
@@ -213,12 +194,10 @@ router.post(
             lt: endOfDay.toISOString()
           };
         } else if (param === 'assignee') {
-          where[param] = {
-            OR: [
-              { writer: { in: values, mode: 'insensitive' } },
-              { editor: { in: values, mode: 'insensitive' } }
-            ]
-          };
+          where.OR = [
+            { writer: { contains: values, mode: 'insensitive' } },
+            { editor: { contains: values, mode: 'insensitive' } }
+          ];
         } else if (Array.isArray(values)) {
           where[param] = {
             in: values,
@@ -323,31 +302,17 @@ router.get('/counts', async (req, res) => {
       }),
       assigned: await prisma.workflow.count({
         where: {
-          OR: [
-            { status: Status.ASSIGNED_TO_WRITER },
-            { status: Status.WRITING_IN_PROGRESS },
-            { status: Status.WRITING_COMPLETE },
-            { status: Status.ASSIGNED_TO_EDITOR },
-            { status: Status.EDITING_IN_PROGRESS },
-            { status: Status.EDITING_COMPLETE }
-          ]
+          OR: [{ status: Status.ASSIGNED_TO_WRITER }, { status: Status.ASSIGNED_TO_EDITOR }]
         }
       }),
       inProgress: await prisma.workflow.count({
         where: {
-          OR: [
-            { status: Status.ASSIGNED_TO_WRITER },
-            { status: Status.WRITING_IN_PROGRESS },
-            { status: Status.WRITING_COMPLETE },
-            { status: Status.ASSIGNED_TO_EDITOR },
-            { status: Status.EDITING_IN_PROGRESS },
-            { status: Status.EDITING_COMPLETE }
-          ]
+          OR: [{ status: Status.WRITING_IN_PROGRESS }, { status: Status.EDITING_IN_PROGRESS }]
         }
       }),
       completed: await prisma.workflow.count({
         where: {
-          status: Status.EDITING_COMPLETE
+          OR: [{ status: Status.WRITING_COMPLETE }, { status: Status.EDITING_COMPLETE }]
         }
       })
     };

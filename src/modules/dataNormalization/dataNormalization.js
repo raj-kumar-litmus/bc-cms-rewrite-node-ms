@@ -14,9 +14,9 @@ const getConfig = (req) => {
   };
 };
 
-router.get('/styles/:sId', async (req, res) => {
-  const { sId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${sId}`;
+router.get('/styles/:styleId', async (req, res) => {
+  const { styleId } = req.params;
+  const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${styleId}`;
   console.log(url);
   try {
     const {
@@ -25,16 +25,16 @@ router.get('/styles/:sId', async (req, res) => {
       }
     } = await axios.get(url, getConfig(req));
 
-    res.sendResponse({ styleId: sId, brand: brand.name, title: productTitle });
+    res.sendResponse({ styleId, brand: brand.name, title: productTitle });
   } catch (error) {
     console.error(error.message);
     res.sendResponse('Internal Server Error', 500);
   }
 });
 
-router.get('/styles/:sId/techSpecs', async (req, res) => {
-  const { sId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${sId}`;
+router.get('/styles/:styleId/techSpecs', async (req, res) => {
+  const { styleId } = req.params;
+  const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${styleId}`;
   console.log(url);
   try {
     const {
@@ -61,9 +61,9 @@ router.get('/genus', async (req, res) => {
   }
 });
 
-router.get('/genus/:gId/species', async (req, res) => {
-  const { gId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/genus/${gId}/species`;
+router.get('/genus/:genusId/species', async (req, res) => {
+  const { genusId } = req.params;
+  const url = `${process.env.backContryAPI}/dataNormalization/rest/genus/${genusId}/species`;
   try {
     const { data } = await axios.get(url, getConfig(req));
     res.sendResponse(data);
@@ -73,9 +73,9 @@ router.get('/genus/:gId/species', async (req, res) => {
   }
 });
 
-router.get('/genus/:gId/species/:sId/hAttributes', async (req, res) => {
-  const { gId, sId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/genus/${gId}/species/${sId}/hAttributes`;
+router.get('/genus/:genusId/species/:styleId/hAttributes', async (req, res) => {
+  const { genusId, styleId } = req.params;
+  const url = `${process.env.backContryAPI}/dataNormalization/rest/genus/${genusId}/species/${styleId}/hAttributes`;
   try {
     const { data } = await axios.get(url, getConfig(req));
     res.sendResponse(data);

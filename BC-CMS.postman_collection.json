@@ -55,7 +55,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        // \"brand\": [\r\n        //     \"nike\"\r\n        // ],\r\n        // \"styleId\": \"NEWone\",\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\"\r\n        // ],\r\n        \r\n        \"lastUpdateTs\": \"2023-MAY-19\"\r\n    },\r\n    \"orderBy\": {\r\n        \"styleId\": \"desc\"\r\n    }\r\n}",
+							"raw": "{\r\n    \"filters\": {\r\n        // \"brand\": [\r\n        //     \"nike\"\r\n        // ],\r\n        \"assignee\": \"writer 3\"\r\n        // \"styleId\": \"NEWone\",\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\"\r\n        // ],\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n    },\r\n    \"orderBy\": {\r\n        \"styleId\": \"desc\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
