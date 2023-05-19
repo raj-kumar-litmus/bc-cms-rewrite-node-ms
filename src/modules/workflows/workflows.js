@@ -17,90 +17,54 @@ const prisma = new PrismaClient({
 });
 
 // Endpoint to initiate a workflow
-router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
+router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, res) => {
   try {
     const {
       body: { styles }
     } = req;
 
-    // Validating styleId
-    const validStyles = [];
-    const invalidStyles = [];
+    const createdWorkflows = [];
+    const failedWorkflows = [];
 
-    styles.forEach(({ styleId, brand, title }) => {
-      if (styleId.length < 6) {
-        invalidStyles.push(styleId);
-      } else {
-        validStyles.push({ styleId, brand, title });
-      }
-    });
-
-    const existingWorkflows = await prisma.workflow.findMany({
-      where: {
-        styleId: {
-          in: validStyles.map(({ styleId }) => styleId),
-          mode: 'insensitive'
+    await Promise.all(
+      styles.map(async ({ styleId, brand, title }) => {
+        try {
+          const workflow = await prisma.workflow.create({
+            data: {
+              styleId: styleId.toUpperCase(),
+              brand,
+              title,
+              createProcess: CreateProcess.WRITER_INTERFACE,
+              admin: 'admin user',
+              lastUpdatedBy: 'admin user'
+            }
+          });
+          createdWorkflows.push(workflow);
+        } catch (error) {
+          failedWorkflows.push({ styleId, brand, title });
         }
-        // status: {
-        //   not: Status.EDITING_COMPLETE
-        // }
-      }
-    });
-
-    const existingStyles = existingWorkflows.map(({ styleId }) => styleId);
-
-    const nonExistingStyles = validStyles.filter(
-      ({ styleId }) => !existingStyles.includes(styleId.toUpperCase())
+      })
     );
 
-    if (!nonExistingStyles.length) {
+    if (failedWorkflows.length > 0) {
       return res.sendResponse(
         {
-          success: [],
-          invalid: invalidStyles,
-          existing: existingStyles
+          success: createdWorkflows,
+          failed: failedWorkflows
         },
-        201
+        207
       );
-    }
-
-    const { count: createdCount } = await prisma.workflow.createMany({
-      data: nonExistingStyles.map(({ styleId, brand, title }) => ({
-        styleId: styleId.toUpperCase(),
-        brand,
-        title,
-        createProcess: CreateProcess.WRITER_INTERFACE,
-        admin: 'admin user',
-        lastUpdatedBy: 'admin user'
-      }))
-    });
-
-    const totalCount = nonExistingStyles.length;
-
-    if (createdCount !== totalCount) {
-      return res.sendResponse('Some records failed to insert.', 207);
     }
 
     return res.sendResponse(
       {
-        success: nonExistingStyles.map(({ styleId }) => styleId),
-        invalid: invalidStyles,
-        existing: existingStyles
+        success: createdWorkflows
       },
       201
     );
   } catch (error) {
     console.error(error);
-    if (error instanceof Prisma.PrismaClientKnownRequestError) {
-      if (error.code === 'P2002') {
-        return res.sendResponse(
-          'There is a unique constraint violation, a workflow cannot be created with this styleId',
-          409
-        );
-      }
-      return res.sendResponse('An error occurred while creating the workflow.', 500);
-    }
-    return res.sendResponse('An error occurred while creating the workflow.', 500);
+    return res.sendResponse('An error occurred while creating the workflows.', 500);
   } finally {
     await prisma.$disconnect();
   }
