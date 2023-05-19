@@ -139,13 +139,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows/64664ccd898402c641fbb53c/next",
+							"raw": "{{url}}workflows/64664ccd898402c641fbb53c",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"64664ccd898402c641fbb53c",
-								"next"
+								"64664ccd898402c641fbb53c"
 							]
 						}
 					},

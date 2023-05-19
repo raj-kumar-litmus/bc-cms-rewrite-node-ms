@@ -386,7 +386,7 @@ router.get('/:id', async (req, res) => {
 });
 
 // Update workflow status and assign user API
-router.patch('/:id/next', validateMiddleware({ body: updatedWorkflowDto }), async (req, res) => {
+router.patch('/:id', validateMiddleware({ body: updatedWorkflowDto }), async (req, res) => {
   try {
     const { id } = req.params;
     const { ...updatedFields } = req.body;
