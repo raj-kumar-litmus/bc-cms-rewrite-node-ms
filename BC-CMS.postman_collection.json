@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"gffnvhh\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        },\r\n        {\r\n            \"styleId\": \"BNGBGFHH\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        },\r\n         {\r\n            \"styleId\": \"gfhvh\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"STYLE1234\",\r\n            \"brand\": \"My Brand1\",\r\n            \"title\": \"My product title1\"\r\n        }\r\n        //  {\r\n        //     \"styleId\": \"NEWTWO\",\r\n        //     \"brand\": \"My Brand1\",\r\n        //     \"title\": \"My product title1\"\r\n        // }, {\r\n        //     \"styleId\": \"NEWTHREE\",\r\n        //     \"brand\": \"My Brand1\",\r\n        //     \"title\": \"My product title1\"\r\n        // }\r\n        // {\r\n        //     \"styleId\": \"BNGBGFHH\",\r\n        //     \"brand\": \"My Brand1\",\r\n        //     \"title\": \"My product title1\"\r\n        // },\r\n        //  {\r\n        //     \"styleId\": \"gfhvh\",\r\n        //     \"brand\": \"My Brand1\",\r\n        //     \"title\": \"My product title1\"\r\n        // }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -37,12 +37,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/645de3b03e7cc4ec1ceb1b7f",
+							"raw": "{{url}}workflows/64675455e86178b53860afe6",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"645de3b03e7cc4ec1ceb1b7f"
+								"64675455e86178b53860afe6"
 							]
 						}
 					},
@@ -55,7 +55,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        // \"brand\": [\r\n        //     \"nike\"\r\n        // ],\r\n        // \"styleId\": \"ABCDRF\",\r\n        \"status\": [\r\n            \"ASSIGNED_TO_WRITER\"\r\n        ],\r\n        \r\n        \"lastUpdateTs\": {\r\n            \"min\": \"2023-05-12T00:00:00.000Z\"\r\n            \"max\": \"2023-05-12T05:32:49.981Z\"\r\n        }\r\n    },\r\n    \"orderBy\": {\r\n        \"styleId\": \"desc\"\r\n    }\r\n}",
+							"raw": "{\r\n    \"filters\": {\r\n        // \"brand\": [\r\n        //     \"nike\"\r\n        // ],\r\n        // \"styleId\": \"NEWone\",\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\"\r\n        // ],\r\n        \r\n        \"lastUpdateTs\": \"2023-MAY-12\"\r\n    },\r\n    \"orderBy\": {\r\n        \"styleId\": \"desc\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -125,13 +125,13 @@
 					"response": []
 				},
 				{
-					"name": "workflow",
+					"name": "workflow/:id",
 					"request": {
 						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    // \"admin\": \"The 1234567\",\r\n    // \"status\": \"ASSIGNED_TO_WRITER\",\r\n    // \"status\": \"WRITING_COMPLETE\"\r\n    // \"writer\": \"writer\"\r\n    // \"create_ts\": \"2023-03-28T23:58:18.000Z\",\r\n    // \"editor\": \"The Editor\",\r\n    // \"editor_review\": true,\r\n    // \"last_edit_complete_ts\": \"2023-03-30T23:58:18.000Z\",\r\n    // \"last_update_ts\": \"2023-03-30T23:58:18.000Z\",\r\n    // \"last_updated_by\": \"Andrew Smith\",\r\n    // \"last_write_complete_ts\": \"2023-03-29T23:58:18.000Z\",\r\n    // \"writer\": \"The Writer\"\r\n}",
+							"raw": "{\r\n    // \"writer\": \"writer 2\"\r\n    // \"editor\": \"editor 5\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -139,12 +139,18 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows/STYleID",
+							"raw": "{{url}}workflows/64675455e86178b53860afe6?saveForLater=true",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"STYleID"
+								"64675455e86178b53860afe6"
+							],
+							"query": [
+								{
+									"key": "saveForLater",
+									"value": "true"
+								}
 							]
 						}
 					},
