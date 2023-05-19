@@ -213,31 +213,17 @@ router.get('/counts', async (req, res) => {
       }),
       assigned: await prisma.workflow.count({
         where: {
-          OR: [
-            { status: Status.ASSIGNED_TO_WRITER },
-            { status: Status.WRITING_IN_PROGRESS },
-            { status: Status.WRITING_COMPLETE },
-            { status: Status.ASSIGNED_TO_EDITOR },
-            { status: Status.EDITING_IN_PROGRESS },
-            { status: Status.EDITING_COMPLETE }
-          ]
+          OR: [{ status: Status.ASSIGNED_TO_WRITER }, { status: Status.ASSIGNED_TO_EDITOR }]
         }
       }),
       inProgress: await prisma.workflow.count({
         where: {
-          OR: [
-            { status: Status.ASSIGNED_TO_WRITER },
-            { status: Status.WRITING_IN_PROGRESS },
-            { status: Status.WRITING_COMPLETE },
-            { status: Status.ASSIGNED_TO_EDITOR },
-            { status: Status.EDITING_IN_PROGRESS },
-            { status: Status.EDITING_COMPLETE }
-          ]
+          OR: [{ status: Status.WRITING_IN_PROGRESS }, { status: Status.EDITING_IN_PROGRESS }]
         }
       }),
       completed: await prisma.workflow.count({
         where: {
-          status: Status.EDITING_COMPLETE
+          OR: [{ status: Status.WRITING_COMPLETE }, { status: Status.EDITING_COMPLETE }]
         }
       })
     };
