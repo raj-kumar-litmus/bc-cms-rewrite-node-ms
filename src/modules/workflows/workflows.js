@@ -17,103 +17,7 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error']
 });
 
-// // Endpoint to initiate a workflow exsting Workflows
-// router.post('/', validateMiddleware(createWorkflowDto), async (req, res) => {
-//   try {
-//     const {
-//       body: { styles }
-//     } = req;
-
-//     // Validating styleId
-//     const validStyles = [];
-//     const invalidStyles = [];
-
-//     styles.forEach(({ styleId, brand, title }) => {
-//       if (styleId.length < 6) {
-//         invalidStyles.push(styleId);
-//       } else {
-//         validStyles.push({ styleId, brand, title });
-//       }
-//     });
-
-//     const existingWorkflows = await prisma.workflow.findMany({
-//       where: {
-//         styleId: {
-//           in: validStyles.map(({ styleId }) => styleId),
-//           mode: 'insensitive'
-//         }
-//         // status: {
-//         //   not: Status.EDITING_COMPLETE
-//         // }
-//       }
-//     });
-
-//     const existingStyles = existingWorkflows.map(({ styleId }) => styleId);
-
-//     const nonExistingStyles = validStyles.filter(
-//       ({ styleId }) => !existingStyles.includes(styleId.toUpperCase())
-//     );
-
-//     if (!nonExistingStyles.length) {
-//       return res.sendResponse(
-//         {
-//           success: [],
-//           invalid: invalidStyles,
-//           existing: existingStyles
-//         },
-//         201
-//       );
-//     }
-
-//     const { count: createdCount } = await prisma.workflow.createMany({
-//       data: nonExistingStyles.map(({ styleId, brand, title }) => ({
-//         styleId: styleId.toUpperCase(),
-//         brand,
-//         title,
-//         createProcess: CreateProcess.WRITER_INTERFACE,
-//         admin: 'admin user',
-//         lastUpdatedBy: 'admin user'
-//       }))
-//     });
-
-//     const totalCount = nonExistingStyles.length;
-
-//     if (createdCount !== totalCount) {
-//       return res.sendResponse('Some records failed to insert.', 207);
-//     }
-
-//     return res.sendResponse(
-//       {
-//         success: nonExistingStyles.map(({ styleId }) => styleId),
-//         invalid: invalidStyles,
-//         existing: existingStyles
-//       },
-//       201
-//     );
-//   } catch (error) {
-//     console.error(error);
-//     if (error instanceof Prisma.PrismaClientKnownRequestError) {
-//       if (error.code === 'P2002') {
-//         return res.sendResponse(
-//           'There is a unique constraint violation, a workflow cannot be created with this styleId',
-//           409
-//         );
-//       }
-//       return res.sendResponse(
-//         'An error occurred while creating the workflow.',
-//         500
-//       );
-//     }
-//     return res.sendResponse(
-//       'An error occurred while creating the workflow.',
-//       500
-//     );
-//   } finally {
-//     await prisma.$disconnect();
-//   }
-// });
-
-// Endpoint to initiate a workflow
+// Endpoint to create a workflow
 router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, res) => {
   try {
     const {
@@ -153,15 +57,16 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
       );
     }
 
-    return res.sendResponse({
-      success: createdWorkflows
-    });
+    return res.sendResponse({ success: createdWorkflows }, 201);
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse('An error occurred while creating the workflows.', 500);
   } finally {
     await prisma.$disconnect();
   }
 });
 
-// Endpoint to search  workflows
+// Endpoint to search workflows
 router.post(
   '/search',
   validateMiddleware({
@@ -350,7 +255,7 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update workflow status and assign user API
+// Update workflow status and assign writer or editor
 router.patch('/:id', validateMiddleware({ body: updatedWorkflowDto }), async (req, res) => {
   try {
     const { id } = req.params;
@@ -369,7 +274,7 @@ router.patch('/:id', validateMiddleware({ body: updatedWorkflowDto }), async (re
     }
 
     try {
-      const changeLog = workflowEngine(workflow, updatedFields, saveForLater);
+      const changeLog = workflowEngine(workflow, updatedFields, saveForLater === 'true');
       changeLog.lastUpdatedBy = 'temp user';
 
       const updatedWorkflow = await prisma.workflow.update({
@@ -403,9 +308,12 @@ router.delete('/:id', async (req, res) => {
       }
     });
 
-    return res.sendResponse({
-      message: 'Workflow deleted successfully.'
-    });
+    return res.sendResponse(
+      {
+        message: 'Workflow deleted successfully.'
+      },
+      200
+    );
   } catch (error) {
     console.error(error);
     return res.sendResponse('An error occurred while deleting the workflow.', 500);
