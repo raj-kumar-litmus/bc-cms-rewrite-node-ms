@@ -4,7 +4,7 @@ const { PrismaClient } = require('@prisma/client');
 const app = require('../src/app');
 
 const prisma = new PrismaClient();
-describe.skip('Workflow API', () => {
+describe('Workflow API', () => {
   const url = '/api/v1/workflows';
 
   const validStyles = [

@@ -1,9 +1,13 @@
+const express = require('express');
 const axios = require('axios');
+
+const router = express.Router();
+
 const validate = require('validate-azure-ad-token').default;
 
 const configurations = require("../../config");
 
-const groupMembers = async (req, res) => {
+router.get('/:groupType', async (req, res) => {
   const { msGraphHostName } = configurations[process.env.NODE_ENV];
   const { accessToken, groupId } = req.body;
   if(!accessToken || !groupId) {
@@ -26,7 +30,7 @@ const groupMembers = async (req, res) => {
       error
     });
   }
-};
+});
 
 const validateJWT = async (req, res) => {
   const { jwt } =  req.body || {};
@@ -65,7 +69,9 @@ const validateJWT = async (req, res) => {
   }
 };
 
-module.exports = {
-  groupMembers,
-  validateJWT
-}
+// module.exports = {
+//   groupMembers,
+//   validateJWT
+// }
+
+module.exports = router;
