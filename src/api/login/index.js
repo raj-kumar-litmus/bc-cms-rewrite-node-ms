@@ -3,24 +3,63 @@ const validate = require('validate-azure-ad-token').default;
 
 const configurations = require("../../config");
 
-const groupMembers = async (req, res) => {
-  const { msGraphHostName } = configurations[process.env.NODE_ENV];
-  const { accessToken, groupId } = req.body;
-  if(!accessToken || !groupId) {
+const getAccessToken = async () => {
+  const { clientSecret, clientId, defaultMsGraphScope, tenantId, msLoginHostName } = configurations[process.env.NODE_ENV];
+  try {
+    const URL = `${msLoginHostName}/${tenantId}/oauth2/v2.0/token`;
+    const {data : {access_token }} = await axios.post(URL, {
+      'grant_type': 'client_credentials',
+      'client_secret' : clientSecret,
+      'client_id' : clientId,
+      'scope' : defaultMsGraphScope
+    },{
+    headers: {
+      'Content-Type': 'multipart/form-data'
+    }});
+    return { access_token };
+  } catch(error) {
+    return { error };
+  }
+}
+
+const accessToken = async (req, res) => {
+  const {access_token, error} = await getAccessToken() || {};
+  if(error) {
     return res.status(400).send({
-      message: "Access Token and groupId are required fields"
+      error
+    });
+  }
+  return res.status(200).send({
+    access_token
+  });
+};
+
+const groupMembers = async (req, res) => {
+  const { type } = req.params;
+  const { msGraphHostName, writersGroupId, editorGroupId } = configurations[process.env.NODE_ENV];
+  const {access_token} = await getAccessToken() || {};
+  let groupId;
+  if(type === "writers") {
+    groupId = writersGroupId;
+  }
+  if(type === "editors") {
+    groupId = editorGroupId;
+  }
+  if(!groupId) {
+    return res.status(400).send({
+      message: "groupId is required field"
     });
   }
   try {
     const URL = `${msGraphHostName}/groups/${groupId}/members`;
-    const {data : members } = await axios.get(URL, {
+    const {data : {value} } = await axios.get(URL, {
       headers: {
-        Authorization: `Bearer ${accessToken}`
+        Authorization: `Bearer ${access_token}`
       }
     });
     return res.status(200).send({
-      members
-    });      
+      members: value
+    });
   } catch(error) {
     return res.status(400).send({
       error
@@ -67,5 +106,6 @@ const validateJWT = async (req, res) => {
 
 module.exports = {
   groupMembers,
+  accessToken,
   validateJWT
 }
