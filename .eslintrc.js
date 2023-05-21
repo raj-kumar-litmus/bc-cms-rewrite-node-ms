@@ -23,6 +23,7 @@ module.exports = {
     'arrow-spacing': 'error',
     'no-confusing-arrow': 'error',
     'no-useless-constructor': 'error',
+    'no-plusplus': 'off',
 
     // Strings
     quotes: ['error', 'single', { avoidEscape: true }],
