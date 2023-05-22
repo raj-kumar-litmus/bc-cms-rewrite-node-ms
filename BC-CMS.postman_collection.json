@@ -451,6 +451,25 @@
 					"response": []
 				}
 			]
+		},
+		{
+			"name": "users",
+			"item": [
+				{
+					"name": "New Request",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}users",
+							"host": [
+								"{{url}}users"
+							]
+						}
+					},
+					"response": []
+				}
+			]
 		}
 	]
 }
