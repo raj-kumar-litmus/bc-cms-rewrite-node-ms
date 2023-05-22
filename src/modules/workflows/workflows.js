@@ -79,7 +79,7 @@ router.post(
   }),
   async (req, res) => {
     try {
-      const { page = 1, limit = 10, unique, global } = req.query;
+      const { page = 1, limit = 10, unique, globalSearch } = req.query;
       const { filters = {}, orderBy = {} } = req.body;
       const parsedLimit = parseInt(limit, 10);
       const parsedPage = parseInt(page, 10);
@@ -92,11 +92,11 @@ router.post(
 
       const where = {};
 
-      if (global) {
+      if (globalSearch) {
         where.OR = [
-          { styleId: { contains: global, mode: 'insensitive' } },
-          { brand: { contains: global, mode: 'insensitive' } },
-          { title: { contains: global, mode: 'insensitive' } }
+          { styleId: { contains: globalSearch, mode: 'insensitive' } },
+          { brand: { contains: globalSearch, mode: 'insensitive' } },
+          { title: { contains: globalSearch, mode: 'insensitive' } }
         ];
       } else {
         Object.entries(filters).forEach(([param, values]) => {

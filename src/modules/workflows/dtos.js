@@ -54,7 +54,7 @@ const searchWorkflowQueryDto = Joi.object({
   page: Joi.number().integer().min(1),
   limit: Joi.number().integer().min(1),
   unique: Joi.string().valid(...Object.values(UniqueKeysEnum)),
-  global: Joi.string()
+  globalSearch: Joi.string()
 });
 
 module.exports = {
