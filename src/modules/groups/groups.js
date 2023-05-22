@@ -1,8 +1,6 @@
 const express = require('express');
 const axios = require('axios');
-
 const router = express.Router();
-
 // const validate = require('validate-azure-ad-token').default;
 
 const getAccessToken = async () => {
