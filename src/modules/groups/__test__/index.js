@@ -2,9 +2,9 @@ jest.mock('../group', () => jest.fn((req, res, next) => next()));
 
 const supertest = require('supertest');
 const app = require('../../../app');
-const work = require('../group');
+// const work = require('../group');
 const request = supertest(app);
-const router = require('../../../modules');
+// const router = require('../../../modules');
 
 let agent;
 let server;
