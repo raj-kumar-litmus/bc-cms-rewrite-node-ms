@@ -3,7 +3,7 @@ const axios = require('axios');
 
 const router = express.Router();
 
-const validate = require('validate-azure-ad-token').default;
+// const validate = require('validate-azure-ad-token').default;
 
 const getAccessToken = async () => {
   const { CLIENT_SECRET, CLIENT_ID, DEFAULT_MS_GRAPH_SCOPE, MS_LOGIN_HOST_NAME, TENANT_ID } =
