@@ -75,5 +75,6 @@ model workflow {
   styleId             String           @unique
   title               String?
   writer              String?
+  assignee            String?
   workbenchAudits     workbenchAudit[]
 }
