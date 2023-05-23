@@ -75,7 +75,7 @@ router.post(
   }),
   async (req, res) => {
     try {
-      const { page = 1, limit = 10, unique } = req.query;
+      const { page = 1, limit = 10, unique, globalSearch } = req.query;
       const { filters = {}, orderBy = {} } = req.body;
       const parsedLimit = parseInt(limit, 10);
       const parsedPage = parseInt(page, 10);
@@ -88,33 +88,36 @@ router.post(
 
       const where = {};
 
-      Object.entries(filters).forEach(([param, values]) => {
-        if (param === 'lastUpdateTs') {
-          const date = new Date(values);
-          const startOfDay = new Date(date.setHours(0, 0, 0, 0));
-          const endOfDay = new Date(date.setHours(23, 59, 59, 999));
+      if (globalSearch) {
+        where.OR = [
+          { styleId: { contains: globalSearch, mode: 'insensitive' } },
+          { brand: { contains: globalSearch, mode: 'insensitive' } },
+          { title: { contains: globalSearch, mode: 'insensitive' } }
+        ];
+      } else {
+        Object.entries(filters).forEach(([param, values]) => {
+          if (param === 'lastUpdateTs') {
+            const date = new Date(values);
+            const startOfDay = new Date(date.setHours(0, 0, 0, 0));
+            const endOfDay = new Date(date.setHours(23, 59, 59, 999));
 
-          where[param] = {
-            gte: startOfDay.toISOString(),
-            lt: endOfDay.toISOString()
-          };
-        } else if (param === 'assignee') {
-          where.OR = [
-            { writer: { contains: values, mode: 'insensitive' } },
-            { editor: { contains: values, mode: 'insensitive' } }
-          ];
-        } else if (Array.isArray(values)) {
-          where[param] = {
-            in: values,
-            mode: param === 'status' ? undefined : 'insensitive'
-          };
-        } else {
-          where[param] = {
-            contains: values,
-            mode: 'insensitive'
-          };
-        }
-      });
+            where[param] = {
+              gte: startOfDay.toISOString(),
+              lt: endOfDay.toISOString()
+            };
+          } else if (Array.isArray(values)) {
+            where[param] = {
+              in: values,
+              mode: param === 'status' ? undefined : 'insensitive'
+            };
+          } else {
+            where[param] = {
+              contains: values,
+              mode: 'insensitive'
+            };
+          }
+        });
+      }
 
       let workflows;
       let total = 0;
@@ -155,25 +158,6 @@ router.post(
           }),
           prisma.workflow.count({ where })
         ]);
-        workflows.forEach((workflow) => {
-          const workflowWithAssignee = { ...workflow };
-          if (
-            ['ASSIGNED_TO_WRITER', 'WRITING_IN_PROGRESS', 'WRITING_COMPLETE'].includes(
-              workflow.status
-            )
-          ) {
-            workflowWithAssignee.assignee = workflow.writer;
-          } else if (
-            ['ASSIGNED_TO_EDITOR', 'EDITING_IN_PROGRESS', 'EDITING_COMPLETE'].includes(
-              workflow.status
-            )
-          ) {
-            workflowWithAssignee.assignee = workflow.editor;
-          } else {
-            workflowWithAssignee.assignee = null;
-          }
-          return workflowWithAssignee;
-        });
       }
 
       const pageCount = Math.ceil(total / parsedLimit);
