@@ -1,0 +1,11 @@
+{
+  "name": "product-content-api",
+  "version": "1.0.0",
+  "description": "This Cloud Function will listen to events from GCP Pub-sub topic and create workflows.",
+  "main": "app.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "",
+  "license": "ISC"
+}
