@@ -48,7 +48,12 @@ const UniqueKeysEnum = {
   styleId: WorkflowKeysEnum.styleId,
   brand: WorkflowKeysEnum.brand,
   title: WorkflowKeysEnum.title,
-  status: WorkflowKeysEnum.status
+  status: WorkflowKeysEnum.status,
+  assignee: WorkflowKeysEnum.assignee,
+  lastUpdatedBy: WorkflowKeysEnum.lastUpdatedBy,
+  writer: WorkflowKeysEnum.writer,
+  editor: WorkflowKeysEnum.editor,
+  admin: WorkflowKeysEnum.admin
 };
 
 const searchWorkflowQueryDto = Joi.object({
