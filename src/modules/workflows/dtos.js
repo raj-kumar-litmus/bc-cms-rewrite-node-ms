@@ -29,6 +29,7 @@ const searchWorkflowBodyDto = Joi.object({
     status: Joi.array().items(Joi.string().valid(...Object.values(Status))),
     createProcess: Joi.array().items(Joi.string().valid(...Object.values(CreateProcess))),
     lastUpdateTs: Joi.date(),
+    lastUpdatedBy: Joi.string(),
     assignee: Joi.string()
   }).unknown(false),
   orderBy: Joi.object({
