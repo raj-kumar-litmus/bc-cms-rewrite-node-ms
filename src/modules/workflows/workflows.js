@@ -259,7 +259,6 @@ router.get('/:id', async (req, res) => {
 router.patch('/:id', validateMiddleware({ body: updatedWorkflowDto }), async (req, res) => {
   try {
     const { id } = req.params;
-    const { saveForLater } = req.query;
     const { ...updatedFields } = req.body;
 
     // Find the workflow by ID
@@ -274,7 +273,7 @@ router.patch('/:id', validateMiddleware({ body: updatedWorkflowDto }), async (re
     }
 
     try {
-      const changeLog = workflowEngine(workflow, updatedFields, saveForLater === 'true');
+      const changeLog = workflowEngine(workflow, updatedFields);
 
       changeLog.lastUpdatedBy = 'temp user';
 

@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 const { Status, WorkflowKeysEnum } = require('./enums');
 
-module.exports = (workflow, { writer, editor }, saveForLater) => {
+module.exports = (workflow, { writer, editor }) => {
   const currentStatus = workflow.status;
   const changeLog = {};
 
@@ -15,7 +15,6 @@ module.exports = (workflow, { writer, editor }, saveForLater) => {
       } else {
         throw new Error('A writer must be provided to proceed to the next step.');
       }
-
       break;
 
     case Status.ASSIGNED_TO_WRITER:
@@ -34,9 +33,6 @@ module.exports = (workflow, { writer, editor }, saveForLater) => {
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
-      } else if (saveForLater) {
-        /* eslint-disable-next-line no-const-assign */
-        changeLog = {};
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastWriteCompleteTs] = new Date();
@@ -44,7 +40,11 @@ module.exports = (workflow, { writer, editor }, saveForLater) => {
       break;
 
     case Status.WRITING_COMPLETE:
-      if (writer) {
+      if (writer && editor) {
+        throw new Error(
+          'Either writer or editor should only be provided to proceed to the next step.'
+        );
+      } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
       } else if (editor) {
@@ -71,9 +71,6 @@ module.exports = (workflow, { writer, editor }, saveForLater) => {
       } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_EDITOR;
-      } else if (saveForLater) {
-        /* eslint-disable-next-line no-const-assign */
-        changeLog = {};
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastEditCompleteTs] = new Date();
@@ -81,7 +78,11 @@ module.exports = (workflow, { writer, editor }, saveForLater) => {
       break;
 
     case Status.EDITING_COMPLETE:
-      if (editor) {
+      if (writer && editor) {
+        throw new Error(
+          'Either writer or editor should only be provided to proceed to the next step.'
+        );
+      } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_EDITOR;
       } else if (writer) {
