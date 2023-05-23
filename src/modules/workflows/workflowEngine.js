@@ -7,15 +7,21 @@ module.exports = (workflow, { writer, editor }, saveForLater) => {
 
   switch (currentStatus) {
     case Status.WAITING_FOR_WRITER:
-      if (!writer) {
+      if (editor) {
+        throw new Error('Editor assignment is not allowed at this stage of the workflow.');
+      } else if (writer) {
+        changeLog[WorkflowKeysEnum.writer] = writer;
+        changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
+      } else {
         throw new Error('A writer must be provided to proceed to the next step.');
       }
-      changeLog[WorkflowKeysEnum.writer] = writer;
-      changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
+
       break;
 
     case Status.ASSIGNED_TO_WRITER:
-      if (writer) {
+      if (editor) {
+        throw new Error('Editor assignment is not allowed at this stage of the workflow.');
+      } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_IN_PROGRESS;
@@ -23,7 +29,9 @@ module.exports = (workflow, { writer, editor }, saveForLater) => {
       break;
 
     case Status.WRITING_IN_PROGRESS:
-      if (writer) {
+      if (editor) {
+        throw new Error('Editor assignment is not allowed at this stage of the workflow.');
+      } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
       } else if (saveForLater) {
@@ -48,7 +56,9 @@ module.exports = (workflow, { writer, editor }, saveForLater) => {
       break;
 
     case Status.ASSIGNED_TO_EDITOR:
-      if (editor) {
+      if (writer) {
+        throw new Error('Writer assignment is not allowed at this stage of the workflow.');
+      } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_IN_PROGRESS;
@@ -56,7 +66,9 @@ module.exports = (workflow, { writer, editor }, saveForLater) => {
       break;
 
     case Status.EDITING_IN_PROGRESS:
-      if (editor) {
+      if (writer) {
+        throw new Error('Writer assignment is not allowed at this stage of the workflow.');
+      } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_EDITOR;
       } else if (saveForLater) {

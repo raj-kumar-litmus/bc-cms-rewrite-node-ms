@@ -275,12 +275,6 @@ router.patch('/:id', validateMiddleware({ body: updatedWorkflowDto }), async (re
 
     try {
       const changeLog = workflowEngine(workflow, updatedFields, saveForLater === 'true');
-      if (!Object.keys(changeLog).length) {
-        return res.sendResponse(
-          'You are not allowed to perform the requested updates at this stage of the workflow.',
-          400
-        );
-      }
 
       changeLog.lastUpdatedBy = 'temp user';
 
