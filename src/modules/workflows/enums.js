@@ -18,7 +18,8 @@ const WorkflowKeysEnum = {
   status: 'status',
   styleId: 'styleId',
   title: 'title',
-  writer: 'writer'
+  writer: 'writer',
+  assignee: 'assignee'
 };
 
 const Status = Object.freeze({
