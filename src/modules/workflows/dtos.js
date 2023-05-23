@@ -30,7 +30,7 @@ const searchWorkflowBodyDto = Joi.object({
     createProcess: Joi.array().items(Joi.string().valid(...Object.values(CreateProcess))),
     lastUpdateTs: Joi.date(),
     assignee: Joi.string()
-  }),
+  }).unknown(false),
   orderBy: Joi.object({
     styleId: Joi.string().valid('asc', 'desc'),
     title: Joi.string().valid('asc', 'desc'),
@@ -38,8 +38,8 @@ const searchWorkflowBodyDto = Joi.object({
     status: Joi.string().valid('asc', 'desc'),
     createProcess: Joi.string().valid('asc', 'desc'),
     lastUpdateTs: Joi.string().valid('asc', 'desc'),
-    assignee: Joi.string().valid('asc', 'desc')
-  })
+    lastUpdatedBy: Joi.string().valid('asc', 'desc')
+  }).unknown(false)
 });
 
 const UniqueKeysEnum = {
@@ -53,7 +53,8 @@ const UniqueKeysEnum = {
 const searchWorkflowQueryDto = Joi.object({
   page: Joi.number().integer().min(1),
   limit: Joi.number().integer().min(1),
-  unique: Joi.string().valid(...Object.values(UniqueKeysEnum))
+  unique: Joi.string().valid(...Object.values(UniqueKeysEnum)),
+  globalSearch: Joi.string()
 });
 
 module.exports = {
