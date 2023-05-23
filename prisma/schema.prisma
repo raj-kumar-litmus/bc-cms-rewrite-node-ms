@@ -68,7 +68,7 @@ model workflow {
   editor              String?
   editorReview        Boolean?
   lastEditCompleteTs  DateTime?        @db.Date
-  lastUpdateTs        DateTime         @default(now()) @db.Date
+  lastUpdateTs        DateTime         @default(now()) @updatedAt @db.Date
   lastUpdatedBy       String?
   lastWriteCompleteTs DateTime?        @db.Date
   status              Status           @default(WAITING_FOR_WRITER)

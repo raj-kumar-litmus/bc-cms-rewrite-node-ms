@@ -16,9 +16,8 @@ const createWorkflowDto = Joi.object({
 });
 
 const updatedWorkflowDto = Joi.object({
-  status: Joi.string().valid(...Object.values(Status)),
-  brand: Joi.string(),
-  title: Joi.string()
+  writer: Joi.string(),
+  editor: Joi.string()
 });
 
 const searchWorkflowBodyDto = Joi.object({
