@@ -75,7 +75,7 @@ jobs:
           ref: gcp_migration
           type: kubernetes
           environment: test
-          folder: hub
+          folder: product-content-api
           file: kustomization.yaml
           update_path: .images[0].newTag
           update_value: ${{env.app}}${{env.major_version}}.${{github.run_number}}
