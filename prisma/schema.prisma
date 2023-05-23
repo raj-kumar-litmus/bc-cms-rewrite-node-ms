@@ -72,8 +72,9 @@ model workflow {
   lastUpdatedBy       String?
   lastWriteCompleteTs DateTime?        @db.Date
   status              Status           @default(WAITING_FOR_WRITER)
-  styleId             String           @unique
+  styleId             String           
   title               String?
   writer              String?
+  assignee            String?
   workbenchAudits     workbenchAudit[]
 }

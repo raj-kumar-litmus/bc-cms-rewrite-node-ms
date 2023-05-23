@@ -109,11 +109,6 @@ router.post(
               gte: startOfDay.toISOString(),
               lt: endOfDay.toISOString()
             };
-          } else if (param === 'assignee') {
-            where.OR = [
-              { writer: { contains: values, mode: 'insensitive' } },
-              { editor: { contains: values, mode: 'insensitive' } }
-            ];
           } else if (Array.isArray(values)) {
             where[param] = {
               in: values,
@@ -167,25 +162,6 @@ router.post(
           }),
           prisma.workflow.count({ where })
         ]);
-        workflows.forEach((workflow) => {
-          const workflowWithAssignee = { ...workflow };
-          if (
-            ['ASSIGNED_TO_WRITER', 'WRITING_IN_PROGRESS', 'WRITING_COMPLETE'].includes(
-              workflow.status
-            )
-          ) {
-            workflowWithAssignee.assignee = workflow.writer;
-          } else if (
-            ['ASSIGNED_TO_EDITOR', 'EDITING_IN_PROGRESS', 'EDITING_COMPLETE'].includes(
-              workflow.status
-            )
-          ) {
-            workflowWithAssignee.assignee = workflow.editor;
-          } else {
-            workflowWithAssignee.assignee = null;
-          }
-          return workflowWithAssignee;
-        });
       }
 
       const pageCount = Math.ceil(total / parsedLimit);
