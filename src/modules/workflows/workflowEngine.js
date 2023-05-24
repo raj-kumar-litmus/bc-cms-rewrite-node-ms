@@ -104,5 +104,11 @@ module.exports = (workflow, { writer, editor }) => {
     changeLog
   );
 
+  if (changeLog[WorkflowKeysEnum.writer]) {
+    changeLog[WorkflowKeysEnum.assignee] = changeLog[WorkflowKeysEnum.writer];
+  } else if (changeLog[WorkflowKeysEnum.editor]) {
+    changeLog[WorkflowKeysEnum.assignee] = changeLog[WorkflowKeysEnum.editor];
+  }
+
   return changeLog;
 };
