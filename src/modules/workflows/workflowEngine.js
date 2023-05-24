@@ -11,6 +11,7 @@ module.exports = (workflow, { writer, editor }) => {
         throw new Error('Editor assignment is not allowed at this stage of the workflow.');
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
+        changeLog[WorkflowKeysEnum.assignee] = writer;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
       } else {
         throw new Error('A writer must be provided to proceed to the next step.');
@@ -22,6 +23,7 @@ module.exports = (workflow, { writer, editor }) => {
         throw new Error('Editor assignment is not allowed at this stage of the workflow.');
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
+        changeLog[WorkflowKeysEnum.assignee] = writer;
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_IN_PROGRESS;
       }
@@ -32,6 +34,7 @@ module.exports = (workflow, { writer, editor }) => {
         throw new Error('Editor assignment is not allowed at this stage of the workflow.');
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
+        changeLog[WorkflowKeysEnum.assignee] = writer;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_COMPLETE;
@@ -46,9 +49,11 @@ module.exports = (workflow, { writer, editor }) => {
         );
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
+        changeLog[WorkflowKeysEnum.assignee] = writer;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
       } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
+        changeLog[WorkflowKeysEnum.assignee] = editor;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_EDITOR;
       } else {
         throw new Error('A writer or editor must be provided to proceed to the next step.');
@@ -60,6 +65,7 @@ module.exports = (workflow, { writer, editor }) => {
         throw new Error('Writer assignment is not allowed at this stage of the workflow.');
       } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
+        changeLog[WorkflowKeysEnum.assignee] = editor;
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_IN_PROGRESS;
       }
@@ -70,6 +76,7 @@ module.exports = (workflow, { writer, editor }) => {
         throw new Error('Writer assignment is not allowed at this stage of the workflow.');
       } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
+        changeLog[WorkflowKeysEnum.assignee] = editor;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_EDITOR;
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_COMPLETE;
@@ -84,9 +91,11 @@ module.exports = (workflow, { writer, editor }) => {
         );
       } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
+        changeLog[WorkflowKeysEnum.assignee] = editor;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_EDITOR;
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
+        changeLog[WorkflowKeysEnum.assignee] = writer;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
       } else {
         throw new Error('A writer or editor must be provided to proceed to the next step.');
