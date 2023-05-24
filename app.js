@@ -1,14 +1,13 @@
-const http = require('http');
+//Load express module with `require` directive
+var express = require('express')
+var app = express()
 
-const hostname = '0.0.0.0';
-const port = 3000;
+//Define request response in root URL (/)
+app.get('/', function (req, res) {
+  res.send('Hello World!')
+})
 
-const server = http.createServer((req, res) => {
-  res.statusCode = 200;
-  res.setHeader('Content-Type', 'text/plain');
-  res.end('Hello World');
-});
-
-server.listen(port, hostname, () => {
-  console.log(`Server running at http://${hostname}:${port}/`);
-});
+//Launch listening server on port 3000
+app.listen(3000, function () {
+  console.log('app listening on port http://localhost:3000!')
+})
