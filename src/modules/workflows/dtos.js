@@ -2,6 +2,49 @@ const Joi = require('joi');
 
 const { Status, CreateProcess, WorkflowKeysEnum } = require('./enums');
 
+// Helper function to define a schema for string or array of strings
+const stringOrArrayOfStrings = () =>
+  Joi.alternatives().try(Joi.string().trim(), Joi.array().items(Joi.string()));
+
+const enumValidator = (Enum) => {
+  return Joi.alternatives().try(
+    Joi.string()
+      .trim()
+      .valid(...Object.values(Enum)),
+    Joi.array().items(
+      Joi.string()
+        .trim()
+        .valid(...Object.values(Enum))
+    )
+  );
+};
+
+const sortValidator = () => {
+  return Joi.string().valid('asc', 'desc');
+};
+
+// Validation schema for the "filters" object
+const filtersSchema = Joi.object({
+  id: Joi.alternatives().try(
+    Joi.array().items(
+      Joi.string()
+        .regex(/^[0-9a-fA-F]{24}$/)
+        .trim()
+    ),
+    Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .trim()
+  ),
+  styleId: stringOrArrayOfStrings(),
+  title: stringOrArrayOfStrings(),
+  brand: stringOrArrayOfStrings(),
+  status: enumValidator(Status),
+  createProcess: enumValidator(CreateProcess),
+  lastUpdateTs: Joi.date(),
+  lastUpdatedBy: stringOrArrayOfStrings(),
+  assignee: stringOrArrayOfStrings()
+}).unknown(false);
+
 const createWorkflowDto = Joi.object({
   styles: Joi.array()
     .items(
@@ -15,31 +58,27 @@ const createWorkflowDto = Joi.object({
     .required()
 });
 
-const updatedWorkflowDto = Joi.object({
-  writer: Joi.string(),
-  editor: Joi.string()
+const assignWorkflowDto = Joi.object({
+  filters: filtersSchema,
+  assignments: Joi.object({
+    writer: Joi.string(),
+    editor: Joi.string()
+  })
+    // .xor('writer', 'editor')
+    .required()
 });
 
 const searchWorkflowBodyDto = Joi.object({
-  filters: Joi.object({
-    styleId: Joi.string(),
-    title: Joi.string(),
-    brand: Joi.array().items(Joi.string().trim()),
-    status: Joi.array().items(Joi.string().valid(...Object.values(Status))),
-    createProcess: Joi.array().items(Joi.string().valid(...Object.values(CreateProcess))),
-    lastUpdateTs: Joi.date(),
-    lastUpdatedBy: Joi.string(),
-    assignee: Joi.string()
-  }).unknown(false),
+  filters: filtersSchema,
   orderBy: Joi.object({
-    styleId: Joi.string().valid('asc', 'desc'),
-    title: Joi.string().valid('asc', 'desc'),
-    brand: Joi.string().valid('asc', 'desc'),
-    status: Joi.string().valid('asc', 'desc'),
-    createProcess: Joi.string().valid('asc', 'desc'),
-    lastUpdateTs: Joi.string().valid('asc', 'desc'),
-    lastUpdatedBy: Joi.string().valid('asc', 'desc'),
-    assignee: Joi.string().valid('asc', 'desc')
+    styleId: sortValidator(),
+    title: sortValidator(),
+    brand: sortValidator(),
+    status: sortValidator(),
+    createProcess: sortValidator(),
+    lastUpdateTs: sortValidator(),
+    lastUpdatedBy: sortValidator(),
+    assignee: sortValidator()
   }).unknown(false)
 });
 
@@ -65,7 +104,7 @@ const searchWorkflowQueryDto = Joi.object({
 
 module.exports = {
   createWorkflowDto,
-  updatedWorkflowDto,
+  assignWorkflowDto,
   searchWorkflowBodyDto,
   searchWorkflowQueryDto
 };
