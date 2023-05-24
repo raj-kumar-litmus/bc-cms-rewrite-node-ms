@@ -1,6 +1,7 @@
 //Load express module with `require` directive
 var express = require('express')
 var app = express()
+var properties = require('./config')
 
 //Define request response in root URL (/)
 app.get('/', function (req, res) {
@@ -9,7 +10,7 @@ app.get('/', function (req, res) {
 
 //Launch listening server on port 3000
 app.listen(3000, function () {
-  console.log(process.env.PRODUCT_CONTENT_API_MONGO_URL)
-  console.log(process.env.PRODUCT_CONTENT_API_MONGO_USR)
+  console.log(properties.mongo_url)
+  console.log(properties.mongo_user)
   console.log('app listening on port http://localhost:3000!')
 })
