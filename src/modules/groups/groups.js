@@ -36,7 +36,7 @@ router.get('/token', async (req, res) => {
       error
     });
   }
-  return res.status(200).send({
+  return res.sendResponse({
     accessToken
   });
 });
@@ -45,7 +45,15 @@ router.get('/all/:type', async (req, res) => {
   const { type } = req.params;
   const { MS_GRAPH_HOST_NAME, WRITERS_GROUP_ID, EDITOR_GROUP_ID, SIZING_GROUP_ID, ADMIN_GROUP_ID } =
     process.env;
-  const { accessToken } = (await getAccessToken()) || {};
+  const { accessToken, error } = (await getAccessToken()) || {};
+  if (error) {
+    return res.sendResponse(
+      {
+        error
+      },
+      400
+    );
+  }
   let groupId;
 
   switch (type) {
