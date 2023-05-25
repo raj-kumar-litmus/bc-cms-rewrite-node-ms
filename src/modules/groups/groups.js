@@ -23,36 +23,32 @@ const getAccessToken = async () => {
         }
       }
     );
-    return { accessToken: data?.access_token };
+    return `Bearer ${data?.access_token}`;
   } catch (error) {
-    return { error };
+    return;
   }
 };
 
 router.get('/token', async (req, res) => {
-  const { accessToken, error } = (await getAccessToken()) || {};
-  if (error) {
-    return res.status(400).send({
-      error
-    });
+  const token = (await getAccessToken()) || {};
+  if (!token) {
+    return res.sendResponse({}, 400);
   }
-  return res.sendResponse({
-    accessToken
-  });
+  return res.sendResponse(
+    {
+      accessToken: token
+    },
+    200
+  );
 });
 
 router.get('/all/:type', async (req, res) => {
   const { type } = req.params;
   const { MS_GRAPH_HOST_NAME, WRITERS_GROUP_ID, EDITOR_GROUP_ID, SIZING_GROUP_ID, ADMIN_GROUP_ID } =
     process.env;
-  const { accessToken, error } = (await getAccessToken()) || {};
-  if (error) {
-    return res.sendResponse(
-      {
-        error
-      },
-      400
-    );
+  const accessToken = (await getAccessToken()) || {};
+  if (!accessToken) {
+    return res.sendResponse({}, 400);
   }
   let groupId;
 
@@ -74,9 +70,12 @@ router.get('/all/:type', async (req, res) => {
   }
 
   if (!groupId) {
-    return res.status(400).send({
-      message: 'groupId is required field'
-    });
+    return res.sendResponse(
+      {
+        message: 'groupId is required field'
+      },
+      400
+    );
   }
 
   try {
@@ -85,16 +84,22 @@ router.get('/all/:type', async (req, res) => {
       data: { value }
     } = await axios.get(URL, {
       headers: {
-        Authorization: `Bearer ${accessToken}`
+        Authorization: accessToken
       }
     });
-    return res.status(200).send({
-      members: value
-    });
+    return res.sendResponse(
+      {
+        members: value
+      },
+      200
+    );
   } catch (error) {
-    return res.status(400).send({
-      error
-    });
+    return res.sendResponse(
+      {
+        error
+      },
+      400
+    );
   }
 });
 

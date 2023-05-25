@@ -8,6 +8,6 @@ const router = express.Router();
 
 router.use('/workflows', workflows);
 router.use('/dataNormalization', dataNormalization);
-router.use('/groupMembers', groups);
+router.use('/groups', groups);
 
 module.exports = router;
