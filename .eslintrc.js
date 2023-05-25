@@ -1,18 +1,19 @@
 module.exports = {
   env: {
     browser: true,
+    jest: true,
     es2021: true
   },
   extends: ['airbnb-base', 'plugin:prettier/recommended'],
   overrides: [],
-  plugins: ['unused-imports', 'import'],
+  // plugins: ['unused-imports', 'import'],
   parserOptions: {
     ecmaVersion: 'latest',
     sourceType: 'module'
   },
   rules: {
     // Indentation
-    indent: ['error', 2],
+    // indent: ['error', 2],
     'no-tabs': 'error',
 
     // Variables
@@ -49,7 +50,7 @@ module.exports = {
     'no-alert': 'error',
     'no-debugger': 'error',
     'no-unused-vars': 'error',
-    'unused-imports/no-unused-imports': 'error',
+    // 'unused-imports/no-unused-imports': 'error',
     'import/extensions': [
       'off',
       'ignorePackages',
