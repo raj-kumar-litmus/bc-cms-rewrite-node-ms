@@ -51,6 +51,12 @@ module.exports = {
     'no-debugger': 'error',
     'no-unused-vars': 'error',
     'unused-imports/no-unused-imports': 'error',
+    'import/no-extraneous-dependencies': [
+      'error',
+      {
+        devDependencies: ['**/__test__/**']
+      }
+    ],
     'import/extensions': [
       'off',
       'ignorePackages',

@@ -1,6 +1,7 @@
-/* eslint-disable indent */
 const express = require('express');
 const axios = require('axios');
+const { validateMiddleware } = require('../../middlewares');
+const { groupDto } = require('./dtos');
 
 const router = express.Router();
 
@@ -25,7 +26,7 @@ const getAccessToken = async () => {
     );
     return `Bearer ${data?.access_token}`;
   } catch (error) {
-    return;
+    return null;
   }
 };
 
@@ -42,16 +43,15 @@ router.get('/token', async (req, res) => {
   );
 });
 
-router.get('/all/:type', async (req, res) => {
+router.get('/all/:type/members', validateMiddleware({ params: groupDto }), async (req, res) => {
   const { type } = req.params;
-  const { MS_GRAPH_HOST_NAME, WRITERS_GROUP_ID, EDITOR_GROUP_ID, SIZING_GROUP_ID, ADMIN_GROUP_ID } =
-    process.env;
+  const { MS_GRAPH_HOST_NAME, WRITERS_GROUP_ID, EDITOR_GROUP_ID } = process.env;
   const accessToken = (await getAccessToken()) || {};
   if (!accessToken) {
-    return res.sendResponse({}, 400);
+    return res.sendResponse('UnAuthorized', 400);
   }
   let groupId;
-
+  /* eslint-disable indent */
   switch (type) {
     case 'writers':
       groupId = WRITERS_GROUP_ID;
@@ -59,24 +59,10 @@ router.get('/all/:type', async (req, res) => {
     case 'editors':
       groupId = EDITOR_GROUP_ID;
       break;
-    case 'admin':
-      groupId = ADMIN_GROUP_ID;
-      break;
-    case 'sizing':
-      groupId = SIZING_GROUP_ID;
-      break;
     default:
-      groupId = null;
+      break;
   }
-
-  if (!groupId) {
-    return res.sendResponse(
-      {
-        message: 'groupId is required field'
-      },
-      400
-    );
-  }
+  /* eslint-enable indent */
 
   try {
     const URL = `${MS_GRAPH_HOST_NAME}/groups/${groupId}/members`;
@@ -94,12 +80,7 @@ router.get('/all/:type', async (req, res) => {
       200
     );
   } catch (error) {
-    return res.sendResponse(
-      {
-        error
-      },
-      400
-    );
+    return res.sendResponse(error, 400);
   }
 });
 
