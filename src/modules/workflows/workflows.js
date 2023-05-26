@@ -241,7 +241,9 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
 
     let updateCount = 0;
     const errors = [];
-    distinctStatuses.forEach(async (status) => {
+    const auditLogs = [];
+
+    for (const status of distinctStatuses) {
       where = { ...where, status };
       const workflows = await prisma.workflow.findMany({ where, take: 1 });
       try {
@@ -255,17 +257,32 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
             },
             where
           });
+
           updateCount += count;
         }
+
+        const workflowAuditLogs = workflows.map((workflow) => ({
+          workflowId: workflow.id,
+          ...changeLog,
+          createdBy: 'admin'
+        }));
+
+        auditLogs.push(...workflowAuditLogs);
       } catch (error) {
         errors.push({
           filters: { ...filters, status },
           error: error.message
         });
       }
-    });
+    }
 
     if (updateCount > 0) {
+      if (auditLogs.length > 0) {
+        await prisma.workbenchAudit.createMany({
+          data: auditLogs
+        });
+      }
+
       return res.sendResponse(
         {
           message: `${updateCount} workflow${updateCount !== 1 ? 's' : ''} updated successfully`,
@@ -274,15 +291,17 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
         errors.length ? 207 : 200
       );
     }
+
     if (errors.length > 0) {
       return res.sendResponse(
         {
           message: 'Errors occurred while updating workflows',
           errors
         },
-        207
+        400
       );
     }
+
     return res.sendResponse(
       {
         message: 'No workflows found for updating.'
