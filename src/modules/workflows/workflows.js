@@ -220,17 +220,30 @@ router.get('/:id', async (req, res) => {
 });
 // const { id, workflowId: wID, createTs,createdBy, ...rest } = WorkflowAuditLogKeysEnum;
 
-router.get('/:workflowId/auditLog', async (req, res) => {
+router.get('/:workflowId/history', async (req, res) => {
   try {
     const { workflowId } = req.params;
 
     const auditLogs = await prisma.workbenchAudit.findMany({
       where: {
         workflowId
+      },
+      orderBy: {
+        createTs: 'desc'
       }
     });
 
-    res.sendResponse(auditLogs);
+    const filteredData = auditLogs.map((log) => {
+      const filteredLog = {};
+      Object.entries(log).forEach(([key, value]) => {
+        if (key !== 'workflowId' && value !== null) {
+          filteredLog[key] = value;
+        }
+      });
+      return filteredLog;
+    });
+
+    res.sendResponse(filteredData);
   } catch (error) {
     console.error(error);
     res.status(500).json({ error: 'Internal server error' });
