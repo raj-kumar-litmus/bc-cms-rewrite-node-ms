@@ -23,6 +23,8 @@ module.exports = {
     'arrow-spacing': 'error',
     'no-confusing-arrow': 'error',
     'no-useless-constructor': 'error',
+    'no-await-in-loop': 'off',
+    'no-restricted-syntax': 'off',
 
     // Strings
     quotes: ['error', 'single', { avoidEscape: true }],

@@ -5,6 +5,7 @@ const workflowEngine = require('./workflowEngine');
 const { validateMiddleware } = require('../../middlewares');
 const { CreateProcess, Status } = require('./enums');
 const { whereBuilder } = require('./utils');
+const { transformObject } = require('../../utils');
 const {
   createWorkflowDto,
   assignWorkflowDto,
@@ -31,18 +32,30 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
     await Promise.all(
       styles.map(async ({ styleId, brand, title }) => {
         try {
-          const workflow = await prisma.workflow.create({
-            data: {
-              styleId: styleId.toUpperCase(),
+          const transformedData = transformObject(
+            {
+              styleId,
               brand,
               title,
               createProcess: CreateProcess.WRITER_INTERFACE,
-              admin: 'admin user',
+              admin: 'Admin user',
               lastUpdatedBy: 'admin user'
+            },
+            {
+              styleId: 'upperCase',
+              brand: 'lowerCase',
+              title: 'lowerCase',
+              admin: 'lowerCase',
+              lastUpdatedBy: 'lowerCase'
             }
+          );
+
+          const workflow = await prisma.workflow.create({
+            data: transformedData
           });
           createdWorkflows.push(workflow);
         } catch (error) {
+          console.log(error);
           failedWorkflows.push({ styleId, brand, title });
         }
       })
@@ -241,20 +254,34 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
 
     let updateCount = 0;
     const errors = [];
-    distinctStatuses.forEach(async (status) => {
+
+    for await (const status of distinctStatuses) {
       where = { ...where, status };
       const workflows = await prisma.workflow.findMany({ where, take: 1 });
+
       try {
         const changeLog = workflowEngine(workflows[0], { writer, editor });
 
         if (Object.keys(changeLog).length > 0) {
-          const { count } = await prisma.workflow.updateMany({
-            data: {
+          const transformedData = transformObject(
+            {
               ...changeLog,
               lastUpdatedBy: 'admin'
             },
+            {
+              writer: 'lowerCase',
+              editor: 'lowerCase',
+              assignee: 'lowerCase',
+              invalid: 'invalid',
+              lastUpdatedBy: 'lowerCase'
+            }
+          );
+
+          const { count } = await prisma.workflow.updateMany({
+            data: transformedData,
             where
           });
+
           updateCount += count;
         }
       } catch (error) {
@@ -263,7 +290,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
           error: error.message
         });
       }
-    });
+    }
 
     if (updateCount > 0) {
       return res.sendResponse(
@@ -274,6 +301,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
         errors.length ? 207 : 200
       );
     }
+
     if (errors.length > 0) {
       return res.sendResponse(
         {
@@ -283,6 +311,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
         207
       );
     }
+
     return res.sendResponse(
       {
         message: 'No workflows found for updating.'

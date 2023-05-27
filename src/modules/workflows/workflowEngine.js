@@ -97,13 +97,6 @@ module.exports = (workflow, { writer, editor }) => {
       break;
   }
 
-  console.log(
-    `Moving workflow ${workflow.id} from ${currentStatus} to ${
-      changeLog[WorkflowKeysEnum.status] || currentStatus
-    }`,
-    changeLog
-  );
-
   if (changeLog[WorkflowKeysEnum.writer]) {
     changeLog[WorkflowKeysEnum.assignee] = changeLog[WorkflowKeysEnum.writer];
   } else if (changeLog[WorkflowKeysEnum.editor]) {
