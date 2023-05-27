@@ -22,6 +22,33 @@ const WorkflowKeysEnum = {
   assignee: 'assignee'
 };
 
+const WorkflowAuditLogKeysEnum = {
+  id: 'id',
+  assignee: 'assignee',
+  bulletPoints: 'bulletPoints',
+  competitiveCyclistDescription: 'competitiveCyclistDescription',
+  competitiveCyclistTopline: 'competitiveCyclistTopline',
+  detailedDescription: 'detailedDescription',
+  genus: 'genus',
+  // harmonizingData: 'harmonizingData',
+  isPublished: 'isPublished',
+  listDescription: 'listDescription',
+  productTitle: 'productTitle',
+  sizingChart: 'sizingChart',
+  species: 'species',
+  status: 'status',
+  // techspecs: 'techspecs',
+  topLine: 'topLine',
+  versionReason: 'versionReason',
+  createTs: 'createTs',
+  createdBy: 'createdBy',
+  workflowId: 'workflowId',
+  lastEditCompleteTs: 'lastEditCompleteTs',
+  lastWriteCompleteTs: 'lastWriteCompleteTs',
+  editor: 'editor',
+  writer: 'writer'
+};
+
 const Status = Object.freeze({
   WAITING_FOR_WRITER: 'WAITING_FOR_WRITER',
   ASSIGNED_TO_WRITER: 'ASSIGNED_TO_WRITER',
@@ -35,5 +62,6 @@ const Status = Object.freeze({
 module.exports = {
   CreateProcess,
   Status,
-  WorkflowKeysEnum
+  WorkflowKeysEnum,
+  WorkflowAuditLogKeysEnum
 };

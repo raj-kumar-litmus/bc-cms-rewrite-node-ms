@@ -218,6 +218,26 @@ router.get('/:id', async (req, res) => {
     await prisma.$disconnect();
   }
 });
+// const { id, workflowId: wID, createTs,createdBy, ...rest } = WorkflowAuditLogKeysEnum;
+
+router.get('/:workflowId/auditLog', async (req, res) => {
+  try {
+    const { workflowId } = req.params;
+
+    const auditLogs = await prisma.workbenchAudit.findMany({
+      where: {
+        workflowId
+      }
+    });
+
+    res.sendResponse(auditLogs);
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ error: 'Internal server error' });
+  } finally {
+    await prisma.$disconnect();
+  }
+});
 
 // Update workflows status and assign writer or editor
 router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (req, res) => {

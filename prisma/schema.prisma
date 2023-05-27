@@ -42,14 +42,12 @@ model workbenchAudit {
   competitiveCyclistTopline     String?
   detailedDescription           String?
   genus                         String?
-  harmonizingData               WorkbenchAuditHarmonizingData?
   isPublished                   Boolean?
   listDescription               String?
   productTitle                  String?
   sizingChart                   String?
   species                       String?
   status                        String?
-  techspecs                     WorkbenchAuditTechspecs?
   topLine                       String?
   versionReason                 String?
   createTs                      DateTime                       @default(now()) @db.Date
