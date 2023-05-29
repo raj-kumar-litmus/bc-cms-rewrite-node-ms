@@ -31,7 +31,7 @@ const getAccessToken = async () => {
 };
 
 router.get('/token', async (req, res) => {
-  const token = (await getAccessToken()) || {};
+  const token = await getAccessToken();
   if (!token) {
     return res.sendResponse('UnAuthorized', 401);
   }
@@ -46,7 +46,7 @@ router.get('/token', async (req, res) => {
 router.get('/all/:type/members', validateMiddleware({ params: groupDto }), async (req, res) => {
   const { type } = req.params;
   const { MS_GRAPH_HOST_NAME, WRITERS_GROUP_ID, EDITOR_GROUP_ID } = process.env;
-  const accessToken = (await getAccessToken()) || {};
+  const accessToken = await getAccessToken();
   if (!accessToken) {
     return res.sendResponse('UnAuthorized', 401);
   }
