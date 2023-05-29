@@ -185,23 +185,34 @@ router.post(
 // Endpoint to retrieve workflow counts
 router.get('/counts', async (req, res) => {
   try {
+    const { email } = req.query;
+
     const counts = {
       unassigned: await prisma.workflow.count({
         where: { status: Status.WAITING_FOR_WRITER }
       }),
       assigned: await prisma.workflow.count({
         where: {
-          OR: [{ status: Status.ASSIGNED_TO_WRITER }, { status: Status.ASSIGNED_TO_EDITOR }]
+          OR: [
+            { status: Status.ASSIGNED_TO_WRITER, assignee: email },
+            { status: Status.ASSIGNED_TO_EDITOR, assignee: email }
+          ]
         }
       }),
       inProgress: await prisma.workflow.count({
         where: {
-          OR: [{ status: Status.WRITING_IN_PROGRESS }, { status: Status.EDITING_IN_PROGRESS }]
+          OR: [
+            { status: Status.WRITING_IN_PROGRESS, assignee: email },
+            { status: Status.EDITING_IN_PROGRESS, assignee: email }
+          ]
         }
       }),
       completed: await prisma.workflow.count({
         where: {
-          OR: [{ status: Status.WRITING_COMPLETE }, { status: Status.EDITING_COMPLETE }]
+          OR: [
+            { status: Status.WRITING_COMPLETE, assignee: email },
+            { status: Status.EDITING_COMPLETE, assignee: email }
+          ]
         }
       })
     };
