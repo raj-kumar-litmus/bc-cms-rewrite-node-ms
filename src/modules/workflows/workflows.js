@@ -283,7 +283,6 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
               writer: 'lowerCase',
               editor: 'lowerCase',
               assignee: 'lowerCase',
-              invalid: 'invalid',
               lastUpdatedBy: 'lowerCase'
             }
           );
