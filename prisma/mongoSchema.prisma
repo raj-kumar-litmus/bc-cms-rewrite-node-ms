@@ -1,11 +1,13 @@
-generator client {
-  provider = "prisma-client-js"
-}
-
 datasource db {
   provider = "mongodb"
-  url      = env("DATABASE_URL")
+  url      = env("MONGODB_DATABASE_URL")
 }
+
+generator mongoClient {
+  provider = "prisma-client-js"
+  output   = "./node_modules/.prisma/client/mongo"
+}
+
 
 type WorkbenchAuditHarmonizingData {
   Recommended_Use String[] @map("Recommended Use")
@@ -72,9 +74,10 @@ model workflow {
   lastUpdatedBy       String?
   lastWriteCompleteTs DateTime?        @db.Date
   status              Status           @default(WAITING_FOR_WRITER)
-  styleId             String           
+  styleId             String
   title               String?
   writer              String?
   assignee            String?
   workbenchAudits     workbenchAudit[]
 }
+

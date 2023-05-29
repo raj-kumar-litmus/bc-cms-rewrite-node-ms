@@ -1,0 +1,418 @@
+generator postgresClient {
+  provider = "prisma-client-js"
+  output   = "./node_modules/.prisma/client/postgres"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("POSTGRES_DATABASE_URL")
+}
+
+model activity {
+  id                       Int                        @id(map: "activity_id_pkey") @default(autoincrement())
+  name                     String                     @unique(map: "activity_name_unique")
+  activity_recommended_use activity_recommended_use[]
+}
+
+model activity_recommended_use {
+  id                 Int            @id(map: "activity_rec_use_pkey") @default(autoincrement())
+  activity_id        Int
+  recommended_use_id Int
+  dn_hattributev     dn_hattributev @relation(fields: [recommended_use_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "activity_dn_hattributev_fkey")
+  activity           activity       @relation(fields: [activity_id], references: [id], onDelete: Cascade, onUpdate: NoAction, map: "activity_rec_use_activity_fkey")
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model audit_vacuum {
+  tablename        String
+  tablesize        String?
+  vactime          Unsupported("interval")?
+  tablepages       Int?
+  indexpages       Int?
+  tablerows        Int?
+  indexrows        Int?
+  tablerowsremoved Int?
+  indexrowsremoved Int?
+  tablestuckrows   Int?
+  cdate            DateTime                 @default(now()) @db.Timestamptz(6)
+
+  @@ignore
+}
+
+model dn_attributel {
+  id                                Int                                 @id @default(autoincrement())
+  name                              String?                             @db.VarChar(255)
+  dn_attributev                     dn_attributev[]
+  dn_genus_attributel_attributetype dn_genus_attributel_attributetype[]
+  dn_style_tech_specs               dn_style_tech_specs[]
+}
+
+model dn_attributeorder {
+  id                                Int                               @id(map: "attributeorder_pk") @default(autoincrement())
+  dattributevid                     Int?
+  galatid                           Int
+  position                          Int
+  username                          String?                           @db.VarChar(100)
+  lastupdate                        DateTime?                         @db.Timestamp(6)
+  dn_dattributev                    dn_dattributev?                   @relation(fields: [dattributevid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_genus_attributel_attributetype dn_genus_attributel_attributetype @relation(fields: [galatid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model dn_attributetype {
+  id                                Int                                 @id @default(autoincrement())
+  name                              String?                             @db.VarChar(255)
+  inputs                            String?
+  example                           String?                             @default("no example") @db.VarChar(100)
+  timestamp                         Int?                                @default(1)
+  dn_attributevalueqa               dn_attributevalueqa[]
+  dn_genus_attributel_attributetype dn_genus_attributel_attributetype[]
+}
+
+model dn_attributev {
+  id                  Int                   @id @default(autoincrement())
+  text                String?               @db.VarChar(255)
+  attributelid        Int?
+  status              String?               @default("active") @db.VarChar(50)
+  createdat           DateTime?             @default(now()) @db.Timestamptz(6)
+  modifiedat          DateTime?             @default(now()) @db.Timestamptz(6)
+  createdby           String?               @db.VarChar(50)
+  reviewedby          String?               @db.VarChar(50)
+  dn_attributel       dn_attributel?        @relation(fields: [attributelid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_attributevalueqa dn_attributevalueqa[]
+}
+
+model dn_attributevalueqa {
+  id               Int               @id @default(autoincrement())
+  attributevid     Int?
+  attributetypeid  Int?
+  sku              String            @db.VarChar(50)
+  createdat        DateTime?         @default(now()) @db.Timestamptz(6)
+  modifiedat       DateTime?         @default(now()) @db.Timestamptz(6)
+  author           String?           @db.VarChar(50)
+  reviewer         String?           @db.VarChar(50)
+  processed        Boolean?          @default(false)
+  genus            String?           @default("N/A") @db.VarChar(50)
+  species          String?           @default("N/A") @db.VarChar(50)
+  labelname        String?           @default("N/A") @db.VarChar(100)
+  issuetype        String?           @default("unknown") @db.VarChar(50)
+  dn_attributetype dn_attributetype? @relation(fields: [attributetypeid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_attributev    dn_attributev?    @relation(fields: [attributevid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model dn_audit {
+  id            Int       @id @default(autoincrement())
+  login         String?   @db.VarChar(255)
+  urlexecuted   String?   @db.VarChar(255)
+  executiontime DateTime? @db.Timestamp(6)
+  object        String?
+}
+
+model dn_dattributel {
+  id             Int              @id @default(autoincrement())
+  name           String?          @db.VarChar(255)
+  dn_dattributev dn_dattributev[]
+  dn_genus       dn_genus[]
+}
+
+model dn_dattributev {
+  id                                Int                                 @id @default(autoincrement())
+  text                              String?                             @db.VarChar(255)
+  dattributelid                     Int?
+  last_modified                     DateTime?                           @db.Timestamp(0)
+  dn_attributeorder                 dn_attributeorder[]
+  dn_dattributel                    dn_dattributel?                     @relation(fields: [dattributelid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_genus_attributel_attributetype dn_genus_attributel_attributetype[]
+  dn_genus_species_hattributev      dn_genus_species_hattributev[]
+  dn_productgroups                  dn_productgroups[]
+  dn_style                          dn_style[]
+}
+
+model dn_genus {
+  id                                Int                                 @id @default(autoincrement())
+  name                              String?                             @db.VarChar(255)
+  description                       String?                             @db.VarChar(255)
+  dattributelid                     Int?
+  last_modified                     DateTime?                           @db.Timestamp(0)
+  dn_dattributel                    dn_dattributel?                     @relation(fields: [dattributelid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_genus_attributel_attributetype dn_genus_attributel_attributetype[]
+  dn_genus_hattributev              dn_genus_hattributev[]
+  dn_genus_species_hattributev      dn_genus_species_hattributev[]
+  dn_productgroups                  dn_productgroups[]
+  dn_style                          dn_style[]
+}
+
+model dn_genus_attributel_attributetype {
+  id                Int                 @id @default(autoincrement())
+  genusid           Int?
+  attributelid      Int?
+  attributetypeid   Int?
+  dattributevid     Int?
+  dn_attributeorder dn_attributeorder[]
+  dn_attributel     dn_attributel?      @relation(fields: [attributelid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_attributetype  dn_attributetype?   @relation(fields: [attributetypeid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_dattributev    dn_dattributev?     @relation(fields: [dattributevid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_genus          dn_genus?           @relation(fields: [genusid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model dn_genus_hattributev {
+  genusid        Int
+  hattributevid  Int
+  dn_genus       dn_genus       @relation(fields: [genusid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_hattributev dn_hattributev @relation(fields: [hattributevid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@id([genusid, hattributevid])
+}
+
+model dn_genus_species_hattributev {
+  id             Int            @id @default(autoincrement())
+  genus_id       Int
+  species_id     Int
+  hattributev_id Int
+  dn_genus       dn_genus       @relation(fields: [genus_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_hattributev dn_hattributev @relation(fields: [hattributev_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_dattributev dn_dattributev @relation(fields: [species_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+}
+
+model dn_hattributel {
+  id             Int              @id @default(autoincrement())
+  name           String?          @db.VarChar(255)
+  dn_hattributev dn_hattributev[]
+}
+
+model dn_hattributev {
+  id                           Int                            @id @default(autoincrement())
+  text                         String?                        @db.VarChar(255)
+  hattributelid                Int?
+  activity_recommended_use     activity_recommended_use[]
+  dn_genus_hattributev         dn_genus_hattributev[]
+  dn_genus_species_hattributev dn_genus_species_hattributev[]
+  dn_hattributel               dn_hattributel?                @relation(fields: [hattributelid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_style_hattributev         dn_style_hattributev[]
+}
+
+model dn_methodexecutionstats {
+  id            Int       @id @default(autoincrement())
+  signature     String?   @db.VarChar(1000)
+  duration      Int?
+  executiontime DateTime? @db.Timestamp(6)
+}
+
+model dn_preferredscales {
+  id            Int       @id(map: "dn_preferredscales_pk") @default(autoincrement())
+  scaleid       Int
+  productgroup  Int
+  brand         Int
+  last_modified DateTime? @db.Timestamp(0)
+  dn_scales     dn_scales @relation(fields: [scaleid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "preferredbcscale_bcscale_fk")
+}
+
+model dn_productgroups {
+  id             Int             @id
+  name           String?         @db.VarChar(255)
+  genusid        Int?
+  speciesid      Int?
+  dn_genus       dn_genus?       @relation(fields: [genusid], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_dattributev dn_dattributev? @relation(fields: [speciesid], references: [id], onUpdate: NoAction)
+}
+
+model dn_scalemappings {
+  id                                                     Int       @id(map: "dn_scalemappings_pk") @default(autoincrement())
+  preferrecscaleid                                       Int
+  scaleid                                                Int
+  dn_scales_dn_scalemappings_preferrecscaleidTodn_scales dn_scales @relation("dn_scalemappings_preferrecscaleidTodn_scales", fields: [preferrecscaleid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bcscales_bcscalemappings_1_fk")
+  dn_scales_dn_scalemappings_scaleidTodn_scales          dn_scales @relation("dn_scalemappings_scaleidTodn_scales", fields: [scaleid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bcscales_bcscalemappings_2_fk")
+}
+
+model dn_scales {
+  id                                                            Int                  @id(map: "dn_scales_pk") @default(autoincrement())
+  name                                                          String               @db.VarChar(100)
+  description                                                   String               @db.VarChar(1000)
+  last_modified                                                 DateTime?            @db.Timestamp(0)
+  dn_preferredscales                                            dn_preferredscales[]
+  dn_scalemappings_dn_scalemappings_preferrecscaleidTodn_scales dn_scalemappings[]   @relation("dn_scalemappings_preferrecscaleidTodn_scales")
+  dn_scalemappings_dn_scalemappings_scaleidTodn_scales          dn_scalemappings[]   @relation("dn_scalemappings_scaleidTodn_scales")
+  dn_sizes                                                      dn_sizes[]
+}
+
+model dn_sizemappings {
+  id                                               Int       @id(map: "dn_sizemappings_pk") @default(autoincrement())
+  preferredsize                                    Int
+  size                                             Int
+  last_modified                                    DateTime? @db.Timestamp(0)
+  dn_sizes_dn_sizemappings_sizeTodn_sizes          dn_sizes  @relation("dn_sizemappings_sizeTodn_sizes", fields: [size], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bcsize_bcsizemapping_1_fk")
+  dn_sizes_dn_sizemappings_preferredsizeTodn_sizes dn_sizes  @relation("dn_sizemappings_preferredsizeTodn_sizes", fields: [preferredsize], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bcsize_bcsizemapping_2_fk")
+}
+
+model dn_sizes {
+  id                                                      Int               @id(map: "dn_sizes_pk") @default(autoincrement())
+  scaleid                                                 Int
+  name                                                    String            @db.VarChar(100)
+  description                                             String            @db.VarChar(1000)
+  position                                                Int?              @default(0)
+  last_modified                                           DateTime?         @db.Timestamp(0)
+  dn_sizemappings_dn_sizemappings_sizeTodn_sizes          dn_sizemappings[] @relation("dn_sizemappings_sizeTodn_sizes")
+  dn_sizemappings_dn_sizemappings_preferredsizeTodn_sizes dn_sizemappings[] @relation("dn_sizemappings_preferredsizeTodn_sizes")
+  dn_scales                                               dn_scales         @relation(fields: [scaleid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "bcscale_bcsize_fk")
+  dn_variantsize                                          dn_variantsize[]
+}
+
+model dn_sizevalues {
+  id          Int    @id(map: "size_values_pk") @default(autoincrement())
+  name        String @db.VarChar(100)
+  description String @db.VarChar(1000)
+}
+
+model dn_style {
+  style                String                 @id @db.VarChar
+  genus_id             Int?
+  species_id           Int?
+  last_modified        DateTime               @default(now()) @db.Timestamptz(3)
+  product_group_id     Int?
+  dn_genus             dn_genus?              @relation(fields: [genus_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_dattributev       dn_dattributev?        @relation(fields: [species_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_style_hattributev dn_style_hattributev[]
+  dn_style_tag         dn_style_tag[]
+  dn_style_tech_specs  dn_style_tech_specs[]
+}
+
+model dn_style_hattributev {
+  id             Int            @id @default(autoincrement())
+  style          String         @db.VarChar
+  hattributevid  Int
+  last_modified  DateTime       @default(now()) @db.Timestamptz(0)
+  dn_hattributev dn_hattributev @relation(fields: [hattributevid], references: [id], onDelete: Cascade)
+  dn_style       dn_style       @relation(fields: [style], references: [style], onDelete: Cascade)
+
+  @@unique([style, hattributevid], map: "dn_unique_style_hattribute_v")
+  @@index([style], map: "dn_style_hattributev_style")
+}
+
+model dn_style_tag {
+  id            Int       @id @default(autoincrement())
+  tag_id        Int
+  last_modified DateTime  @default(now()) @db.Timestamptz(0)
+  style         String?   @db.VarChar
+  dn_style      dn_style? @relation(fields: [style], references: [style], onDelete: NoAction, onUpdate: NoAction)
+  dn_tag        dn_tag    @relation(fields: [tag_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+
+  @@unique([style, tag_id], map: "dn_style_tag_unique")
+}
+
+model dn_style_tech_specs {
+  id            Int           @id @unique(map: "dn_style_tech_specs_unique") @default(autoincrement())
+  style         String
+  attributel_id Int
+  value         String
+  ordering      Int?
+  dn_attributel dn_attributel @relation(fields: [attributel_id], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  dn_style      dn_style      @relation(fields: [style], references: [style], onDelete: Cascade)
+
+  @@index([id], map: "dn_style_tech_specs_id_index")
+  @@index([ordering], map: "dn_style_tech_specs_order")
+  @@index([style], map: "dn_style_tech_specs_style")
+}
+
+model dn_tag {
+  id           Int            @id @default(autoincrement())
+  tag          String         @unique(map: "dn_tag_unique") @db.VarChar
+  dn_style_tag dn_style_tag[]
+}
+
+model dn_variantsize {
+  id         Int       @id(map: "variantsize_pk") @default(autoincrement())
+  sizeid     Int
+  variantid  String    @unique(map: "variantsize_variantid_u") @db.VarChar(100)
+  username   String?   @db.VarChar(100)
+  lastupdate DateTime? @default(now()) @db.Timestamptz(6)
+  dn_sizes   dn_sizes  @relation(fields: [sizeid], references: [id], onDelete: NoAction, onUpdate: NoAction, map: "dn_sizes_variantsize_fk")
+}
+
+model dn_variantsize_delta {
+  id        Int       @id @default(autoincrement())
+  variantid String
+  created   DateTime? @default(now()) @db.Timestamp(6)
+}
+
+model dn_writercatalogpreference {
+  id               Int              @id @default(autoincrement())
+  writerprofile_id Int
+  catalogid        String           @db.VarChar(32)
+  value            Decimal          @default(0.0) @db.Decimal(2, 1)
+  dn_writerprofile dn_writerprofile @relation(fields: [writerprofile_id], references: [id], onDelete: Cascade)
+}
+
+model dn_writermerchgrouppreference {
+  id               Int              @id @default(autoincrement())
+  writerprofile_id Int
+  merchgroupid     Int
+  value            Decimal          @default(0.0) @db.Decimal(2, 1)
+  dn_writerprofile dn_writerprofile @relation(fields: [writerprofile_id], references: [id], onDelete: Cascade)
+}
+
+model dn_writerprofile {
+  id                            Int                             @id @default(autoincrement())
+  writername                    String                          @unique @db.VarChar(32)
+  capacity                      Int                             @default(0)
+  odatvalue                     Decimal                         @default(-1.0) @db.Decimal(2, 1)
+  dn_writercatalogpreference    dn_writercatalogpreference[]
+  dn_writermerchgrouppreference dn_writermerchgrouppreference[]
+}
+
+/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
+// model evarela {
+// }
+
+/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
+// model evarela_test {
+// }
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model item_xml_store {
+  sku String  @default("") @db.VarChar(64)
+  xml String?
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model planning_cevm_skus_n_sizes {
+  sizeid      Int?
+  variantid   String? @db.VarChar(100)
+  scaleid     Int?
+  size_name   String? @db.VarChar(100)
+  size_descr  String? @db.VarChar(1000)
+  scale_name  String? @db.VarChar(100)
+  scale_descr String? @db.VarChar(1000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model planning_ds_skus_n_sizes {
+  sizeid      Int?
+  sku         String?
+  variantid   String? @db.VarChar(100)
+  scaleid     Int?
+  size_name   String? @db.VarChar(100)
+  size_descr  String? @db.VarChar(1000)
+  scale_name  String? @db.VarChar(100)
+  scale_descr String? @db.VarChar(1000)
+
+  @@ignore
+}
+
+/// The underlying table does not contain a valid unique identifier and can therefore currently not be handled by the Prisma Client.
+model planning_ds_skus_n_sizes_new {
+  variant        String? @db.VarChar(100)
+  standardscale  String? @db.VarChar(100)
+  standardsize   String? @db.VarChar(100)
+  preferredscale String? @db.VarChar(100)
+  preferredsize  String? @db.VarChar(100)
+  pg             String? @db.VarChar(255)
+
+  @@ignore
+}
+
+/// We could not retrieve columns for the underlying table. Either it has none or you are missing rights to see them. Please check your privileges.
+// model validate_index_audit {
+// }
