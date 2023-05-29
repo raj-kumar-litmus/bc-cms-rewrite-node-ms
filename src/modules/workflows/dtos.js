@@ -1,0 +1,71 @@
+const Joi = require('joi');
+
+const { Status, CreateProcess, WorkflowKeysEnum } = require('./enums');
+
+const createWorkflowDto = Joi.object({
+  styles: Joi.array()
+    .items(
+      Joi.object({
+        styleId: Joi.string().required(),
+        brand: Joi.string(),
+        title: Joi.string()
+      })
+    )
+    .min(1)
+    .required()
+});
+
+const updatedWorkflowDto = Joi.object({
+  writer: Joi.string(),
+  editor: Joi.string()
+});
+
+const searchWorkflowBodyDto = Joi.object({
+  filters: Joi.object({
+    styleId: Joi.string(),
+    title: Joi.string(),
+    brand: Joi.array().items(Joi.string().trim()),
+    status: Joi.array().items(Joi.string().valid(...Object.values(Status))),
+    createProcess: Joi.array().items(Joi.string().valid(...Object.values(CreateProcess))),
+    lastUpdateTs: Joi.date(),
+    lastUpdatedBy: Joi.string(),
+    assignee: Joi.string()
+  }).unknown(false),
+  orderBy: Joi.object({
+    styleId: Joi.string().valid('asc', 'desc'),
+    title: Joi.string().valid('asc', 'desc'),
+    brand: Joi.string().valid('asc', 'desc'),
+    status: Joi.string().valid('asc', 'desc'),
+    createProcess: Joi.string().valid('asc', 'desc'),
+    lastUpdateTs: Joi.string().valid('asc', 'desc'),
+    lastUpdatedBy: Joi.string().valid('asc', 'desc'),
+    assignee: Joi.string().valid('asc', 'desc')
+  }).unknown(false)
+});
+
+const UniqueKeysEnum = {
+  id: WorkflowKeysEnum.id,
+  styleId: WorkflowKeysEnum.styleId,
+  brand: WorkflowKeysEnum.brand,
+  title: WorkflowKeysEnum.title,
+  status: WorkflowKeysEnum.status,
+  assignee: WorkflowKeysEnum.assignee,
+  lastUpdatedBy: WorkflowKeysEnum.lastUpdatedBy,
+  writer: WorkflowKeysEnum.writer,
+  editor: WorkflowKeysEnum.editor,
+  admin: WorkflowKeysEnum.admin
+};
+
+const searchWorkflowQueryDto = Joi.object({
+  page: Joi.number().integer().min(1),
+  limit: Joi.number().integer().min(1),
+  unique: Joi.string().valid(...Object.values(UniqueKeysEnum)),
+  globalSearch: Joi.string()
+});
+
+module.exports = {
+  createWorkflowDto,
+  updatedWorkflowDto,
+  searchWorkflowBodyDto,
+  searchWorkflowQueryDto
+};
