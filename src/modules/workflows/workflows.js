@@ -243,10 +243,10 @@ router.get('/:workflowId/history', async (req, res) => {
       return filteredLog;
     });
 
-    res.sendResponse(filteredData);
+    return res.sendResponse(filteredData);
   } catch (error) {
     console.error(error);
-    res.status(500).json({ error: 'Internal server error' });
+    return res.sendResponse('An error occurred while getting workflow history.', 500);
   } finally {
     await prisma.$disconnect();
   }
