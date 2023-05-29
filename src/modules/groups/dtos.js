@@ -5,10 +5,10 @@ const GroupsEnum = {
   writers: 'writers'
 };
 
-const groupDto = Joi.object({
+const groupsDto = Joi.object({
   type: Joi.string().valid(...Object.values(GroupsEnum))
 });
 
 module.exports = {
-  groupDto
+  groupsDto
 };
