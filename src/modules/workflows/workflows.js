@@ -6,7 +6,7 @@ const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
 const { CreateProcess, Status } = require('./enums');
 const { whereBuilder } = require('./utils');
-const { transformObject } = require('../../utils');
+
 const {
   createWorkflowDto,
   assignWorkflowDto,
