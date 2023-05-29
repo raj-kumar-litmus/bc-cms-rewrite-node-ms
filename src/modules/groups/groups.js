@@ -79,14 +79,14 @@ router.get('/:type/members', validateMiddleware({ params: groupsDto }), async (r
   try {
     const URL = `${MS_GRAPH_HOST_NAME}/groups/${groupId}/members`;
     const {
-      data: { value }
+      data: { value: members }
     } = await axios.get(URL, {
       headers: {
         Authorization: accessToken
       }
     });
 
-    return res.sendResponse({ members: value }, 200);
+    return res.sendResponse(members, 200);
   } catch (error) {
     console.error(error);
     return res.sendResponse('Failed to fetch members', 500);
