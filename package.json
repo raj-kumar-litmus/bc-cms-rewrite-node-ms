@@ -7,7 +7,8 @@
     "prestart": "npx prisma generate",
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "lint": "eslint --fix src",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix",
     "test": "jest",
     "prepare": "husky install",
     "postinstall": "prisma generate"
@@ -39,11 +40,11 @@
     "eslint-plugin-unused-imports": "^2.0.0",
     "husky": "^8.0.3",
     "jest": "^29.5.0",
+    "supertest": "^6.3.3",
     "lint-staged": "^13.2.2",
     "nodemon": "^2.0.21",
     "prettier": "^2.8.8",
-    "prisma": "^4.14.0",
-    "supertest": "^6.3.3"
+    "prisma": "^4.14.0"
   },
   "bugs": {
     "url": "https://github.com/raj-kumar-litmus/bc-cms-rewrite-node-ms/issues"
