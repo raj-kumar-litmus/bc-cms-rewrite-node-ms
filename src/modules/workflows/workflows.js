@@ -1,8 +1,9 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 
-const workflowEngine = require('./workflowEngine');
 const { validateMiddleware } = require('../../middlewares');
+const { transformObject } = require('../../utils');
+const workflowEngine = require('./workflowEngine');
 const { CreateProcess, Status } = require('./enums');
 const { whereBuilder } = require('./utils');
 const {
@@ -31,18 +32,30 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
     await Promise.all(
       styles.map(async ({ styleId, brand, title }) => {
         try {
-          const workflow = await prisma.workflow.create({
-            data: {
-              styleId: styleId.toUpperCase(),
+          const transformedData = transformObject(
+            {
+              styleId,
               brand,
               title,
               createProcess: CreateProcess.WRITER_INTERFACE,
-              admin: 'admin user',
+              admin: 'Admin user',
               lastUpdatedBy: 'admin user'
+            },
+            {
+              styleId: 'upperCase',
+              brand: 'lowerCase',
+              title: 'lowerCase',
+              admin: 'lowerCase',
+              lastUpdatedBy: 'lowerCase'
             }
+          );
+
+          const workflow = await prisma.workflow.create({
+            data: transformedData
           });
           createdWorkflows.push(workflow);
         } catch (error) {
+          console.log(error);
           failedWorkflows.push({ styleId, brand, title });
         }
       })
@@ -165,23 +178,34 @@ router.post(
 // Endpoint to retrieve workflow counts
 router.get('/counts', async (req, res) => {
   try {
+    const { email } = req.query;
+
     const counts = {
       unassigned: await prisma.workflow.count({
         where: { status: Status.WAITING_FOR_WRITER }
       }),
       assigned: await prisma.workflow.count({
         where: {
-          OR: [{ status: Status.ASSIGNED_TO_WRITER }, { status: Status.ASSIGNED_TO_EDITOR }]
+          OR: [
+            { status: Status.ASSIGNED_TO_WRITER, assignee: email },
+            { status: Status.ASSIGNED_TO_EDITOR, assignee: email }
+          ]
         }
       }),
       inProgress: await prisma.workflow.count({
         where: {
-          OR: [{ status: Status.WRITING_IN_PROGRESS }, { status: Status.EDITING_IN_PROGRESS }]
+          OR: [
+            { status: Status.WRITING_IN_PROGRESS, assignee: email },
+            { status: Status.EDITING_IN_PROGRESS, assignee: email }
+          ]
         }
       }),
       completed: await prisma.workflow.count({
         where: {
-          OR: [{ status: Status.WRITING_COMPLETE }, { status: Status.EDITING_COMPLETE }]
+          OR: [
+            { status: Status.WRITING_COMPLETE, assignee: email },
+            { status: Status.EDITING_COMPLETE, assignee: email }
+          ]
         }
       })
     };
@@ -274,33 +298,35 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
 
     let updateCount = 0;
     const errors = [];
-    const auditLogs = [];
 
-    for (const status of distinctStatuses) {
+    for await (const status of distinctStatuses) {
       where = { ...where, status };
       const workflows = await prisma.workflow.findMany({ where, take: 1 });
+
       try {
         const changeLog = workflowEngine(workflows[0], { writer, editor });
 
         if (Object.keys(changeLog).length > 0) {
-          const { count } = await prisma.workflow.updateMany({
-            data: {
+          const transformedData = transformObject(
+            {
               ...changeLog,
               lastUpdatedBy: 'admin'
             },
+            {
+              writer: 'lowerCase',
+              editor: 'lowerCase',
+              assignee: 'lowerCase',
+              lastUpdatedBy: 'lowerCase'
+            }
+          );
+
+          const { count } = await prisma.workflow.updateMany({
+            data: transformedData,
             where
           });
 
           updateCount += count;
         }
-
-        const workflowAuditLogs = workflows.map((workflow) => ({
-          workflowId: workflow.id,
-          ...changeLog,
-          createdBy: 'admin'
-        }));
-
-        auditLogs.push(...workflowAuditLogs);
       } catch (error) {
         errors.push({
           filters: { ...filters, status },
@@ -310,12 +336,6 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
     }
 
     if (updateCount > 0) {
-      if (auditLogs.length > 0) {
-        await prisma.workbenchAudit.createMany({
-          data: auditLogs
-        });
-      }
-
       return res.sendResponse(
         {
           message: `${updateCount} workflow${updateCount !== 1 ? 's' : ''} updated successfully`,
@@ -331,7 +351,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
           message: 'Errors occurred while updating workflows',
           errors
         },
-        400
+        207
       );
     }
 

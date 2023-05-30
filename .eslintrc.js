@@ -1,6 +1,7 @@
 module.exports = {
   env: {
     browser: true,
+    jest: true,
     es2021: true
   },
   extends: ['airbnb-base', 'plugin:prettier/recommended'],
@@ -52,6 +53,12 @@ module.exports = {
     'no-debugger': 'error',
     'no-unused-vars': 'error',
     'unused-imports/no-unused-imports': 'error',
+    'import/no-extraneous-dependencies': [
+      'error',
+      {
+        devDependencies: ['**/__test__/**']
+      }
+    ],
     'import/extensions': [
       'off',
       'ignorePackages',
