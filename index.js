@@ -4,6 +4,7 @@ const app = require('./src/app');
 
 const port = process.env.PORT || 5000;
 
+console.log('Env variables ::::');
 console.log(process.env);
 
 async function accessSecretVersion() {
@@ -11,17 +12,19 @@ async function accessSecretVersion() {
     name: 'projects/744183811862/secrets/product-content-api-sac/latest'
   });
 
-  const payload = version?.payload?.data?.toString();
-
-  console.info(`Payload: ${payload}`);
+  return version?.payload?.data?.toString();
 }
 
-try {
-  accessSecretVersion();
-} catch (err) {
-  console.error('Something went wrong while fetching secret keys');
-  console.error(err);
-}
+(async () => {
+  try {
+    console.log(`Fetching keys`);
+    const keys = await accessSecretVersion();
+    console.log(keys);
+  } catch (err) {
+    console.error('Something went wrong while fetching secret keys');
+    console.error(err);
+  }
+})();
 
 app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);
