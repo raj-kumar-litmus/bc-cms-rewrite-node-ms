@@ -1,6 +1,7 @@
 const { SecretManagerServiceClient } = require('@google-cloud/secret-manager');
 const client = new SecretManagerServiceClient();
 const app = require('./src/app');
+const properties = require('./config');
 
 const port = process.env.PORT || 5000;
 
@@ -27,5 +28,7 @@ async function accessSecretVersion() {
 })();
 
 app.listen(port, () => {
+  console.log(`properties.mongo_url : ${properties.mongo_url}`);
+  console.log(`properties.mongo_user : ${properties.mongo_user}`);
   console.log(`Listening: http://localhost:${port}`);
 });
