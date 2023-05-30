@@ -6,19 +6,19 @@ const app = require('../../../app');
 const request = supertest(app);
 // const router = require('../../../modules');
 
-let agent;
+// let agent;
 let server;
 beforeEach((done) => {
   server = app.listen(4000, (err) => {
     if (err) return done(err);
 
-    agent = supertest(server);
-    done();
+    // agent = supertest(server);
+    return done();
   });
 });
 
 afterEach((done) => {
-  server && server.close(done);
+  if (server) server.close(done);
 });
 
 describe('app', () => {

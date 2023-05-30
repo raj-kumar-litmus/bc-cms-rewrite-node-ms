@@ -4,9 +4,11 @@
   "description": "Back Country CMS application API",
   "main": "index.js",
   "scripts": {
+    "prestart": "npx prisma generate",
     "start": "node index.js",
     "dev": "nodemon index.js",
-    "lint": "eslint --fix src",
+    "lint": "eslint .",
+    "lint:fix": "eslint --fix",
     "test": "jest",
     "prepare": "husky install",
     "postinstall": "prisma generate"
