@@ -10,7 +10,7 @@ console.log(process.env);
 
 async function accessSecretVersion() {
   const [version] = await client.accessSecretVersion({
-    name: 'projects/744183811862/secrets/product-content-api-sac/latest'
+    name: 'projects/744183811862/secrets/product-content-api-sac/versions/latest'
   });
 
   return version?.payload?.data?.toString();
