@@ -175,12 +175,18 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/counts",
+							"raw": "{{url}}workflows/counts?email=raj.kumar@backcountry.com",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"counts"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "raj.kumar@backcountry.com"
+								}
 							]
 						}
 					},
