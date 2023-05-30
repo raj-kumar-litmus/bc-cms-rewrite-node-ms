@@ -1,12 +1,14 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 
-const workflowEngine = require('./workflowEngine');
 const { validateMiddleware } = require('../../middlewares');
+const { transformObject } = require('../../utils');
+const workflowEngine = require('./workflowEngine');
 const { CreateProcess, Status } = require('./enums');
+const { whereBuilder } = require('./utils');
 const {
   createWorkflowDto,
-  updatedWorkflowDto,
+  assignWorkflowDto,
   searchWorkflowQueryDto,
   searchWorkflowBodyDto
 } = require('./dtos');
@@ -30,18 +32,30 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
     await Promise.all(
       styles.map(async ({ styleId, brand, title }) => {
         try {
-          const workflow = await prisma.workflow.create({
-            data: {
-              styleId: styleId.toUpperCase(),
+          const transformedData = transformObject(
+            {
+              styleId,
               brand,
               title,
               createProcess: CreateProcess.WRITER_INTERFACE,
-              admin: 'admin user',
+              admin: 'Admin user',
               lastUpdatedBy: 'admin user'
+            },
+            {
+              styleId: 'upperCase',
+              brand: 'lowerCase',
+              title: 'lowerCase',
+              admin: 'lowerCase',
+              lastUpdatedBy: 'lowerCase'
             }
+          );
+
+          const workflow = await prisma.workflow.create({
+            data: transformedData
           });
           createdWorkflows.push(workflow);
         } catch (error) {
+          console.log(error);
           failedWorkflows.push({ styleId, brand, title });
         }
       })
@@ -86,7 +100,7 @@ router.post(
 
       const skip = (parsedPage - 1) * parsedLimit;
 
-      const where = {};
+      let where = {};
 
       if (globalSearch) {
         where.OR = [
@@ -95,28 +109,7 @@ router.post(
           { title: { contains: globalSearch, mode: 'insensitive' } }
         ];
       } else {
-        Object.entries(filters).forEach(([param, values]) => {
-          if (param === 'lastUpdateTs') {
-            const date = new Date(values);
-            const startOfDay = new Date(date.setHours(0, 0, 0, 0));
-            const endOfDay = new Date(date.setHours(23, 59, 59, 999));
-
-            where[param] = {
-              gte: startOfDay.toISOString(),
-              lt: endOfDay.toISOString()
-            };
-          } else if (Array.isArray(values)) {
-            where[param] = {
-              in: values,
-              mode: param === 'status' ? undefined : 'insensitive'
-            };
-          } else {
-            where[param] = {
-              contains: values,
-              mode: 'insensitive'
-            };
-          }
-        });
+        where = whereBuilder(filters);
       }
 
       let workflows;
@@ -250,43 +243,127 @@ router.get('/:id', async (req, res) => {
   }
 });
 
-// Update workflow status and assign writer or editor
-router.patch('/:id', validateMiddleware({ body: updatedWorkflowDto }), async (req, res) => {
+// Endpoint to retrieve a specific workflow's history
+router.get('/:workflowId/history', async (req, res) => {
   try {
-    const { id } = req.params;
-    const { ...updatedFields } = req.body;
+    const { workflowId } = req.params;
 
-    // Find the workflow by ID
-    const workflow = await prisma.workflow.findUnique({
+    const auditLogs = await prisma.workbenchAudit.findMany({
       where: {
-        id
+        workflowId
+      },
+      orderBy: {
+        createTs: 'desc'
       }
     });
 
-    if (!workflow) {
-      return res.sendResponse('Workflow not found.', 404);
-    }
-
-    try {
-      const changeLog = workflowEngine(workflow, updatedFields);
-
-      changeLog.lastUpdatedBy = 'temp user';
-
-      const updatedWorkflow = await prisma.workflow.update({
-        where: {
-          id
-        },
-        data: changeLog
+    const filteredData = auditLogs.map((log) => {
+      const filteredLog = {};
+      Object.entries(log).forEach(([key, value]) => {
+        if (key !== 'workflowId' && value !== null) {
+          filteredLog[key] = value;
+        }
       });
+      return filteredLog;
+    });
 
-      return res.sendResponse({ workflow: updatedWorkflow, changeLog });
-    } catch (error) {
-      console.error(error);
-      return res.sendResponse(error.message, 400);
-    }
+    return res.sendResponse(filteredData);
   } catch (error) {
     console.error(error);
-    return res.sendResponse('An error occurred while updating the workflow.', 500);
+    return res.sendResponse('An error occurred while getting workflow history.', 500);
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+// Update workflows status and assign writer or editor
+router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (req, res) => {
+  try {
+    const {
+      filters,
+      assignments: { writer, editor }
+    } = req.body;
+
+    let where = whereBuilder(filters);
+
+    const distinctStatuses = (
+      await prisma.workflow.findMany({
+        distinct: ['status'],
+        select: {
+          status: true
+        },
+        where
+      })
+    )?.map(({ status }) => status);
+
+    let updateCount = 0;
+    const errors = [];
+
+    for await (const status of distinctStatuses) {
+      where = { ...where, status };
+      const workflows = await prisma.workflow.findMany({ where, take: 1 });
+
+      try {
+        const changeLog = workflowEngine(workflows[0], { writer, editor });
+
+        if (Object.keys(changeLog).length > 0) {
+          const transformedData = transformObject(
+            {
+              ...changeLog,
+              lastUpdatedBy: 'admin'
+            },
+            {
+              writer: 'lowerCase',
+              editor: 'lowerCase',
+              assignee: 'lowerCase',
+              lastUpdatedBy: 'lowerCase'
+            }
+          );
+
+          const { count } = await prisma.workflow.updateMany({
+            data: transformedData,
+            where
+          });
+
+          updateCount += count;
+        }
+      } catch (error) {
+        errors.push({
+          filters: { ...filters, status },
+          error: error.message
+        });
+      }
+    }
+
+    if (updateCount > 0) {
+      return res.sendResponse(
+        {
+          message: `${updateCount} workflow${updateCount !== 1 ? 's' : ''} updated successfully`,
+          errors: errors.length ? errors : undefined
+        },
+        errors.length ? 207 : 200
+      );
+    }
+
+    if (errors.length > 0) {
+      return res.sendResponse(
+        {
+          message: 'Errors occurred while updating workflows',
+          errors
+        },
+        207
+      );
+    }
+
+    return res.sendResponse(
+      {
+        message: 'No workflows found for updating.'
+      },
+      404
+    );
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse('An error occurred while updating the workflows.', 500);
   } finally {
     await prisma.$disconnect();
   }
