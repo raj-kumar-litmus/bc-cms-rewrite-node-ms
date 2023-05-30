@@ -35,27 +35,30 @@ enum Status {
 
 /// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.
 model workbenchAudit {
-  id                            String                        @id @default(auto()) @map("_id") @db.ObjectId
-  assignee                      String
-  bulletPoints                  String
-  competitiveCyclistDescription String
-  competitiveCyclistTopline     String
-  detailedDescription           String
-  genus                         String
-  harmonizingData               WorkbenchAuditHarmonizingData
-  isPublished                   Boolean
-  listDescription               String
-  productTitle                  String
-  sizingChart                   String
-  species                       String
-  status                        String
-  styleId                       String
-  techspecs                     WorkbenchAuditTechspecs
-  topLine                       String
-  versionReason                 String
-  versionTs                     DateTime                      @db.Date
-  workflowId                    String                        @db.ObjectId
-  workflow                      workflow                      @relation(fields: [workflowId], references: [id])
+  id                            String                         @id @default(auto()) @map("_id") @db.ObjectId
+  assignee                      String?
+  bulletPoints                  String?
+  competitiveCyclistDescription String?
+  competitiveCyclistTopline     String?
+  detailedDescription           String?
+  genus                         String?
+  isPublished                   Boolean?
+  listDescription               String?
+  productTitle                  String?
+  sizingChart                   String?
+  species                       String?
+  status                        String?
+  topLine                       String?
+  versionReason                 String?
+  createTs                      DateTime                       @default(now()) @db.Date
+  createdBy                     String
+  workflowId                    String                         @db.ObjectId
+  workflow                      workflow                       @relation(fields: [workflowId], references: [id])
+  lastEditCompleteTs            DateTime?                      @db.Date
+  lastWriteCompleteTs           DateTime?                      @db.Date
+
+  editor String?
+  writer String?
 }
 
 /// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.
@@ -72,7 +75,7 @@ model workflow {
   lastUpdatedBy       String?
   lastWriteCompleteTs DateTime?        @db.Date
   status              Status           @default(WAITING_FOR_WRITER)
-  styleId             String           
+  styleId             String
   title               String?
   writer              String?
   assignee            String?

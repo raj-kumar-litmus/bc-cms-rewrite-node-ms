@@ -1,11 +1,11 @@
 const express = require('express');
 const { PrismaClient } = require('@prisma/client');
 
-const workflowEngine = require('./workflowEngine');
 const { validateMiddleware } = require('../../middlewares');
+const { transformObject } = require('../../utils');
+const workflowEngine = require('./workflowEngine');
 const { CreateProcess, Status } = require('./enums');
 const { whereBuilder } = require('./utils');
-const { transformObject } = require('../../utils');
 const {
   createWorkflowDto,
   assignWorkflowDto,
@@ -238,6 +238,39 @@ router.get('/:id', async (req, res) => {
     }
 
     return res.sendResponse('An error occurred while retrieving the workflow.', 500);
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+// Endpoint to retrieve a specific workflow's history
+router.get('/:workflowId/history', async (req, res) => {
+  try {
+    const { workflowId } = req.params;
+
+    const auditLogs = await prisma.workbenchAudit.findMany({
+      where: {
+        workflowId
+      },
+      orderBy: {
+        createTs: 'desc'
+      }
+    });
+
+    const filteredData = auditLogs.map((log) => {
+      const filteredLog = {};
+      Object.entries(log).forEach(([key, value]) => {
+        if (key !== 'workflowId' && value !== null) {
+          filteredLog[key] = value;
+        }
+      });
+      return filteredLog;
+    });
+
+    return res.sendResponse(filteredData);
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse('An error occurred while getting workflow history.', 500);
   } finally {
     await prisma.$disconnect();
   }
