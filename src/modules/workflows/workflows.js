@@ -242,8 +242,8 @@ router.get('/:id', async (req, res) => {
     await prisma.$disconnect();
   }
 });
-// const { id, workflowId: wID, createTs,createdBy, ...rest } = WorkflowAuditLogKeysEnum;
 
+// Endpoint to retrieve a specific workflow's history
 router.get('/:workflowId/history', async (req, res) => {
   try {
     const { workflowId } = req.params;
