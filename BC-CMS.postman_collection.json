@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"sneaker\",\r\n            \"brand\": \"PUMA\",\r\n            \"title\": \"PUMA sneaker\"\r\n        },\r\n        {\r\n            \"styleId\": \"tshirt\",\r\n            \"brand\": \"PUMA\",\r\n            \"title\": \"PUMA tshirt\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"styles\": [\r\n  {\r\n    \"styleId\": \"LV567\",\r\n    \"brand\": \"Louis Vuitton\",\r\n    \"title\": \"LV Monogram Backpack\"\r\n  },\r\n  {\r\n    \"styleId\": \"RLX912\",\r\n    \"brand\": \"Rolex\",\r\n    \"title\": \"Rolex Datejust Watch\"\r\n  },\r\n  {\r\n    \"styleId\": \"CHL445\",\r\n    \"brand\": \"Chanel\",\r\n    \"title\": \"Chanel Classic Flap Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"GCC721\",\r\n    \"brand\": \"Gucci\",\r\n    \"title\": \"Gucci Ace Sneakers\"\r\n  },\r\n  {\r\n    \"styleId\": \"OMG832\",\r\n    \"brand\": \"Omega\",\r\n    \"title\": \"Omega Seamaster Watch\"\r\n  },\r\n  {\r\n    \"styleId\": \"HMS249\",\r\n    \"brand\": \"Hermes\",\r\n    \"title\": \"Hermes Birkin Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"DIR567\",\r\n    \"brand\": \"Dior\",\r\n    \"title\": \"Dior Saddle Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"CTR934\",\r\n    \"brand\": \"Cartier\",\r\n    \"title\": \"Cartier Love Bracelet\"\r\n  },\r\n  {\r\n    \"styleId\": \"LVJ123\",\r\n    \"brand\": \"Louis Vuitton\",\r\n    \"title\": \"LV Speedy Handbag\"\r\n  },\r\n  {\r\n    \"styleId\": \"RLX789\",\r\n    \"brand\": \"Rolex\",\r\n    \"title\": \"Rolex Submariner Watch\"\r\n  },\r\n  {\r\n    \"styleId\": \"CHL556\",\r\n    \"brand\": \"Chanel\",\r\n    \"title\": \"Chanel Boy Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"GCC345\",\r\n    \"brand\": \"Gucci\",\r\n    \"title\": \"Gucci Marmont Belt\"\r\n  },\r\n  {\r\n    \"styleId\": \"OMG654\",\r\n    \"brand\": \"Omega\",\r\n    \"title\": \"Omega Constellation Watch\"\r\n  },\r\n  {\r\n    \"styleId\": \"HMS987\",\r\n    \"brand\": \"Hermes\",\r\n    \"title\": \"Hermes Kelly Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"DIR234\",\r\n    \"brand\": \"Dior\",\r\n    \"title\": \"Dior Book Tote Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"CTR567\",\r\n    \"brand\": \"Cartier\",\r\n    \"title\": \"Cartier Tank Watch\"\r\n  }\r\n]\r\n\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -23,9 +23,15 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows",
+							"raw": "{{url}}workflows?email=pc.admin@backcountry.com",
 							"host": [
 								"{{url}}workflows"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "pc.admin@backcountry.com"
+								}
 							]
 						}
 					},
@@ -73,7 +79,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        // \"brand\": [\r\n        //     \"nike\"\r\n        // ]\r\n        // \"styleId\": \"NEWone\",\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\"\r\n        // ],\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        \"assignee\": [\"nikhil\"]\r\n    },\r\n    \"orderBy\": {\r\n        \"styleId\": \"desc\"\r\n    }\r\n}\r\n",
+							"raw": "{\r\n    \"filters\": {\r\n        // \"brand\": [\r\n        //     \"nike\"\r\n        // ]\r\n        \"styleId\": \"NEWone\"\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\"\r\n        // ],\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"]\r\n    },\r\n    \"orderBy\": {\r\n        \"styleId\": \"desc\"\r\n    }\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -170,17 +176,50 @@
 					"response": []
 				},
 				{
+					"name": "saveForLater",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"genus\": \"Climbing accessories\",\r\n  \"species\": \"Belay Devices\",\r\n  \"harmonizingData\": {\r\n    \"recommendedUse\": [\"Ice climbing\", \"Mountaineering\"],\r\n    \"ropeDiameter\": [\"<9.5mm\"],\r\n    \"type\": [\"Figure 8\"]\r\n  },\r\n  \"techspecs\": {\r\n    \"responsibleCollection\": \"Value1\",\r\n    \"material\": \"Value2\"\r\n  },\r\n  \"productTitle\": \"My product title\",\r\n  \"topLine\": \"The top line\",\r\n  \"detailedDescription\": \"Detailed desc val1\",\r\n  \"listDescription\": \"My list of desc\",\r\n  \"bulletPoints\": \"bullet points 123\",\r\n  \"sizingChart\": \"my sizing chart\",\r\n  \"competitiveCyclistTopline\": \"top line 33\",\r\n  \"competitiveCyclistDescription\": \"desc 123 1\",\r\n  \"versionReason\": \"Editing\",\r\n  \"isPublished\": false\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}workflows/id/saveForLater",
+							"host": [
+								"{{url}}workflows"
+							],
+							"path": [
+								"id",
+								"saveForLater"
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "counts",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/counts",
+							"raw": "{{url}}workflows/counts?email=raj.kumar@backcountry.com",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"counts"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "raj.kumar@backcountry.com"
+								}
 							]
 						}
 					},

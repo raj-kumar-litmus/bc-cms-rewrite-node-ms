@@ -6,7 +6,6 @@ const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
 const { CreateProcess, Status } = require('./enums');
 const { whereBuilder } = require('./utils');
-
 const {
   createWorkflowDto,
   assignWorkflowDto,
@@ -24,7 +23,8 @@ const router = express.Router();
 router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, res) => {
   try {
     const {
-      body: { styles }
+      body: { styles },
+      query: { email = 'pc.admin@backCountry.com' }
     } = req;
 
     const createdWorkflows = [];
@@ -39,8 +39,8 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
               brand,
               title,
               createProcess: CreateProcess.WRITER_INTERFACE,
-              admin: 'Admin user',
-              lastUpdatedBy: 'admin user'
+              admin: email,
+              lastUpdatedBy: email
             },
             {
               styleId: 'upperCase',
@@ -244,6 +244,39 @@ router.get('/:id', async (req, res) => {
   }
 });
 
+// Endpoint to retrieve a specific workflow's history
+router.get('/:workflowId/history', async (req, res) => {
+  try {
+    const { workflowId } = req.params;
+
+    const auditLogs = await mongoPrisma.workbenchAudit.findMany({
+      where: {
+        workflowId
+      },
+      orderBy: {
+        createTs: 'desc'
+      }
+    });
+
+    const filteredData = auditLogs.map((log) => {
+      const filteredLog = {};
+      Object.entries(log).forEach(([key, value]) => {
+        if (key !== 'workflowId' && value !== null) {
+          filteredLog[key] = value;
+        }
+      });
+      return filteredLog;
+    });
+
+    return res.sendResponse(filteredData);
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse('An error occurred while getting workflow history.', 500);
+  } finally {
+    await mongoPrisma.$disconnect();
+  }
+});
+
 // Update workflows status and assign writer or editor
 router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (req, res) => {
   try {
@@ -251,6 +284,8 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
       filters,
       assignments: { writer, editor }
     } = req.body;
+
+    const { email } = req.query;
 
     let where = whereBuilder(filters);
 
@@ -278,7 +313,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
           const transformedData = transformObject(
             {
               ...changeLog,
-              lastUpdatedBy: 'admin'
+              lastUpdatedBy: email
             },
             {
               writer: 'lowerCase',

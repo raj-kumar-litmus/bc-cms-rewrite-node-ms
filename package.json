@@ -4,7 +4,7 @@
   "description": "Back Country CMS application API",
   "main": "index.js",
   "scripts": {
-    "prestart": "npm run prisma:generate && node index.js",
+    "prestart": "npm run prisma:generate",
     "start": "node index.js",
     "dev": "nodemon index.js",
     "lint": "eslint .",
