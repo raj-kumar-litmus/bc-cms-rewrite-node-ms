@@ -52,11 +52,74 @@ router.get('/styles/:styleId/techSpecs', async (req, res) => {
   }
 });
 
+router.get('/hattribute/:hattributeId', async (req, res) => {
+  try {
+    const { hattributeId } = req.params;
+    const hAttributes = await postgresPrisma.dn_hattributev.findMany({
+      where: {
+        id: parseInt(hattributeId)
+      }
+    });
+    return res.sendResponse(hAttributes);
+  } catch (error) {
+    console.error(error.message);
+    res.send('Internal Server Error').status(500);
+  }
+});
+
+router.get('/hattribute/genus/:genusid', async (req, res) => {
+  try {
+    const { genusid } = req.params;
+    const hAttributes = await postgresPrisma.dn_genus_hattributev.findMany({
+      where: {
+        genusid: parseInt(genusid)
+      }
+    });
+    return res.sendResponse(hAttributes);
+  } catch (error) {
+    console.error(error.message);
+    res.send('Internal Server Error').status(500);
+  }
+});
+
 router.get('/genus', async (req, res) => {
   try {
+    const { page, limit = 10 } = req.query;
+    let genus;
+    if (!page) {
+      genus = await postgresPrisma.dn_genus.findMany({});
+      return res.sendResponse(genus);
+    }
+    const parsedLimit = parseInt(limit, 10);
+    const parsedPage = parseInt(page, 10);
+    let total;
+
+    if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
+      return res.sendResponse('Invalid page or limit value.', 400);
+    }
+
+    const skip = (parsedPage - 1) * parsedLimit;
     // Query the database using Prisma Client
-    const genus = await postgresPrisma.dn_genus.findMany();
-    res.send(genus);
+    [genus, total] = await Promise.all([
+      postgresPrisma.dn_genus.findMany({
+        skip,
+        take: parsedLimit
+      }),
+      postgresPrisma.dn_genus
+        .findMany({})
+        .then((result) => result.length)
+        .catch(() => 0)
+    ]);
+    const pageCount = Math.ceil(total / parsedLimit);
+    return res.sendResponse({
+      genus,
+      pagination: {
+        total,
+        pageCount,
+        currentPage: parsedPage,
+        currentPageCount: genus.length
+      }
+    });
   } catch (error) {
     console.error(error.message);
     res.send('Internal Server Error').status(500);
