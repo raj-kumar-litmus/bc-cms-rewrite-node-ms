@@ -7,10 +7,11 @@ const workflowEngine = require('./workflowEngine');
 const { CreateProcess, Status } = require('./enums');
 const { whereBuilder } = require('./utils');
 const {
-  createWorkflowDto,
   assignWorkflowDto,
+  createWorkflowDto,
+  searchWorkflowBodyDto,
   searchWorkflowQueryDto,
-  searchWorkflowBodyDto
+  workflowDetailsDto
 } = require('./dtos');
 
 const router = express.Router();
@@ -53,7 +54,36 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
           const workflow = await prisma.workflow.create({
             data: transformedData
           });
-          createdWorkflows.push(workflow);
+
+          const workflowDetails = await prisma.workbenchAudit.create({
+            data: {
+              genus: 'Climbing accessories',
+              species: 'Belay Devices',
+              harmonizingData: {
+                recommendedUse: ['Ice climbing', 'Mountaineering'],
+                ropeDiameter: ['<9.5mm'],
+                type: ['Figure 8']
+              },
+              techspecs: {
+                responsibleCollection: 'Value1',
+                material: 'Value2'
+              },
+              productTitle: 'My product title',
+              topLine: 'The top line',
+              detailedDescription: 'Detailed desc val1',
+              listDescription: 'My list of desc',
+              bulletPoints: 'bullet points 123',
+              sizingChart: 'my sizing chart',
+              competitiveCyclistTopline: 'top line 33',
+              competitiveCyclistDescription: 'desc 123 1',
+              createdBy: 'admin user',
+              versionReason: 'Editing',
+              isPublished: false,
+              workflowId: workflow.id
+            }
+          });
+
+          createdWorkflows.push({ workflow, workflowDetails });
         } catch (error) {
           console.log(error);
           failedWorkflows.push({ styleId, brand, title });
@@ -67,6 +97,7 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
           success: createdWorkflows,
           failed: failedWorkflows
         },
+        //revisit this
         207
       );
     }
@@ -223,23 +254,18 @@ router.get('/counts', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
-    const workflow = await prisma.workflow.findUnique({
+    const workflow = await findWorkflowById(id);
+    const workflowDeatils = await prisma.workbenchAudit.findFirst({
       where: {
-        id
+        workflowId: id
       }
     });
 
-    return res.sendResponse(workflow);
+    res.sendResponse({ workflow, workflowDeatils });
   } catch (error) {
     console.error(error);
 
-    if (error.code === 'P2023' && error.meta?.message?.includes('Malformed ObjectID')) {
-      return res.sendResponse('Invalid workflow ID.', 400);
-    }
-
-    return res.sendResponse('An error occurred while retrieving the workflow.', 500);
-  } finally {
-    await prisma.$disconnect();
+    res.sendResponse(error.message, error.status || 500);
   }
 });
 
@@ -275,6 +301,32 @@ router.get('/:workflowId/history', async (req, res) => {
     await prisma.$disconnect();
   }
 });
+
+// Endpoint to save a snapshot of a workflow for later audit log
+router.patch(
+  '/:workflowId/saveForLater',
+  validateMiddleware({ body: workflowDetailsDto }),
+  async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      const workflow = await findWorkflowById(workflowId);
+
+      // Save the snapshot of the workflow for later audit log
+      // Your implementation here...
+
+      res.sendResponse('ok');
+    } catch (error) {
+      console.error(error);
+
+      res.sendResponse(
+        error.message || 'An error occurred while saving workflow for later',
+        error.status || 500
+      );
+    } finally {
+      await prisma.$disconnect();
+    }
+  }
+);
 
 // Update workflows status and assign writer or editor
 router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (req, res) => {
@@ -393,5 +445,27 @@ router.delete('/:id', async (req, res) => {
     await prisma.$disconnect();
   }
 });
+
+const findWorkflowById = async (id) => {
+  try {
+    const workflow = await prisma.workflow.findUnique({
+      where: {
+        id
+      }
+    });
+
+    return workflow;
+  } catch (error) {
+    console.error(error);
+
+    if (error.code === 'P2023' && error.meta?.message?.includes('Malformed ObjectID')) {
+      throw new Error('Invalid workflow ID.');
+    }
+
+    throw new Error('An error occurred while retrieving the workflow.');
+  } finally {
+    await prisma.$disconnect();
+  }
+};
 
 module.exports = router;

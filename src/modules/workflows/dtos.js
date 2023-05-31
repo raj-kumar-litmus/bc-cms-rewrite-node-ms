@@ -82,6 +82,30 @@ const searchWorkflowBodyDto = Joi.object({
   }).unknown(false)
 });
 
+const workflowDetailsDto = Joi.object({
+  genus: Joi.string().optional(),
+  species: Joi.string().optional(),
+  harmonizingData: Joi.object({
+    recommendedUse: Joi.array().items(Joi.string()).optional(),
+    ropeDiameter: Joi.array().items(Joi.string()).optional(),
+    type: Joi.array().items(Joi.string()).optional()
+  }).optional(),
+  techspecs: Joi.object({
+    responsibleCollection: Joi.string().optional(),
+    material: Joi.string().optional()
+  }).optional(),
+  productTitle: Joi.string().optional(),
+  topLine: Joi.string().optional(),
+  detailedDescription: Joi.string().optional(),
+  listDescription: Joi.string().optional(),
+  bulletPoints: Joi.string().optional(),
+  sizingChart: Joi.string().optional(),
+  competitiveCyclistTopline: Joi.string().optional(),
+  competitiveCyclistDescription: Joi.string().optional(),
+  versionReason: Joi.string().optional(),
+  isPublished: Joi.boolean().optional()
+});
+
 const UniqueKeysEnum = {
   id: WorkflowKeysEnum.id,
   styleId: WorkflowKeysEnum.styleId,
@@ -103,8 +127,9 @@ const searchWorkflowQueryDto = Joi.object({
 });
 
 module.exports = {
-  createWorkflowDto,
   assignWorkflowDto,
+  createWorkflowDto,
   searchWorkflowBodyDto,
-  searchWorkflowQueryDto
+  searchWorkflowQueryDto,
+  workflowDetailsDto
 };
