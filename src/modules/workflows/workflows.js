@@ -23,7 +23,8 @@ const prisma = new PrismaClient({
 router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, res) => {
   try {
     const {
-      body: { styles }
+      body: { styles },
+      query: { email = 'pc.admin@backCountry.com' }
     } = req;
 
     const createdWorkflows = [];
@@ -38,8 +39,8 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
               brand,
               title,
               createProcess: CreateProcess.WRITER_INTERFACE,
-              admin: 'Admin user',
-              lastUpdatedBy: 'admin user'
+              admin: email,
+              lastUpdatedBy: email
             },
             {
               styleId: 'upperCase',
@@ -284,6 +285,8 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
       assignments: { writer, editor }
     } = req.body;
 
+    const { email } = req.query;
+
     let where = whereBuilder(filters);
 
     const distinctStatuses = (
@@ -310,7 +313,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
           const transformedData = transformObject(
             {
               ...changeLog,
-              lastUpdatedBy: 'admin'
+              lastUpdatedBy: email
             },
             {
               writer: 'lowerCase',
