@@ -59,7 +59,7 @@ router.get('/genus', async (req, res) => {
     res.send(genus);
   } catch (error) {
     console.error(error.message);
-    res.send('Internal Server Error').status(500);
+    res.sendResponse('Internal Server Error', 500);
   }
 });
 

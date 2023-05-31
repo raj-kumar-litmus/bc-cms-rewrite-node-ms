@@ -15,10 +15,6 @@ const {
 
 const router = express.Router();
 
-// const mongoPrisma = new mongoPrismaClient({
-//   log: ['query', 'info', 'warn', 'error']
-// });
-
 // Endpoint to create a workflow
 router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, res) => {
   try {
