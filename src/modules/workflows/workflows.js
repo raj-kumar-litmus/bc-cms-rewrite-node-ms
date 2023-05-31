@@ -285,7 +285,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
       assignments: { writer, editor }
     } = req.body;
 
-    const { email } = req.query;
+    const { email = 'dummy.pc@backcountry.com' } = req.query;
 
     let where = whereBuilder(filters);
 
