@@ -5,7 +5,7 @@ const { validateMiddleware } = require('../../middlewares');
 const { transformObject } = require('../../utils');
 const workflowEngine = require('./workflowEngine');
 const { CreateProcess, Status } = require('./enums');
-const { whereBuilder } = require('./utils');
+const { whereBuilder, deepCompare } = require('./utils');
 const {
   assignWorkflowDto,
   createWorkflowDto,
@@ -332,19 +332,52 @@ router.patch(
   async (req, res) => {
     try {
       const { workflowId } = req.params;
+      const { email = 'pc.editor@backcountry.com' } = req.query;
       await findWorkflowById(workflowId);
 
-      // Save the snapshot of the workflow for later audit log
-      // Your implementation here...
+      const currentSnapshot = req.body;
 
-      res.sendResponse('ok');
+      const previousSnapshot = await prisma.workbenchAudit.findFirst({
+        where: {
+          workflowId
+        },
+        orderBy: {
+          createTs: 'desc'
+        }
+      });
+
+      const changeLog = deepCompare(previousSnapshot, currentSnapshot, [
+        'changeLog',
+        'id',
+        'createTs',
+        'createdBy',
+        'workflowId'
+      ]);
+
+      if (Object.keys(changeLog).length === 0) {
+        res.sendResponse('No changes detected. Nothing to save.', 400);
+        return;
+      }
+
+      await prisma.workbenchAudit.create({
+        data: {
+          workflowId,
+          createdBy: email,
+          ...currentSnapshot,
+          changeLog
+        }
+      });
+
+      res.sendResponse({
+        workflowId,
+        createdBy: email,
+        ...currentSnapshot,
+        changeLog
+      });
     } catch (error) {
       console.error(error);
 
-      res.sendResponse(
-        error.message || 'An error occurred while saving workflow for later',
-        error.status || 500
-      );
+      res.sendResponse('An error occurred while saving workflow for later', 500);
     } finally {
       await prisma.$disconnect();
     }
