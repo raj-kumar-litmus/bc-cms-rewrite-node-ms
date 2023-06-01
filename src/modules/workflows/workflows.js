@@ -46,7 +46,8 @@ const findWorkflowById = async (id) => {
 router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, res) => {
   try {
     const {
-      body: { styles }
+      body: { styles },
+      query: { email = 'pc.admin@backCountry.com' }
     } = req;
 
     const createdWorkflows = [];
@@ -61,8 +62,8 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
               brand,
               title,
               createProcess: CreateProcess.WRITER_INTERFACE,
-              admin: 'Admin user',
-              lastUpdatedBy: 'admin user'
+              admin: email,
+              lastUpdatedBy: email
             },
             {
               styleId: 'upperCase',
@@ -98,7 +99,7 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
               sizingChart: 'my sizing chart',
               competitiveCyclistTopline: 'top line 33',
               competitiveCyclistDescription: 'desc 123 1',
-              createdBy: 'admin user',
+              createdBy: email,
               versionReason: 'Editing',
               isPublished: false,
               workflowId: workflow.id
