@@ -20,6 +20,28 @@ const prisma = new PrismaClient({
   log: ['query', 'info', 'warn', 'error']
 });
 
+const findWorkflowById = async (id) => {
+  try {
+    const workflow = await prisma.workflow.findUnique({
+      where: {
+        id
+      }
+    });
+
+    return workflow;
+  } catch (error) {
+    console.error(error);
+
+    if (error.code === 'P2023' && error.meta?.message?.includes('Malformed ObjectID')) {
+      throw new Error('Invalid workflow ID.');
+    }
+
+    throw new Error('An error occurred while retrieving the workflow.');
+  } finally {
+    await prisma.$disconnect();
+  }
+};
+
 // Endpoint to create a workflow
 router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, res) => {
   try {
@@ -97,7 +119,7 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
           success: createdWorkflows,
           failed: failedWorkflows
         },
-        //revisit this
+        // revisit this
         207
       );
     }
@@ -309,7 +331,7 @@ router.patch(
   async (req, res) => {
     try {
       const { workflowId } = req.params;
-      const workflow = await findWorkflowById(workflowId);
+      await findWorkflowById(workflowId);
 
       // Save the snapshot of the workflow for later audit log
       // Your implementation here...
@@ -336,6 +358,8 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
       assignments: { writer, editor }
     } = req.body;
 
+    const { email = 'pc.admin@backcountry.com' } = req.query;
+
     let where = whereBuilder(filters);
 
     const distinctStatuses = (
@@ -350,6 +374,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
 
     let updateCount = 0;
     const errors = [];
+    const auditLogs = [];
 
     for await (const status of distinctStatuses) {
       where = { ...where, status };
@@ -362,7 +387,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
           const transformedData = transformObject(
             {
               ...changeLog,
-              lastUpdatedBy: 'admin'
+              lastUpdatedBy: email
             },
             {
               writer: 'lowerCase',
@@ -379,6 +404,14 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
 
           updateCount += count;
         }
+
+        const workflowAuditLogs = workflows.map((workflow) => ({
+          workflowId: workflow.id,
+          ...changeLog,
+          createdBy: email
+        }));
+
+        auditLogs.push(...workflowAuditLogs);
       } catch (error) {
         errors.push({
           filters: { ...filters, status },
@@ -388,6 +421,12 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
     }
 
     if (updateCount > 0) {
+      if (auditLogs.length > 0) {
+        await prisma.workbenchAudit.createMany({
+          data: auditLogs
+        });
+      }
+
       return res.sendResponse(
         {
           message: `${updateCount} workflow${updateCount !== 1 ? 's' : ''} updated successfully`,
@@ -403,7 +442,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
           message: 'Errors occurred while updating workflows',
           errors
         },
-        207
+        400
       );
     }
 
@@ -445,27 +484,5 @@ router.delete('/:id', async (req, res) => {
     await prisma.$disconnect();
   }
 });
-
-const findWorkflowById = async (id) => {
-  try {
-    const workflow = await prisma.workflow.findUnique({
-      where: {
-        id
-      }
-    });
-
-    return workflow;
-  } catch (error) {
-    console.error(error);
-
-    if (error.code === 'P2023' && error.meta?.message?.includes('Malformed ObjectID')) {
-      throw new Error('Invalid workflow ID.');
-    }
-
-    throw new Error('An error occurred while retrieving the workflow.');
-  } finally {
-    await prisma.$disconnect();
-  }
-};
 
 module.exports = router;
