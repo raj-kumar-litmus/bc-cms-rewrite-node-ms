@@ -127,23 +127,52 @@ router.get('/genus', async (req, res) => {
 });
 
 router.get('/genus/:genusId/species', async (req, res) => {
-  const { genusId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/genus/${genusId}/species`;
   try {
-    const { data } = await axios.get(url, getConfig(req));
-    res.sendResponse(data);
+    const { genusId } = req.params;
+
+    const genus = await postgresPrisma.dn_genus.findUnique({
+      where: {
+        id: parseInt(genusId)
+      },
+      select: {
+        id: true,
+        dattributelid: true
+      }
+    });
+    console.log('::::: genus ::::: ');
+    console.log(genus);
+    if (genus.dattributelid) {
+      const species = await postgresPrisma.dn_dattributev.findMany({
+        where: {
+          id: parseInt(genus.dattributelid)
+        }
+      });
+      console.log('::::: species ::::: ');
+      console.log(species);
+      return res.sendResponse({
+        species
+      });
+    } else {
+      return res.sendResponse('Could not find genus details', 401);
+    }
   } catch (error) {
-    console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
+    console.log(error);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
-router.get('/genus/:genusId/species/:styleId/hAttributes', async (req, res) => {
-  const { genusId, styleId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/genus/${genusId}/species/${styleId}/hAttributes`;
+router.get('/genus/:genusId/species/:speciesId/hAttributes', async (req, res) => {
   try {
-    const { data } = await axios.get(url, getConfig(req));
-    res.sendResponse(data);
+    const { genusId, speciesId } = req.params;
+    const harmonizingAttributes = await postgresPrisma.dn_genus_species_hattributev.findMany({
+      where: {
+        AND: [{ genus_id: parseInt(genusId) }, { species_id: parseInt(speciesId) }]
+      }
+    });
+    // todo. JAR call integration.
+    res.sendResponse({
+      harmonizingAttributes
+    });
   } catch (error) {
     console.error(error.message);
     res.sendResponse('Internal Server Error', 500);
