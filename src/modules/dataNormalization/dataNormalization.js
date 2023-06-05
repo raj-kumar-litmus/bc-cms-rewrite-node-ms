@@ -1,6 +1,8 @@
 const express = require('express');
 const axios = require('axios');
 
+const { postgresPrisma } = require('../prisma');
+
 const router = express.Router();
 
 const getConfig = (req) => {
@@ -51,10 +53,10 @@ router.get('/styles/:styleId/techSpecs', async (req, res) => {
 });
 
 router.get('/genus', async (req, res) => {
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/genus`;
   try {
-    const { data } = await axios.get(url, getConfig(req));
-    res.sendResponse(data);
+    // Query the database using Prisma Client
+    const genus = await postgresPrisma.dn_genus.findMany();
+    res.send(genus);
   } catch (error) {
     console.error(error.message);
     res.sendResponse('Internal Server Error', 500);
