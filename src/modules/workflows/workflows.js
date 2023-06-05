@@ -281,7 +281,7 @@ router.get('/:workflowId/history', async (req, res) => {
 router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (req, res) => {
   try {
     const {
-      filters,
+      filters: { excludeIds, ...filters },
       assignments: { writer, editor }
     } = req.body;
 
