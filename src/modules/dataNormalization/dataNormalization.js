@@ -92,7 +92,6 @@ router.get('/genus', async (req, res) => {
     }
     const parsedLimit = parseInt(limit, 10);
     const parsedPage = parseInt(page, 10);
-    let total;
 
     if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
       return res.sendResponse('Invalid page or limit value.', 400);
@@ -100,7 +99,7 @@ router.get('/genus', async (req, res) => {
 
     const skip = (parsedPage - 1) * parsedLimit;
     // Query the database using Prisma Client
-    [genus, total] = await Promise.all([
+    const response = await Promise.all([
       postgresPrisma.dn_genus.findMany({
         skip,
         take: parsedLimit
@@ -110,6 +109,8 @@ router.get('/genus', async (req, res) => {
         .then((result) => result.length)
         .catch(() => 0)
     ]);
+    genus = response[0];
+    const total = response[1];
     const pageCount = Math.ceil(total / parsedLimit);
     return res.sendResponse({
       genus,
@@ -141,19 +142,19 @@ router.get('/genus/:genusId/species', async (req, res) => {
     });
 
     if (genus.dattributelid) {
-      const dn_dattributev = await postgresPrisma.dn_dattributev.findMany({
+      const dAttributes = await postgresPrisma.dn_dattributev.findMany({
         where: {
           dattributelid: parseInt(genus.dattributelid)
         }
       });
-      const dn_genus_attributel_attributetype =
+      const genuAttributeElAttributeType =
         await postgresPrisma.dn_genus_attributel_attributetype.findMany({
           where: {
             genusid: parseInt(genusId)
           }
         });
-      if (dn_dattributev && Array.isArray(dn_dattributev) && dn_dattributev[0]) {
-        const { dattributelid } = dn_dattributev[0];
+      if (dAttributes && Array.isArray(dAttributes) && dAttributes[0]) {
+        const { dattributelid } = dAttributes[0];
         dattributeLabel = await postgresPrisma.dn_dattributel.findMany({
           where: {
             id: parseInt(dattributelid)
@@ -162,13 +163,12 @@ router.get('/genus/:genusId/species', async (req, res) => {
       }
       return res.sendResponse({
         label: dattributeLabel,
-        species: dn_dattributev.filter((e) => {
-          return dn_genus_attributel_attributetype.find((el) => el.dattributevid === e.id);
+        species: dAttributes.filter((e) => {
+          return genuAttributeElAttributeType.find((el) => el.dattributevid === e.id);
         })
       });
-    } else {
-      return res.sendResponse('Could not find genus details', 404);
     }
+    return res.sendResponse('Could not find genus details', 404);
   } catch (error) {
     return res.sendResponse('Internal Server Error', 500);
   }
@@ -182,9 +182,25 @@ router.get('/genus/:genusId/species', async (req, res) => {
 //         AND: [{ genus_id: parseInt(genusId) }, { species_id: parseInt(speciesId) }]
 //       }
 //     });
+//     const genus = await postgresPrisma.dn_genus.findUnique({
+//       where: {
+//         id: parseInt(genusId)
+//       },
+//       select: {
+//         id: true,
+//         dattributelid: true
+//       }
+//     });
+//     const newResp = await postgresPrisma.dn_hattributev.findMany({
+//       where: {
+//         hattributelid: parseInt(genus.dattributelid)
+//         // id: parseInt(genusId)
+//       }
+//     });
 //     // todo. JAR call integration.
 //     res.sendResponse({
-//       harmonizingAttributes
+//       harmonizingAttributes,
+//       newResp
 //     });
 //   } catch (error) {
 //     console.error(error.message);
