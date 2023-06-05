@@ -11,7 +11,6 @@ const whereBuilder = (filters) => {
     if (param === 'excludeId' || param === 'id') {
       where.id = where.id || {};
       where.id[param === 'excludeId' ? 'notIn' : 'in'] = values;
-      where.id.mode = undefined;
     } else if (param === 'lastUpdateTs') {
       const date = new Date(values);
       const startOfDay = new Date(date.setHours(0, 0, 0, 0));
