@@ -129,6 +129,7 @@ router.get('/genus', async (req, res) => {
 router.get('/genus/:genusId/species', async (req, res) => {
   try {
     const { genusId } = req.params;
+    let dattributeLabel;
 
     const genus = await postgresPrisma.dn_genus.findUnique({
       where: {
@@ -139,24 +140,37 @@ router.get('/genus/:genusId/species', async (req, res) => {
         dattributelid: true
       }
     });
-    console.log('::::: genus ::::: ');
-    console.log(genus);
+
     if (genus.dattributelid) {
-      const species = await postgresPrisma.dn_dattributev.findMany({
+      const dn_dattributev = await postgresPrisma.dn_dattributev.findMany({
         where: {
-          id: parseInt(genus.dattributelid)
+          dattributelid: parseInt(genus.dattributelid)
         }
       });
-      console.log('::::: species ::::: ');
-      console.log(species);
+      const dn_genus_attributel_attributetype =
+        await postgresPrisma.dn_genus_attributel_attributetype.findMany({
+          where: {
+            genusid: parseInt(genusId)
+          }
+        });
+      if (dn_dattributev && Array.isArray(dn_dattributev) && dn_dattributev[0]) {
+        const { dattributelid } = dn_dattributev[0];
+        dattributeLabel = await postgresPrisma.dn_dattributel.findMany({
+          where: {
+            id: parseInt(dattributelid)
+          }
+        });
+      }
       return res.sendResponse({
-        species
+        label: dattributeLabel,
+        species: dn_dattributev.filter((e) => {
+          return dn_genus_attributel_attributetype.find((el) => el.dattributevid === e.id);
+        })
       });
     } else {
-      return res.sendResponse('Could not find genus details', 401);
+      return res.sendResponse('Could not find genus details', 404);
     }
   } catch (error) {
-    console.log(error);
     return res.sendResponse('Internal Server Error', 500);
   }
 });
