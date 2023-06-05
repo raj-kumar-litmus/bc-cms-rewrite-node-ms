@@ -52,35 +52,35 @@ router.get('/styles/:styleId/techSpecs', async (req, res) => {
   }
 });
 
-router.get('/hattribute/:hattributeId', async (req, res) => {
-  try {
-    const { hattributeId } = req.params;
-    const hAttributes = await postgresPrisma.dn_hattributev.findMany({
-      where: {
-        id: parseInt(hattributeId)
-      }
-    });
-    return res.sendResponse(hAttributes);
-  } catch (error) {
-    console.error(error.message);
-    res.send('Internal Server Error').status(500);
-  }
-});
+// router.get('/hattribute/:hattributeId', async (req, res) => {
+//   try {
+//     const { hattributeId } = req.params;
+//     const hAttributes = await postgresPrisma.dn_hattributev.findMany({
+//       where: {
+//         id: parseInt(hattributeId)
+//       }
+//     });
+//     return res.sendResponse(hAttributes);
+//   } catch (error) {
+//     console.error(error.message);
+//     res.send('Internal Server Error').status(500);
+//   }
+// });
 
-router.get('/hattribute/genus/:genusid', async (req, res) => {
-  try {
-    const { genusid } = req.params;
-    const hAttributes = await postgresPrisma.dn_genus_hattributev.findMany({
-      where: {
-        genusid: parseInt(genusid)
-      }
-    });
-    return res.sendResponse(hAttributes);
-  } catch (error) {
-    console.error(error.message);
-    res.send('Internal Server Error').status(500);
-  }
-});
+// router.get('/hattribute/genus/:genusid', async (req, res) => {
+//   try {
+//     const { genusid } = req.params;
+//     const hAttributes = await postgresPrisma.dn_genus_hattributev.findMany({
+//       where: {
+//         genusid: parseInt(genusid)
+//       }
+//     });
+//     return res.sendResponse(hAttributes);
+//   } catch (error) {
+//     console.error(error.message);
+//     res.send('Internal Server Error').status(500);
+//   }
+// });
 
 router.get('/genus', async (req, res) => {
   try {
@@ -175,22 +175,22 @@ router.get('/genus/:genusId/species', async (req, res) => {
   }
 });
 
-router.get('/genus/:genusId/species/:speciesId/hAttributes', async (req, res) => {
-  try {
-    const { genusId, speciesId } = req.params;
-    const harmonizingAttributes = await postgresPrisma.dn_genus_species_hattributev.findMany({
-      where: {
-        AND: [{ genus_id: parseInt(genusId) }, { species_id: parseInt(speciesId) }]
-      }
-    });
-    // todo. JAR call integration.
-    res.sendResponse({
-      harmonizingAttributes
-    });
-  } catch (error) {
-    console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
-  }
-});
+// router.get('/genus/:genusId/species/:speciesId/hAttributes', async (req, res) => {
+//   try {
+//     const { genusId, speciesId } = req.params;
+//     const harmonizingAttributes = await postgresPrisma.dn_genus_species_hattributev.findMany({
+//       where: {
+//         AND: [{ genus_id: parseInt(genusId) }, { species_id: parseInt(speciesId) }]
+//       }
+//     });
+//     // todo. JAR call integration.
+//     res.sendResponse({
+//       harmonizingAttributes
+//     });
+//   } catch (error) {
+//     console.error(error.message);
+//     res.sendResponse('Internal Server Error', 500);
+//   }
+// });
 
 module.exports = router;
