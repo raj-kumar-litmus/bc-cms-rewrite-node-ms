@@ -319,6 +319,37 @@ router.get('/:workflowId/history', async (req, res) => {
     return res.sendResponse(filteredData);
   } catch (error) {
     console.error(error);
+    return res.sendResponse("An error occurred while getting workflow's history.", 500);
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+// Endpoint to retrieve a specific workflow history
+router.get('/:workflowId/history/:historyId', async (req, res) => {
+  try {
+    const { workflowId, historyId } = req.params;
+
+    const auditLog = await prisma.workbenchAudit.findFirst({
+      where: {
+        id: historyId,
+        workflowId
+      },
+      orderBy: {
+        createTs: 'desc'
+      }
+    });
+
+    const filteredLog = {};
+    Object.entries(auditLog).forEach(([key, value]) => {
+      if (key !== 'workflowId' && value !== null) {
+        filteredLog[key] = value;
+      }
+    });
+
+    return res.sendResponse(filteredLog);
+  } catch (error) {
+    console.error(error);
     return res.sendResponse('An error occurred while getting workflow history.', 500);
   } finally {
     await prisma.$disconnect();
