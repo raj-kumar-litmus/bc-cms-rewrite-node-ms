@@ -28,6 +28,8 @@ const findWorkflowById = async (id) => {
       }
     });
 
+    if (!workflow) throw new Error('Workflow not found.', 404);
+
     return workflow;
   } catch (error) {
     console.error(error);
@@ -330,7 +332,7 @@ router.get('/:workflowId/history/:historyId', async (req, res) => {
   try {
     const { workflowId, historyId } = req.params;
 
-    const auditLog = await prisma.workbenchAudit.findFirst({
+    const auditLog = await prisma.workbenchAudit.findUnique({
       where: {
         id: historyId,
         workflowId
@@ -339,6 +341,8 @@ router.get('/:workflowId/history/:historyId', async (req, res) => {
         createTs: 'desc'
       }
     });
+
+    if (!auditLog) return res.sendResponse('AuditLog not found.', 404);
 
     const filteredLog = {};
     Object.entries(auditLog).forEach(([key, value]) => {
@@ -408,7 +412,10 @@ router.patch(
     } catch (error) {
       console.error(error);
 
-      res.sendResponse('An error occurred while saving workflow for later', 500);
+      res.sendResponse(
+        error.message || 'An error occurred while saving workflow for later',
+        error.status || 500
+      );
     } finally {
       await prisma.$disconnect();
     }
