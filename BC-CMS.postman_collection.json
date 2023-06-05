@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"styles\": [\r\n  {\r\n    \"styleId\": \"LV567\",\r\n    \"brand\": \"Louis Vuitton\",\r\n    \"title\": \"LV Monogram Backpack\"\r\n  },\r\n  {\r\n    \"styleId\": \"RLX912\",\r\n    \"brand\": \"Rolex\",\r\n    \"title\": \"Rolex Datejust Watch\"\r\n  },\r\n  {\r\n    \"styleId\": \"CHL445\",\r\n    \"brand\": \"Chanel\",\r\n    \"title\": \"Chanel Classic Flap Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"GCC721\",\r\n    \"brand\": \"Gucci\",\r\n    \"title\": \"Gucci Ace Sneakers\"\r\n  },\r\n  {\r\n    \"styleId\": \"OMG832\",\r\n    \"brand\": \"Omega\",\r\n    \"title\": \"Omega Seamaster Watch\"\r\n  },\r\n  {\r\n    \"styleId\": \"HMS249\",\r\n    \"brand\": \"Hermes\",\r\n    \"title\": \"Hermes Birkin Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"DIR567\",\r\n    \"brand\": \"Dior\",\r\n    \"title\": \"Dior Saddle Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"CTR934\",\r\n    \"brand\": \"Cartier\",\r\n    \"title\": \"Cartier Love Bracelet\"\r\n  },\r\n  {\r\n    \"styleId\": \"LVJ123\",\r\n    \"brand\": \"Louis Vuitton\",\r\n    \"title\": \"LV Speedy Handbag\"\r\n  },\r\n  {\r\n    \"styleId\": \"RLX789\",\r\n    \"brand\": \"Rolex\",\r\n    \"title\": \"Rolex Submariner Watch\"\r\n  },\r\n  {\r\n    \"styleId\": \"CHL556\",\r\n    \"brand\": \"Chanel\",\r\n    \"title\": \"Chanel Boy Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"GCC345\",\r\n    \"brand\": \"Gucci\",\r\n    \"title\": \"Gucci Marmont Belt\"\r\n  },\r\n  {\r\n    \"styleId\": \"OMG654\",\r\n    \"brand\": \"Omega\",\r\n    \"title\": \"Omega Constellation Watch\"\r\n  },\r\n  {\r\n    \"styleId\": \"HMS987\",\r\n    \"brand\": \"Hermes\",\r\n    \"title\": \"Hermes Kelly Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"DIR234\",\r\n    \"brand\": \"Dior\",\r\n    \"title\": \"Dior Book Tote Bag\"\r\n  },\r\n  {\r\n    \"styleId\": \"CTR567\",\r\n    \"brand\": \"Cartier\",\r\n    \"title\": \"Cartier Tank Watch\"\r\n  }\r\n]\r\n\r\n}",
+							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"BC301\",\r\n            \"brand\": \"backcountry\",\r\n            \"title\": \"Backcountry Expedition Backpack\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -43,30 +43,81 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/646de4de946025c11013e46c",
+							"raw": "{{url}}workflows/647746bcc58fe1cfe9356ac6",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"646de4de946025c11013e46c"
+								"647746bcc58fe1cfe9356ac6"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "workflow/history",
+					"name": "assign",
 					"request": {
-						"method": "GET",
+						"method": "PATCH",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"filters\": {\r\n        // \"id\": \"647794ed1a9fcf5fde9b697e\"\r\n        \"id\": [\"647746bcc58fe1cfe9356ac6\",\"647746bcc58fe1cfe9356ac5\",\"647746bcc58fe1cfe9356ac9\"],\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"BC4XT8\"]\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\",\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        // \"editor\": \"editor1@backcountry.com\"\r\n        \"writer\": \"nikhil.s@backcountry.com\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
-							"raw": "{{url}}workflows/645de38ca2482cdadfeaee2a/auditLog",
+							"raw": "{{url}}workflows/assign?email=pc.admin@backcountry.com",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"645de38ca2482cdadfeaee2a",
-								"auditLog"
+								"assign"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "pc.admin@backcountry.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "workflow/workflowId/history",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}workflows/647892bf54f29aeccc2398a4/history",
+							"host": [
+								"{{url}}workflows"
+							],
+							"path": [
+								"647892bf54f29aeccc2398a4",
+								"history"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "workflow/workflowId/history/historyId",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}workflows/647892bf54f29aeccc2398a4/history/6478b66fce798c6bbcdaa0a1",
+							"host": [
+								"{{url}}workflows"
+							],
+							"path": [
+								"647892bf54f29aeccc2398a4",
+								"history",
+								"6478b66fce798c6bbcdaa0a1"
 							]
 						}
 					},
@@ -79,7 +130,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        // \"brand\": [\r\n        //     \"nike\"\r\n        // ]\r\n        \"styleId\": \"NEWone\"\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\"\r\n        // ],\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"]\r\n    },\r\n    \"orderBy\": {\r\n        \"styleId\": \"desc\"\r\n    }\r\n}\r\n",
+							"raw": "{\r\n    \"filters\": {\r\n        \"brand\": \"Rolex\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -150,39 +201,13 @@
 					"response": []
 				},
 				{
-					"name": "assign",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        \"id\": \"645de38ca2482cdadfeaee2a\"\r\n        // \"id\": [\"64631c5eab78a923183ed209\"]\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": \"NEWone\",\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\",\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"]\r\n    },\r\n    \"assignments\": {\r\n        // \"editor\": \"editor1@backcountry.com\"\r\n        \"writer\": \"nikhil.s@backcountry.com\"\r\n    }\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}workflows/assign",
-							"host": [
-								"{{url}}workflows"
-							],
-							"path": [
-								"assign"
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "saveForLater",
 					"request": {
 						"method": "PATCH",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n  \"genus\": \"Climbing accessories\",\r\n  \"species\": \"Belay Devices\",\r\n  \"harmonizingData\": {\r\n    \"recommendedUse\": [\"Ice climbing\", \"Mountaineering\"],\r\n    \"ropeDiameter\": [\"<9.5mm\"],\r\n    \"type\": [\"Figure 8\"]\r\n  },\r\n  \"techspecs\": {\r\n    \"responsibleCollection\": \"Value1\",\r\n    \"material\": \"Value2\"\r\n  },\r\n  \"productTitle\": \"My product title\",\r\n  \"topLine\": \"The top line\",\r\n  \"detailedDescription\": \"Detailed desc val1\",\r\n  \"listDescription\": \"My list of desc\",\r\n  \"bulletPoints\": \"bullet points 123\",\r\n  \"sizingChart\": \"my sizing chart\",\r\n  \"competitiveCyclistTopline\": \"top line 33\",\r\n  \"competitiveCyclistDescription\": \"desc 123 1\",\r\n  \"versionReason\": \"Editing\",\r\n  \"isPublished\": false\r\n}\r\n",
+							"raw": "{\r\n  \"genus\": \"Climbing accessories\",\r\n  \"species\": \"Delay Devices\",\r\n  \"harmonizingData\": {\r\n    \"recommendedUse\": [\"Swimming\"],\r\n    \"ropeDiameter\": [\"<9.5mm\"],\r\n    \"type\": [\"Figure 10\"]\r\n  },\r\n  \"techspecs\": {\r\n    \"responsibleCollection\": \"Value3\",\r\n    \"material\": \"Value2\"\r\n  },\r\n  \"productTitle\": \"My product title123\",\r\n  \"topLine\": \"The top line\",\r\n  \"detailedDescription\": \"Detailed desc val1\",\r\n  \"listDescription\": \"My list of desc\",\r\n  \"bulletPoints\": \"bullet points 123\",\r\n  \"sizingChart\": \"my sizing chart\",\r\n  \"competitiveCyclistTopline\": \"top line 33\",\r\n  \"competitiveCyclistDescription\": \"desc 123 1\",\r\n  \"versionReason\": \"Editing\",\r\n  \"isPublished\": false\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -190,13 +215,19 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows/id/saveForLater",
+							"raw": "{{url}}workflows/647892bf54f29aeccc2398a4/saveForLater?email=nikhil.s@backcountry.com",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"id",
+								"647892bf54f29aeccc2398a4",
 								"saveForLater"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "nikhil.s@backcountry.com"
+								}
 							]
 						}
 					},
