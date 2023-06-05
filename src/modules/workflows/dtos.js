@@ -42,7 +42,17 @@ const filtersSchema = Joi.object({
   createProcess: enumValidator(CreateProcess),
   lastUpdateTs: Joi.date(),
   lastUpdatedBy: stringOrArrayOfStrings(),
-  assignee: stringOrArrayOfStrings()
+  assignee: stringOrArrayOfStrings(),
+  excludeId: Joi.alternatives().try(
+    Joi.array().items(
+      Joi.string()
+        .regex(/^[0-9a-fA-F]{24}$/)
+        .trim()
+    ),
+    Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .trim()
+  )
 }).unknown(false);
 
 const createWorkflowDto = Joi.object({
