@@ -121,8 +121,7 @@ router.get('/genus', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error(error.message);
-    res.send('Internal Server Error').status(500);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
