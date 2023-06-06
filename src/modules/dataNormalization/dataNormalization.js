@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 
 const { postgresPrisma } = require('../prisma');
+// const { groupBy } = require('../../utils');
 
 const router = express.Router();
 
@@ -85,32 +86,36 @@ router.get('/styles/:styleId/techSpecs', async (req, res) => {
 router.get('/genus', async (req, res) => {
   try {
     const { page, limit = 10 } = req.query;
-    let genus;
-    if (!page) {
-      genus = await postgresPrisma.dn_genus.findMany({});
-      return res.sendResponse(genus);
-    }
     const parsedLimit = parseInt(limit, 10);
-    const parsedPage = parseInt(page, 10);
-
-    if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
-      return res.sendResponse('Invalid page or limit value.', 400);
+    if (!page) {
+      const genus = await postgresPrisma.dn_genus.findMany({});
+      const total = genus.length;
+      const pageCount = Math.ceil(total / parsedLimit);
+      return res.sendResponse({
+        genus,
+        pagination: {
+          total,
+          pageCount,
+          currentPage: 1,
+          currentPageCount: genus.length
+        }
+      });
     }
-
+    const parsedPage = parseInt(page, 10);
+    if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
+      return res.sendResponse(
+        'Invalid page or limit value. Please provide valid numeric values for page and limit parameters.',
+        400
+      );
+    }
     const skip = (parsedPage - 1) * parsedLimit;
-    // Query the database using Prisma Client
-    const response = await Promise.all([
+    const [genus, total] = await Promise.all([
       postgresPrisma.dn_genus.findMany({
         skip,
         take: parsedLimit
       }),
-      postgresPrisma.dn_genus
-        .findMany({})
-        .then((result) => result.length)
-        .catch(() => 0)
+      postgresPrisma.dn_genus.count()
     ]);
-    genus = response[0];
-    const total = response[1];
     const pageCount = Math.ceil(total / parsedLimit);
     return res.sendResponse({
       genus,
@@ -122,85 +127,85 @@ router.get('/genus', async (req, res) => {
       }
     });
   } catch (error) {
-    return res.sendResponse('Internal Server Error', 500);
+    console.error(error);
+    return res.sendResponse(
+      'An error occurred while retrieving the genus data. Please try again later.',
+      500
+    );
   }
 });
 
 router.get('/genus/:genusId/species', async (req, res) => {
   try {
     const { genusId } = req.params;
-    let dattributeLabel;
 
-    const genus = await postgresPrisma.dn_genus.findUnique({
-      where: {
-        id: parseInt(genusId)
-      },
-      select: {
-        id: true,
-        dattributelid: true
-      }
+    const result = await postgresPrisma.$queryRaw`
+      select
+        g.id,
+        g.dattributelid,
+        gelat.dattributevid,
+        dav.text,
+        attr.name
+      from
+        DN_Genus g
+      inner join DN_DAttributeV dav on
+        dav.dAttributeLId = g.dAttributeLId
+      inner join DN_Genus_AttributeL_AttributeType gelat on
+        gelat.genusid = g.id
+      inner join dn_dattributel attr on
+        attr.id = g.dattributelid
+      where
+        g.id = ${parseInt(genusId)}
+        and gelat.dattributevid = dav.id
+      group by
+        g.id,
+        g.dattributelid,
+        gelat.dattributevid,
+        dav.text,
+        attr.name`;
+
+    return res.sendResponse({
+      result
     });
-
-    if (genus.dattributelid) {
-      const dAttributes = await postgresPrisma.dn_dattributev.findMany({
-        where: {
-          dattributelid: parseInt(genus.dattributelid)
-        }
-      });
-      const genuAttributeElAttributeType =
-        await postgresPrisma.dn_genus_attributel_attributetype.findMany({
-          where: {
-            genusid: parseInt(genusId)
-          }
-        });
-      if (dAttributes && Array.isArray(dAttributes) && dAttributes[0]) {
-        const { dattributelid } = dAttributes[0];
-        dattributeLabel = await postgresPrisma.dn_dattributel.findMany({
-          where: {
-            id: parseInt(dattributelid)
-          }
-        });
-      }
-      return res.sendResponse({
-        label: dattributeLabel,
-        species: dAttributes.filter((e) => {
-          return genuAttributeElAttributeType.find((el) => el.dattributevid === e.id);
-        })
-      });
-    }
-    return res.sendResponse('Could not find genus details', 404);
   } catch (error) {
-    return res.sendResponse('Internal Server Error', 500);
+    console.log(error);
+    return res.sendResponse('Error while fetching species details', 500);
   }
 });
 
 // router.get('/genus/:genusId/species/:speciesId/hAttributes', async (req, res) => {
 //   try {
 //     const { genusId, speciesId } = req.params;
-//     const harmonizingAttributes = await postgresPrisma.dn_genus_species_hattributev.findMany({
-//       where: {
-//         AND: [{ genus_id: parseInt(genusId) }, { species_id: parseInt(speciesId) }]
-//       }
-//     });
-//     const genus = await postgresPrisma.dn_genus.findUnique({
-//       where: {
-//         id: parseInt(genusId)
-//       },
-//       select: {
-//         id: true,
-//         dattributelid: true
-//       }
-//     });
-//     const newResp = await postgresPrisma.dn_hattributev.findMany({
-//       where: {
-//         hattributelid: parseInt(genus.dattributelid)
-//         // id: parseInt(genusId)
-//       }
-//     });
-//     // todo. JAR call integration.
-//     res.sendResponse({
-//       harmonizingAttributes,
-//       newResp
+
+//     const genusSpeciesFilter = await postgresPrisma.$queryRaw`
+//       SELECT s.hattributev_id, hattr.text, hattr.hattributelid, label.name FROM dn_genus_species_hattributev s
+//         inner join dn_hattributev hattr on
+//         hattr.id = s.hattributev_id
+//         inner join dn_hattributel label on
+//         label.id = hattr.hattributelid
+//         inner join dn_genus_hattributev dgh on
+//         dgh.genusid = s.genus_id
+//         where s.genus_id =  ${parseInt(genusId)} and s.species_id =  ${parseInt(speciesId)}
+//         group by s.hattributev_id, hattr.text, hattr.hattributelid, label.name`;
+
+//     const genusFilter = await postgresPrisma.$queryRaw`
+//       SELECT dgh.hattributevid, hattr.text,  hattr.hattributelid, label.name from dn_genus_hattributev dgh
+//         inner join dn_hattributev hattr on
+//         hattr.id = dgh.hattributevid
+//         inner join dn_hattributel label on
+//         label.id = hattr.hattributelid
+//         where dgh.genusid  = ${parseInt(genusId)}`;
+
+//     return res.sendResponse({
+//       hattributes: groupBy(
+//         [].concat(genusFilter).concat(
+//           genusSpeciesFilter.map((e) => ({
+//             ...e,
+//             hattributevid: e.hattributev_id
+//           }))
+//         ),
+//         (e) => e.name
+//       )
 //     });
 //   } catch (error) {
 //     console.error(error.message);
