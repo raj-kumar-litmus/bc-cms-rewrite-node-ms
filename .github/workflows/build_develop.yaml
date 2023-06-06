@@ -1,0 +1,101 @@
+name: product-content-api
+
+on:
+  push:
+    branches: [develop]
+env:
+  app: product-content-api
+  major_version: '1.0'
+  DOCKER_REPO: us-central1-docker.pkg.dev/bcg-prj-sha-ss-tools-gl-01
+  DOCKER_PACKAGE_GROUP: merch-eng-docker
+  artifactory_user: ${{secrets.DELONG_ARTIFACTORY_USER }}
+  artifactory_password: ${{secrets.DELONG_ARTIFACTORY_PASSWORD }}
+  GCP_PROJECT_ID: bcg-prj-mer-tt-merch-usc1-01
+
+#Jobs start
+jobs:
+  build:
+    runs-on: mere-cicd-nonprod
+
+    steps:
+      - uses: actions/checkout@v2
+
+      - name: Set up Cloud SDK
+        uses: google-github-actions/setup-gcloud@v0.2.1
+
+      - name: Use gcloud CLI
+        run: gcloud info
+
+      - name: Get secrets
+        uses: google-github-actions/get-secretmanager-secrets@v0.2.1
+        id: secrets
+        with:
+          secrets: |-
+            token:bcg-prj-mer-tt-merch-usc1-01/GITHUB_TOKEN
+
+      - name: Setup Artifact Registry Auth
+        run: gcloud auth configure-docker us-central1-docker.pkg.dev
+
+      - name: Create Docker Buildx Context
+        run: docker context create build-context
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v1
+        with:
+          endpoint: build-context
+
+      - name: Docker Metadata
+        id: meta
+        uses: docker/metadata-action@v3
+        with:
+          images: |
+            us-central1-docker.pkg.dev/bcg-prj-sha-ss-tools-gl-01/merch-eng-docker/${{env.app}}
+          tags: |
+            type=ref,event=branch
+            type=semver,pattern={{version}},value=${{env.major_version}}.${{github.run_number}},prefix=${{env.app}}
+            type=sha
+
+      - name: Build, tag, and push image to image
+        id: build-image
+        run: |
+          #  IMAGE_TAG=${GITHUB_SHA::7}-${{github.run_number}}
+          IMAGE_TAG=$app$major_version.${{github.run_number}}
+          docker build . -f Dockerfile --build-arg artifactory_user=${DELONG_ARTIFACTORY_USER} --build-arg artifactory_password=${DELONG_ARTIFACTORY_PASSWORD} -t $DOCKER_REPO/$DOCKER_PACKAGE_GROUP/$app:$IMAGE_TAG
+          docker push $DOCKER_REPO/$DOCKER_PACKAGE_GROUP/$app:$IMAGE_TAG
+        env:
+          DELONG_ARTIFACTORY_USER: ${{ secrets.DELONG_ARTIFACTORY_USER }}
+          DELONG_ARTIFACTORY_PASSWORD: ${{ secrets.DELONG_ARTIFACTORY_PASSWORD }}
+
+      - name: Update Image Tag
+        uses: Backcountry/sha-gitops-action@main
+        with:
+          token: ${{ steps.secrets.outputs.token }}
+          repo: Backcountry/mere-configs
+          ref: gcp_migration
+          type: kubernetes
+          environment: test
+          folder: product-content-api
+          file: kustomization.yaml
+          update_path: .images[0].newTag
+          update_value: ${{env.app}}${{env.major_version}}.${{github.run_number}}
+          auto_merge: true
+          labels: automerge
+
+      - name: Send mail
+        if: always()
+        uses: dawidd6/action-send-mail@v3
+        with:
+          # Required mail server address:
+          server_address: ironport-vip.vwdl.bcinfra.net
+          # Required mail server port:
+          server_port: 25
+          # Required mail subject:
+          subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
+          # Required recipients' addresses:
+          to: renuchand.ramraj@backcountry.com, arun.uppala@backcountry.com,purna.sahoo@backcountry.com
+          from: merchcontent-engineers@backcountry.com # <user@example.com>
+          # Optional whether this connection use TLS (default is true if server_port is 465)
+          # secure: true
+          body: |
+            ${{ github.job }} job in worflow ${{ github.workflow }} of ${{ github.repository }} is ${{ job.status }}
+            build number : ${{ github.run_number }}
