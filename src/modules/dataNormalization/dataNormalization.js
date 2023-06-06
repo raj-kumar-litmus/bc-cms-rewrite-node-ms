@@ -196,16 +196,34 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes', async (req, res) =>
         label.id = hattr.hattributelid
         where dgh.genusid  = ${parseInt(genusId)}`;
 
+    const groupedHAttributes = groupBy(
+      [].concat(genusFilter).concat(
+        genusSpeciesFilter.map((e) => ({
+          ...e,
+          hattributevid: e.hattributev_id
+        }))
+      ),
+      (e) => e.name
+    );
+
+    const { data } = await axios.get(
+      `${process.env.ATTRIBUTE_API_PROD}/attribute-api/styles/TNFZCQX`, //todo. pass style id and remove hard-coding
+      getConfig(req)
+    );
+
+    const labels = data.harmonizingAttributeLabels
+      .map((e) => e.harmonizingAttributeValues.map((l) => l.id))
+      .flat(Infinity);
+    const hattributes = {};
+    Object.keys(groupedHAttributes).forEach((el) => {
+      hattributes[el] = groupedHAttributes[el].map((e) =>
+        !labels.includes(e.hattributevid) ? e : { ...e, selected: true }
+      );
+    });
+
     return res.sendResponse({
-      hattributes: groupBy(
-        [].concat(genusFilter).concat(
-          genusSpeciesFilter.map((e) => ({
-            ...e,
-            hattributevid: e.hattributev_id
-          }))
-        ),
-        (e) => e.name
-      )
+      hattributes,
+      techSpecs: data.techSpecs
     });
   } catch (error) {
     console.error(error.message);
