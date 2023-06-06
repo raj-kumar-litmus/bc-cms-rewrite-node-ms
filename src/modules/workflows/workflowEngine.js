@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 const { Status, WorkflowKeysEnum } = require('./enums');
 
-module.exports = (workflow, { writer, editor }) => {
+module.exports = (workflow, { writer, editor, isPublished }) => {
   const currentStatus = workflow.status;
   const changeLog = {};
 
@@ -33,7 +33,7 @@ module.exports = (workflow, { writer, editor }) => {
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
-      } else {
+      } else if (isPublished) {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastWriteCompleteTs] = new Date();
       }
@@ -71,7 +71,7 @@ module.exports = (workflow, { writer, editor }) => {
       } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
         changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_EDITOR;
-      } else {
+      } else if (isPublished) {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastEditCompleteTs] = new Date();
       }
