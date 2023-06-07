@@ -42,7 +42,17 @@ const filtersSchema = Joi.object({
   createProcess: enumValidator(CreateProcess),
   lastUpdateTs: Joi.date(),
   lastUpdatedBy: stringOrArrayOfStrings(),
-  assignee: stringOrArrayOfStrings()
+  assignee: stringOrArrayOfStrings(),
+  excludeId: Joi.alternatives().try(
+    Joi.array().items(
+      Joi.string()
+        .regex(/^[0-9a-fA-F]{24}$/)
+        .trim()
+    ),
+    Joi.string()
+      .regex(/^[0-9a-fA-F]{24}$/)
+      .trim()
+  )
 }).unknown(false);
 
 const createWorkflowDto = Joi.object({
@@ -68,19 +78,15 @@ const assignWorkflowDto = Joi.object({
     .required()
 });
 
+const sortSchema = Joi.object().pattern(
+  Joi.string().valid(...Object.values(WorkflowKeysEnum)),
+  sortValidator()
+);
+
 const searchWorkflowBodyDto = Joi.object({
   filters: filtersSchema,
-  orderBy: Joi.object({
-    styleId: sortValidator(),
-    title: sortValidator(),
-    brand: sortValidator(),
-    status: sortValidator(),
-    createProcess: sortValidator(),
-    lastUpdateTs: sortValidator(),
-    lastUpdatedBy: sortValidator(),
-    assignee: sortValidator()
-  }).unknown(false)
-});
+  orderBy: Joi.alternatives().try(sortSchema, Joi.array().items(sortSchema).min(1))
+}).unknown(false);
 
 const workflowDetailsDto = Joi.object({
   genus: Joi.string().optional(),

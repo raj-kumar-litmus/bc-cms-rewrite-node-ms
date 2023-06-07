@@ -50,6 +50,7 @@ module.exports = {
 
     // Others
     'no-console': 'off',
+    radix: 'off',
     'no-alert': 'error',
     'no-debugger': 'error',
     'no-unused-vars': 'error',

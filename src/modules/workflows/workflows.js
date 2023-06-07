@@ -1,8 +1,8 @@
 const express = require('express');
-const { PrismaClient } = require('@prisma/client');
 
-const { validateMiddleware } = require('../../middlewares');
 const { transformObject } = require('../../utils');
+const { validateMiddleware } = require('../../middlewares');
+const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
 const { CreateProcess, Status } = require('./enums');
 const { whereBuilder, deepCompare } = require('./utils');
@@ -16,13 +16,9 @@ const {
 
 const router = express.Router();
 
-const prisma = new PrismaClient({
-  log: ['query', 'info', 'warn', 'error']
-});
-
 const findWorkflowById = async (id) => {
   try {
-    const workflow = await prisma.workflow.findUnique({
+    const workflow = await mongoPrisma.workflow.findUnique({
       where: {
         id
       }
@@ -40,7 +36,7 @@ const findWorkflowById = async (id) => {
 
     throw new Error('An error occurred while retrieving the workflow.');
   } finally {
-    await prisma.$disconnect();
+    await mongoPrisma.$disconnect();
   }
 };
 
@@ -76,11 +72,11 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
             }
           );
 
-          const workflow = await prisma.workflow.create({
+          const workflow = await mongoPrisma.workflow.create({
             data: transformedData
           });
 
-          const workflowDetails = await prisma.workbenchAudit.create({
+          const workflowDetails = await mongoPrisma.workbenchAudit.create({
             data: {
               genus: 'Climbing accessories',
               species: 'Belay Devices',
@@ -132,7 +128,7 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
     console.error(error);
     return res.sendResponse('An error occurred while creating the workflows.', 500);
   } finally {
-    await prisma.$disconnect();
+    await mongoPrisma.$disconnect();
   }
 });
 
@@ -156,7 +152,7 @@ router.post(
 
       const skip = (parsedPage - 1) * parsedLimit;
 
-      let where = {};
+      const where = whereBuilder(filters);
 
       if (globalSearch) {
         where.OR = [
@@ -164,8 +160,6 @@ router.post(
           { brand: { contains: globalSearch, mode: 'insensitive' } },
           { title: { contains: globalSearch, mode: 'insensitive' } }
         ];
-      } else {
-        where = whereBuilder(filters);
       }
 
       let workflows;
@@ -174,7 +168,7 @@ router.post(
 
       if (unique) {
         [uniqueValues, total] = await Promise.all([
-          prisma.workflow.findMany({
+          mongoPrisma.workflow.findMany({
             distinct: [unique],
             select: {
               [unique]: true
@@ -186,7 +180,7 @@ router.post(
             },
             take: parsedLimit
           }),
-          prisma.workflow
+          mongoPrisma.workflow
             .findMany({
               distinct: [unique],
               select: {
@@ -199,13 +193,13 @@ router.post(
         ]);
       } else {
         [workflows, total] = await Promise.all([
-          prisma.workflow.findMany({
+          mongoPrisma.workflow.findMany({
             where,
             orderBy,
             skip,
             take: parsedLimit
           }),
-          prisma.workflow.count({ where })
+          mongoPrisma.workflow.count({ where })
         ]);
       }
 
@@ -226,7 +220,7 @@ router.post(
       console.error(error);
       return res.sendResponse('An error occurred while searching workflows.', 500);
     } finally {
-      await prisma.$disconnect();
+      await mongoPrisma.$disconnect();
     }
   }
 );
@@ -237,10 +231,10 @@ router.get('/counts', async (req, res) => {
     const { email } = req.query;
 
     const counts = {
-      unassigned: await prisma.workflow.count({
+      unassigned: await mongoPrisma.workflow.count({
         where: { status: Status.WAITING_FOR_WRITER }
       }),
-      assigned: await prisma.workflow.count({
+      assigned: await mongoPrisma.workflow.count({
         where: {
           OR: [
             { status: Status.ASSIGNED_TO_WRITER, assignee: email },
@@ -248,7 +242,7 @@ router.get('/counts', async (req, res) => {
           ]
         }
       }),
-      inProgress: await prisma.workflow.count({
+      inProgress: await mongoPrisma.workflow.count({
         where: {
           OR: [
             { status: Status.WRITING_IN_PROGRESS, assignee: email },
@@ -256,7 +250,7 @@ router.get('/counts', async (req, res) => {
           ]
         }
       }),
-      completed: await prisma.workflow.count({
+      completed: await mongoPrisma.workflow.count({
         where: {
           OR: [
             { status: Status.WRITING_COMPLETE, assignee: email },
@@ -271,7 +265,7 @@ router.get('/counts', async (req, res) => {
     console.error(error);
     return res.sendResponse('An error occurred while fetching workflow counts.', 500);
   } finally {
-    await prisma.$disconnect();
+    await mongoPrisma.$disconnect();
   }
 });
 
@@ -280,7 +274,7 @@ router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
     const workflow = await findWorkflowById(id);
-    const workflowDeatils = await prisma.workbenchAudit.findFirst({
+    const workflowDeatils = await mongoPrisma.workbenchAudit.findFirst({
       where: {
         workflowId: id
       }
@@ -299,7 +293,7 @@ router.get('/:workflowId/history', async (req, res) => {
   try {
     const { workflowId } = req.params;
 
-    const auditLogs = await prisma.workbenchAudit.findMany({
+    const auditLogs = await mongoPrisma.workbenchAudit.findMany({
       where: {
         workflowId
       },
@@ -323,7 +317,7 @@ router.get('/:workflowId/history', async (req, res) => {
     console.error(error);
     return res.sendResponse("An error occurred while getting workflow's history.", 500);
   } finally {
-    await prisma.$disconnect();
+    await mongoPrisma.$disconnect();
   }
 });
 
@@ -332,7 +326,7 @@ router.get('/:workflowId/history/:historyId', async (req, res) => {
   try {
     const { workflowId, historyId } = req.params;
 
-    const auditLog = await prisma.workbenchAudit.findUnique({
+    const auditLog = await mongoPrisma.workbenchAudit.findUnique({
       where: {
         id: historyId,
         workflowId
@@ -356,7 +350,7 @@ router.get('/:workflowId/history/:historyId', async (req, res) => {
     console.error(error);
     return res.sendResponse('An error occurred while getting workflow history.', 500);
   } finally {
-    await prisma.$disconnect();
+    await mongoPrisma.$disconnect();
   }
 });
 
@@ -364,7 +358,7 @@ router.get('/:workflowId/history/:historyId', async (req, res) => {
 router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (req, res) => {
   try {
     const {
-      filters,
+      filters: { excludeIds, ...filters },
       assignments: { writer, editor }
     } = req.body;
 
@@ -373,7 +367,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
     let where = whereBuilder(filters);
 
     const distinctStatuses = (
-      await prisma.workflow.findMany({
+      await mongoPrisma.workflow.findMany({
         distinct: ['status'],
         select: {
           status: true
@@ -388,7 +382,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
 
     for await (const status of distinctStatuses) {
       where = { ...where, status };
-      const workflows = await prisma.workflow.findMany({ where, take: 1 });
+      const workflows = await mongoPrisma.workflow.findMany({ where, take: 1 });
 
       try {
         const changeLog = workflowEngine(workflows[0], { writer, editor });
@@ -407,7 +401,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
             }
           );
 
-          const { count } = await prisma.workflow.updateMany({
+          const { count } = await mongoPrisma.workflow.updateMany({
             data: transformedData,
             where
           });
@@ -432,7 +426,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
 
     if (updateCount > 0) {
       if (auditLogs.length > 0) {
-        await prisma.workbenchAudit.createMany({
+        await mongoPrisma.workbenchAudit.createMany({
           data: auditLogs
         });
       }
@@ -466,7 +460,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
     console.error(error);
     return res.sendResponse('An error occurred while updating the workflows.', 500);
   } finally {
-    await prisma.$disconnect();
+    await mongoPrisma.$disconnect();
   }
 });
 
@@ -502,7 +496,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
         }
       );
 
-      await prisma.workflow.update({
+      await mongoPrisma.workflow.update({
         data: changeLog,
         where: {
           id: workflow.id
@@ -511,7 +505,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
     }
 
     if (Object.keys(currentSnapshot).length) {
-      const previousSnapshot = await prisma.workbenchAudit.findFirst({
+      const previousSnapshot = await mongoPrisma.workbenchAudit.findFirst({
         where: {
           workflowId
         },
@@ -536,7 +530,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
       return;
     }
 
-    await prisma.workbenchAudit.create({
+    await mongoPrisma.workbenchAudit.create({
       data: {
         workflowId,
         createdBy: email,
@@ -559,7 +553,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
       error.status || 500
     );
   } finally {
-    await prisma.$disconnect();
+    await mongoPrisma.$disconnect();
   }
 });
 
@@ -568,7 +562,7 @@ router.delete('/:id', async (req, res) => {
   try {
     const { id } = req.params;
 
-    await prisma.workflow.delete({
+    await mongoPrisma.workflow.delete({
       where: {
         styleId: id
       }
@@ -584,7 +578,7 @@ router.delete('/:id', async (req, res) => {
     console.error(error);
     return res.sendResponse('An error occurred while deleting the workflow.', 500);
   } finally {
-    await prisma.$disconnect();
+    await mongoPrisma.$disconnect();
   }
 });
 

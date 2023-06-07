@@ -8,8 +8,10 @@ const whereBuilder = (filters) => {
       /* eslint-disable-next-line no-param-reassign */
       values = [values];
     }
-
-    if (param === 'lastUpdateTs') {
+    if (param === 'excludeId' || param === 'id') {
+      where.id = where.id || {};
+      where.id[param === 'excludeId' ? 'notIn' : 'in'] = values;
+    } else if (param === 'lastUpdateTs') {
       const date = new Date(values);
       const startOfDay = new Date(date.setHours(0, 0, 0, 0));
       const endOfDay = new Date(date.setHours(23, 59, 59, 999));
@@ -21,12 +23,12 @@ const whereBuilder = (filters) => {
     } else if (Array.isArray(values)) {
       where[param] = {
         in: values,
-        mode: ['id', 'status', 'createProcess'].includes(param) ? undefined : 'insensitive'
+        mode: ['status', 'createProcess'].includes(param) ? undefined : 'insensitive'
       };
     } else {
       where[param] = {
         contains: values,
-        mode: ['id', 'status', 'createProcess'].includes(param) ? undefined : 'insensitive'
+        mode: ['status', 'createProcess'].includes(param) ? undefined : 'insensitive'
       };
     }
   });

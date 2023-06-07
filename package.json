@@ -4,14 +4,17 @@
   "description": "Back Country CMS application API",
   "main": "index.js",
   "scripts": {
-    "prestart": "npx prisma generate",
+    "prestart": "npm run prisma:generate",
     "start": "node index.js",
     "dev": "nodemon index.js",
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "test": "jest",
+    "prisma:generate:mongo": "npx prisma generate --schema=./prisma/mongoSchema.prisma --generator=mongoClient",
+    "prisma:generate:postgres": "npx prisma generate --schema=./prisma/postgresSchema.prisma --generator=postgresClient",
+    "prisma:generate": "npm run prisma:generate:mongo && npm run prisma:generate:postgres",
     "prepare": "husky install",
-    "postinstall": "prisma generate"
+    "postinstall": "npm run prisma:generate"
   },
   "keywords": [],
   "author": "nikhil.s@litmus7.com",
