@@ -360,92 +360,6 @@ router.get('/:workflowId/history/:historyId', async (req, res) => {
   }
 });
 
-// Endpoint to save a snapshot of a workflow for later audit log
-router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), async (req, res) => {
-  try {
-    const { workflowId } = req.params;
-    const { email = 'pc.editor@backcountry.com' } = req.query;
-    const workflow = await findWorkflowById(workflowId);
-
-    const currentSnapshot = req.body;
-
-    const { isPublished } = currentSnapshot;
-
-    let changeLog = workflowEngine(workflow, { isPublished });
-
-    if (Object.keys(changeLog).length > 0) {
-      const transformedData = transformObject(
-        {
-          ...changeLog,
-          lastUpdatedBy: email
-        },
-        {
-          writer: 'lowerCase',
-          editor: 'lowerCase',
-          assignee: 'lowerCase',
-          lastUpdatedBy: 'lowerCase'
-        }
-      );
-
-      await prisma.workflow.update({
-        data: transformedData,
-        where: {
-          id: workflow.id
-        }
-      });
-    }
-
-    const previousSnapshot = await prisma.workbenchAudit.findFirst({
-      where: {
-        workflowId
-      },
-      orderBy: {
-        createTs: 'desc'
-      }
-    });
-
-    const diff = deepCompare(previousSnapshot, currentSnapshot, [
-      'changeLog',
-      'id',
-      'createTs',
-      'createdBy',
-      'workflowId'
-    ]);
-
-    changeLog = { ...changeLog, ...diff };
-
-    if (Object.keys(changeLog).length === 0) {
-      res.sendResponse('No changes detected. Nothing to save.', 400);
-      return;
-    }
-
-    await prisma.workbenchAudit.create({
-      data: {
-        workflowId,
-        createdBy: email,
-        ...currentSnapshot,
-        changeLog
-      }
-    });
-
-    res.sendResponse({
-      workflowId,
-      createdBy: email,
-      ...currentSnapshot,
-      changeLog
-    });
-  } catch (error) {
-    console.error(error);
-
-    res.sendResponse(
-      error.message || 'An error occurred while saving workflow for later',
-      error.status || 500
-    );
-  } finally {
-    await prisma.$disconnect();
-  }
-});
-
 // Update workflows status and assign writer or editor
 router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (req, res) => {
   try {
@@ -551,6 +465,99 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
   } catch (error) {
     console.error(error);
     return res.sendResponse('An error occurred while updating the workflows.', 500);
+  } finally {
+    await prisma.$disconnect();
+  }
+});
+
+// Endpoint to save a snapshot of a workflow for later audit log
+router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), async (req, res) => {
+  try {
+    const { workflowId } = req.params;
+    const { email = 'pc.editor@backcountry.com' } = req.query;
+    const workflow = await findWorkflowById(workflowId);
+
+    const currentSnapshot = req.body;
+
+    const { isPublished } = currentSnapshot;
+
+    let changeLog = workflowEngine(workflow, { isPublished });
+
+    if (Object.keys(currentSnapshot).length === 0 && Object.keys(changeLog).length === 0) {
+      res.sendResponse('No changes detected. Nothing to save.', 400);
+      return;
+    }
+
+    if (Object.keys(changeLog).length) {
+      changeLog = transformObject(
+        {
+          ...changeLog,
+          lastUpdatedBy: email
+        },
+        {
+          writer: 'lowerCase',
+          editor: 'lowerCase',
+          assignee: 'lowerCase',
+          lastUpdatedBy: 'lowerCase'
+        }
+      );
+
+      await prisma.workflow.update({
+        data: changeLog,
+        where: {
+          id: workflow.id
+        }
+      });
+    }
+
+    if (Object.keys(currentSnapshot).length) {
+      const previousSnapshot = await prisma.workbenchAudit.findFirst({
+        where: {
+          workflowId
+        },
+        orderBy: {
+          createTs: 'desc'
+        }
+      });
+
+      const diff = deepCompare(previousSnapshot, currentSnapshot, [
+        'changeLog',
+        'id',
+        'createTs',
+        'createdBy',
+        'workflowId'
+      ]);
+
+      changeLog = { ...changeLog, ...diff };
+    }
+
+    if (Object.keys(changeLog).length === 0) {
+      res.sendResponse('No changes detected. Nothing to save.', 400);
+      return;
+    }
+
+    await prisma.workbenchAudit.create({
+      data: {
+        workflowId,
+        createdBy: email,
+        ...currentSnapshot,
+        changeLog
+      }
+    });
+
+    res.sendResponse({
+      workflowId,
+      createdBy: email,
+      ...currentSnapshot,
+      changeLog
+    });
+  } catch (error) {
+    console.error(error);
+
+    res.sendResponse(
+      error.message || 'An error occurred while saving workflow for later',
+      error.status || 500
+    );
   } finally {
     await prisma.$disconnect();
   }
