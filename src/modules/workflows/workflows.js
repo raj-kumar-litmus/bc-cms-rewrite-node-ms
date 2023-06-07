@@ -97,7 +97,7 @@ router.post(
 
       const skip = (parsedPage - 1) * parsedLimit;
 
-      let where = {};
+      const where = whereBuilder(filters);
 
       if (globalSearch) {
         where.OR = [
@@ -105,8 +105,6 @@ router.post(
           { brand: { contains: globalSearch, mode: 'insensitive' } },
           { title: { contains: globalSearch, mode: 'insensitive' } }
         ];
-      } else {
-        where = whereBuilder(filters);
       }
 
       let workflows;
