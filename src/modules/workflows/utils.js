@@ -2,17 +2,38 @@ const { WorkflowKeysEnum } = require('./enums');
 
 const whereBuilder = (filters) => {
   const where = {};
+
   Object.entries(filters).forEach(([param, values]) => {
-    // Convert id to an array if it is not already an array fails at line[:27]
-    if (param === WorkflowKeysEnum.id && !Array.isArray(values)) {
-      /* eslint-disable-next-line no-param-reassign */
-      values = [values];
+    if (param === 'globalSearch') {
+      const globalSearch = values;
+
+      const searchFields = ['styleId', 'brand', 'title'];
+      if (Array.isArray(globalSearch)) {
+        where.OR = {
+          OR: searchFields.map((field) => ({
+            [field]: { in: globalSearch, mode: 'insensitive' }
+          }))
+        };
+      } else if (typeof globalSearch === 'string') {
+        where.OR = searchFields.map((field) => ({
+          [field]: { contains: globalSearch, mode: 'insensitive' }
+        }));
+      }
+
+      return;
     }
+
+    // Convert id to an array if it is not already an array
+    let updatedValues = values;
+    if (param === WorkflowKeysEnum.id && !Array.isArray(updatedValues)) {
+      updatedValues = [updatedValues];
+    }
+
     if (param === 'excludeId' || param === 'id') {
       where.id = where.id || {};
-      where.id[param === 'excludeId' ? 'notIn' : 'in'] = values;
+      where.id[param === 'excludeId' ? 'notIn' : 'in'] = updatedValues;
     } else if (param === 'lastUpdateTs') {
-      const date = new Date(values);
+      const date = new Date(updatedValues);
       const startOfDay = new Date(date.setHours(0, 0, 0, 0));
       const endOfDay = new Date(date.setHours(23, 59, 59, 999));
 
@@ -20,14 +41,14 @@ const whereBuilder = (filters) => {
         gte: startOfDay.toISOString(),
         lt: endOfDay.toISOString()
       };
-    } else if (Array.isArray(values)) {
+    } else if (Array.isArray(updatedValues)) {
       where[param] = {
-        in: values,
+        in: updatedValues,
         mode: ['status', 'createProcess'].includes(param) ? undefined : 'insensitive'
       };
     } else {
       where[param] = {
-        contains: values,
+        contains: updatedValues,
         mode: ['status', 'createProcess'].includes(param) ? undefined : 'insensitive'
       };
     }

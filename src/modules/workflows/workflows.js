@@ -86,7 +86,7 @@ router.post(
   }),
   async (req, res) => {
     try {
-      const { page = 1, limit = 10, unique, globalSearch } = req.query;
+      const { page = 1, limit = 10, unique } = req.query;
       const { filters = {}, orderBy = {} } = req.body;
       const parsedLimit = parseInt(limit, 10);
       const parsedPage = parseInt(page, 10);
@@ -98,14 +98,6 @@ router.post(
       const skip = (parsedPage - 1) * parsedLimit;
 
       const where = whereBuilder(filters);
-
-      if (globalSearch) {
-        where.OR = [
-          { styleId: { contains: globalSearch, mode: 'insensitive' } },
-          { brand: { contains: globalSearch, mode: 'insensitive' } },
-          { title: { contains: globalSearch, mode: 'insensitive' } }
-        ];
-      }
 
       let workflows;
       let total = 0;
