@@ -61,11 +61,6 @@ model workbenchAudit {
   auditType                     AuditType
   workflowId                    String    @db.ObjectId
   workflow                      workflow  @relation(fields: [workflowId], references: [id])
-  lastEditCompleteTs            DateTime? @db.Date
-  lastWriteCompleteTs           DateTime? @db.Date
-
-  editor String?
-  writer String?
 
   harmonizingData Json?
   techspecs       Json?
