@@ -112,8 +112,26 @@ const deepCompare = (obj1, obj2, ignoreFields = []) => {
       }
     }
   }
+  const changeLog = {};
+  for (const key in changes) {
+    if (Object.prototype.hasOwnProperty.call(changes, key)) {
+      const [outerKey, innerKey] = key.split('.');
 
-  return changes;
+      if (!changeLog[outerKey]) {
+        changeLog[outerKey] = {};
+      }
+
+      // Handle the case when innerKey is undefined
+      const value = changes[key];
+      if (innerKey === undefined) {
+        changeLog[outerKey] = value;
+      } else {
+        changeLog[outerKey][innerKey] = value;
+      }
+    }
+  }
+
+  return changeLog;
 };
 
 module.exports = { whereBuilder, deepCompare };
