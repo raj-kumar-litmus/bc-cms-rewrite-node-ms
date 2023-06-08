@@ -298,6 +298,11 @@ router.get('/:workflowId/history', async (req, res) => {
     const { workflowId } = req.params;
 
     const auditLogs = await mongoPrisma.workbenchAudit.findMany({
+      select: {
+        id: true,
+        createdBy: true,
+        createTs: true
+      },
       where: {
         workflowId
       },
@@ -330,13 +335,10 @@ router.get('/:workflowId/history/:historyId', async (req, res) => {
   try {
     const { workflowId, historyId } = req.params;
 
-    const auditLog = await mongoPrisma.workbenchAudit.findUnique({
+    const auditLog = await mongoPrisma.workbenchAudit.findFirstOrThrow({
       where: {
         id: historyId,
         workflowId
-      },
-      orderBy: {
-        createTs: 'desc'
       }
     });
 
@@ -352,6 +354,10 @@ router.get('/:workflowId/history/:historyId', async (req, res) => {
     return res.sendResponse(filteredLog);
   } catch (error) {
     console.error(error);
+    if (error.code === 'P2025') {
+      return res.sendResponse('The requested history does not exist', 400);
+    }
+
     return res.sendResponse('An error occurred while getting workflow history.', 500);
   } finally {
     await mongoPrisma.$disconnect();
