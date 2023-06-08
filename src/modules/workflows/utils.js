@@ -20,7 +20,7 @@ const whereBuilder = (filters) => {
         gte: startOfDay.toISOString(),
         lt: endOfDay.toISOString()
       };
-    } else if (Array.isArray(values)) {
+    } else if (Array.isArray(values) || ['status', 'createProcess'].includes(param)) {
       where[param] = {
         in: values,
         mode: ['status', 'createProcess'].includes(param) ? undefined : 'insensitive'
