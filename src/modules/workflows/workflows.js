@@ -306,7 +306,8 @@ router.get('/:workflowId/history', async (req, res) => {
       select: {
         id: true,
         createdBy: true,
-        createTs: true
+        createTs: true,
+        auditType: true
       },
       where: {
         workflowId
@@ -523,7 +524,8 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
     if (Object.keys(currentSnapshot).length) {
       const previousSnapshot = await mongoPrisma.workbenchAudit.findFirst({
         where: {
-          workflowId
+          workflowId,
+          auditType: WorkflowAuditType.DATA_NORMALIZATION
         },
         orderBy: {
           createTs: 'desc'
@@ -535,7 +537,8 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
         'id',
         'createTs',
         'createdBy',
-        'workflowId'
+        'workflowId',
+        'auditType'
       ]);
 
       changeLog = { ...changeLog, ...diff };
@@ -551,6 +554,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
         workflowId,
         createdBy: email,
         ...currentSnapshot,
+        auditType: WorkflowAuditType.DATA_NORMALIZATION,
         changeLog
       }
     });
