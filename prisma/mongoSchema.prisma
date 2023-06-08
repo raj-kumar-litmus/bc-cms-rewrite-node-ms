@@ -8,7 +8,6 @@ generator mongoClient {
   output   = "./node_modules/.prisma/client/mongo"
 }
 
-
 type WorkbenchAuditHarmonizingData {
   Recommended_Use String[] @map("Recommended Use")
   Rope_Diameter   String[] @map("Rope Diameter")
@@ -35,6 +34,11 @@ enum Status {
   EDITING_COMPLETE
 }
 
+enum AuditType {
+  WORKFLOW
+  DATA_NORMALIZATION
+}
+
 /// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.
 model workbenchAudit {
   id                            String    @id @default(auto()) @map("_id") @db.ObjectId
@@ -54,6 +58,7 @@ model workbenchAudit {
   versionReason                 String?
   createTs                      DateTime  @default(now()) @db.Date
   createdBy                     String
+  auditType                     AuditType
   workflowId                    String    @db.ObjectId
   workflow                      workflow  @relation(fields: [workflowId], references: [id])
   lastEditCompleteTs            DateTime? @db.Date
@@ -87,4 +92,3 @@ model workflow {
   assignee            String?
   workbenchAudits     workbenchAudit[]
 }
-

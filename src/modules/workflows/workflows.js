@@ -4,7 +4,7 @@ const { transformObject } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
-const { CreateProcess, Status } = require('./enums');
+const { CreateProcess, Status, WorkflowAuditType } = require('./enums');
 const { whereBuilder, deepCompare } = require('./utils');
 const {
   assignWorkflowDto,
@@ -104,6 +104,7 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
               createdBy: email,
               versionReason: 'Editing',
               isPublished: false,
+              auditType: WorkflowAuditType.DATA_NORMALIZATION,
               workflowId: workflow.id
             }
           });
@@ -280,7 +281,11 @@ router.get('/:id', async (req, res) => {
     const workflow = await findWorkflowById(id);
     const workflowDeatils = await mongoPrisma.workbenchAudit.findFirst({
       where: {
-        workflowId: id
+        workflowId: id,
+        auditType: WorkflowAuditType.DATA_NORMALIZATION
+      },
+      orderBy: {
+        createTs: 'desc'
       }
     });
 
@@ -422,6 +427,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
         const workflowAuditLogs = workflows.map((workflow) => ({
           workflowId: workflow.id,
           ...changeLog,
+          auditType: WorkflowAuditType.WORKFLOW,
           createdBy: email
         }));
 
