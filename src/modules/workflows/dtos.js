@@ -74,7 +74,7 @@ const assignWorkflowDto = Joi.object({
     writer: Joi.string(),
     editor: Joi.string()
   })
-    // .xor('writer', 'editor')
+    .or('writer', 'editor')
     .required()
 });
 

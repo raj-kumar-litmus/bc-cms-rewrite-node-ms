@@ -18,20 +18,24 @@ const router = express.Router();
 
 const findWorkflowById = async (id) => {
   try {
-    const workflow = await mongoPrisma.workflow.findUnique({
+    const workflow = await mongoPrisma.workflow.findUniqueOrThrow({
       where: {
         id
       }
     });
 
-    if (!workflow) throw new Error('Workflow not found.', 404);
-
     return workflow;
   } catch (error) {
     console.error(error);
 
-    if (error.code === 'P2023' && error.meta?.message?.includes('Malformed ObjectID')) {
+    if (error.code === 'P2023') {
       throw new Error('Invalid workflow ID.');
+    }
+
+    if (error.code === 'P2025') {
+      const notFoundError = new Error('Workflow not found.');
+      notFoundError.status = 404;
+      throw notFoundError;
     }
 
     throw new Error('An error occurred while retrieving the workflow.');

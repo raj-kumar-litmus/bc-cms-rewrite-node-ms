@@ -22,6 +22,9 @@ module.exports = (workflow, { writer, editor, isPublished }) => {
         throw new Error('Editor assignment is not allowed at this stage of the workflow.');
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
+      } else if (isPublished) {
+        changeLog[WorkflowKeysEnum.status] = Status.WRITING_COMPLETE;
+        changeLog[WorkflowKeysEnum.lastWriteCompleteTs] = new Date();
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_IN_PROGRESS;
       }
