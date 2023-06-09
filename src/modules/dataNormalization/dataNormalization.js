@@ -173,9 +173,9 @@ router.get('/genus/:genusId/species', async (req, res) => {
   }
 });
 
-router.get('/genus/:genusId/species/:speciesId/hAttributes', async (req, res) => {
+router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req, res) => {
   try {
-    const { genusId, speciesId } = req.params;
+    const { genusId, speciesId, styleId } = req.params;
 
     const genusSpeciesFilter = await postgresPrisma.$queryRaw`
       SELECT s.hattributev_id, hattr.text, hattr.hattributelid, label.name FROM dn_genus_species_hattributev s
@@ -207,7 +207,7 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes', async (req, res) =>
     );
 
     const { data } = await axios.get(
-      `${process.env.ATTRIBUTE_API_PROD}/attribute-api/styles/TNFZCQX`, //todo. pass style id and remove hard-coding
+      `${process.env.ATTRIBUTE_API_PROD}/attribute-api/styles/${styleId}`,
       getConfig(req)
     );
 
@@ -227,6 +227,37 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes', async (req, res) =>
     });
   } catch (error) {
     console.error(error.message);
+    res.sendResponse('Internal Server Error', 500);
+  }
+});
+
+router.get('/productInfo/:styleId', async (req, res) => {
+  try {
+    const { styleId } = req.params;
+    const { data: copyApiResponse } = await axios.get(
+      `${process.env.COPY_API_PROD}/copy-api/published-copy/${styleId}`,
+      getConfig(req)
+    );
+    const { data: attributeApiResponse } = await axios.get(
+      `${process.env.ATTRIBUTE_API_PROD}/attribute-api/styles/${styleId}`,
+      getConfig(req)
+    );
+    const { data: merchApiResponse } = await axios.get(
+      `http://merch01.bcinfra.net:8080/merchv3/products/${styleId}`,
+      getConfig(req)
+    );
+    // const { data: sizingChart } = await axios.get(
+    //   `http://merch01.bcinfra.net:8080/merchv3/size-charts`,
+    //   getConfig(req)
+    // );
+    return res.sendResponse({
+      copyApiResponse,
+      merchApiResponse,
+      attributeApiResponse
+      // sizingChart
+    });
+  } catch (err) {
+    console.error(err.message);
     res.sendResponse('Internal Server Error', 500);
   }
 });
