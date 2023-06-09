@@ -4,7 +4,7 @@ const { transformObject } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
-const { CreateProcess, Status } = require('./enums');
+const { CreateProcess, Status, WorkflowAuditLogKeysEnum, WorkflowKeysEnum } = require('./enums');
 const { whereBuilder } = require('./utils');
 const {
   createWorkflowDto,
@@ -161,6 +161,23 @@ router.post(
     }
   }
 );
+
+// Endpoint to fetch constants
+router.get('/constants', async (req, res) => {
+  try {
+    const constants = {
+      CreateProcess,
+      Status,
+      WorkflowKeysEnum,
+      WorkflowAuditLogKeysEnum
+    };
+
+    return res.sendResponse(constants, 200);
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse('An error occurred while fetching constants.', 500);
+  }
+});
 
 // Endpoint to retrieve workflow counts
 router.get('/counts', async (req, res) => {
