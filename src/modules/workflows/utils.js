@@ -1,4 +1,6 @@
-const { WorkflowKeysEnum } = require('./enums');
+const { WorkflowKeysEnum, CreateProcess } = require('./enums');
+const { transformObject } = require('../../utils');
+const { mongoPrisma } = require('../prisma');
 
 const whereBuilder = (filters) => {
   const where = {};
@@ -36,4 +38,45 @@ const whereBuilder = (filters) => {
   return where;
 };
 
-module.exports = { whereBuilder };
+const createWorkflow = async ({ styles, email }) => {
+  const createdWorkflows = [];
+  const failedWorkflows = [];
+
+  await Promise.all(
+    styles.map(async ({ styleId, brand, title }) => {
+      try {
+        const transformedData = transformObject(
+          {
+            styleId,
+            brand,
+            title,
+            createProcess: CreateProcess.WRITER_INTERFACE,
+            admin: email,
+            lastUpdatedBy: email
+          },
+          {
+            styleId: 'upperCase',
+            brand: 'lowerCase',
+            title: 'lowerCase',
+            admin: 'lowerCase',
+            lastUpdatedBy: 'lowerCase'
+          }
+        );
+
+        const workflow = await mongoPrisma.workflow.create({
+          data: transformedData
+        });
+        createdWorkflows.push(workflow);
+      } catch (error) {
+        console.log(error);
+        failedWorkflows.push({ styleId, brand, title });
+      }
+    })
+  );
+  return {
+    createdWorkflows,
+    failedWorkflows
+  };
+};
+
+module.exports = { whereBuilder, createWorkflow };

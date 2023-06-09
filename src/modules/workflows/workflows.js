@@ -4,8 +4,8 @@ const { transformObject } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
-const { CreateProcess, Status } = require('./enums');
-const { whereBuilder } = require('./utils');
+const { Status } = require('./enums');
+const { whereBuilder, createWorkflow } = require('./utils');
 const {
   createWorkflowDto,
   assignWorkflowDto,
@@ -23,40 +23,7 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
       query: { email = 'pc.admin@backCountry.com' }
     } = req;
 
-    const createdWorkflows = [];
-    const failedWorkflows = [];
-
-    await Promise.all(
-      styles.map(async ({ styleId, brand, title }) => {
-        try {
-          const transformedData = transformObject(
-            {
-              styleId,
-              brand,
-              title,
-              createProcess: CreateProcess.WRITER_INTERFACE,
-              admin: email,
-              lastUpdatedBy: email
-            },
-            {
-              styleId: 'upperCase',
-              brand: 'lowerCase',
-              title: 'lowerCase',
-              admin: 'lowerCase',
-              lastUpdatedBy: 'lowerCase'
-            }
-          );
-
-          const workflow = await mongoPrisma.workflow.create({
-            data: transformedData
-          });
-          createdWorkflows.push(workflow);
-        } catch (error) {
-          console.log(error);
-          failedWorkflows.push({ styleId, brand, title });
-        }
-      })
-    );
+    const { createdWorkflows, failedWorkflows } = createWorkflow({ styles, email });
 
     if (failedWorkflows.length > 0) {
       return res.sendResponse(
