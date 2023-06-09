@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"BC301\",\r\n            \"brand\": \"backcountry\",\r\n            \"title\": \"Backcountry Expedition Backpack\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"CK9996\",\r\n            \"brand\": \"calvin klein\",\r\n            \"title\": \"Calvin Klein Men's Boxer Briefs\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -43,12 +43,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/647746bcc58fe1cfe9356ac6",
+							"raw": "{{url}}workflows/6481922af7d86830f4424127",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"647746bcc58fe1cfe9356ac6"
+								"6481922af7d86830f4424127"
 							]
 						}
 					},
@@ -61,7 +61,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        // \"id\": \"647794ed1a9fcf5fde9b697e\"\r\n        \"id\": [\"647746bcc58fe1cfe9356ac6\",\"647746bcc58fe1cfe9356ac5\",\"647746bcc58fe1cfe9356ac9\"],\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"BC4XT8\"]\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\",\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        // \"editor\": \"editor1@backcountry.com\"\r\n        // \"writer\": \"nikhil.s@backcountry.com\"\r\n    }\r\n}",
+							"raw": "{\r\n    \"filters\": {\r\n        // \"id\": \"{{workflowId}}\"\r\n        // \"id\": [\"64817792f6cd8d0bd7c0cce3\",\"6481782bf6cd8d0bd7c0cd40\"]\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"nike\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"JCK001\",\"JCK002\",\"JCK03\"]\r\n        // \"status\": \"WRITING_IN_PROGRESS\"\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        // \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        // \"editor\": \"editor1@backcountry.com\"\r\n        \"writer\": \"pc.writer@backcountry.com\"\r\n    }\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -87,17 +87,49 @@
 					"response": []
 				},
 				{
+					"name": "workflow",
+					"request": {
+						"method": "PATCH",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"bulletPoints\": \"bullet points\",\r\n    \"competitiveCyclistDescription\": \"desc 123 1\",\r\n    \"competitiveCyclistTopline\": \"top line 33\",\r\n    \"detailedDescription\": \"Detailed desc val1\",\r\n    \"genus\": \"Climbing accessories\",\r\n    \"listDescription\": \"My list of desc\",\r\n    \"productTitle\": \"My product title123\",\r\n    \"sizingChart\": \"my sizing chart\",\r\n    \"species\": \"Belay Devices\",\r\n    \"topLine\": \"The top line\",\r\n    \"versionReason\": \"Editing\",\r\n    \"harmonizingData\": {\r\n        \"recommendedUse\": [\r\n            \"Ice climbing\"\r\n        ],\r\n        \"ropeDiameter\": [\r\n            \"<8.5mm\"\r\n        ],\r\n        \"type\": [\r\n            \"Figure 8\"\r\n        ]\r\n    },\r\n    \"techspecs\": {\r\n        \"responsibleCollection\": \"Shirts sot\",\r\n        \"material\": \"Material soft\"\r\n    }\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}workflows/{{workflowId}}?email=nikhil.s@backcountry.com",
+							"host": [
+								"{{url}}workflows"
+							],
+							"path": [
+								"{{workflowId}}"
+							],
+							"query": [
+								{
+									"key": "email",
+									"value": "nikhil.s@backcountry.com"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
 					"name": "workflow/workflowId/history",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/647892bf54f29aeccc2398a4/history",
+							"raw": "{{url}}workflows/{{workflowId}}/history",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"647892bf54f29aeccc2398a4",
+								"{{workflowId}}",
 								"history"
 							]
 						}
@@ -110,14 +142,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/647892bf54f29aeccc2398a4/history/6478b66fce798c6bbcdaa0a1",
+							"raw": "{{url}}workflows/{{workflowId}}/history/64819283f7d86830f442412e",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"647892bf54f29aeccc2398a4",
+								"{{workflowId}}",
 								"history",
-								"6478b66fce798c6bbcdaa0a1"
+								"64819283f7d86830f442412e"
 							]
 						}
 					},
@@ -130,7 +162,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        //    \"status\": [\"ASSIGNED_TO_WRITER\"]\r\n    },\r\n    \"orderBy\": [\r\n        { \"lastUpdateTs\": \"desc\"},\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"filters\": {\r\n        \"globalSearch\":[\"backcountry\",\"JCK001\"],\r\n        // \"brand\": \"Rolex\"\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\",\r\n        \"styleId\": [\"JCK001\"]\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\",\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],  \r\n    },\r\n    \"orderBy\": [\r\n        {\r\n            \"lastUpdateTs\": \"desc\"\r\n        },\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -138,7 +170,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows/search?limit=10&page=1&globalSearch=jockey",
+							"raw": "{{url}}workflows/search?limit=10&page=1",
 							"host": [
 								"{{url}}workflows"
 							],
@@ -158,10 +190,6 @@
 								{
 									"key": "page",
 									"value": "1"
-								},
-								{
-									"key": "globalSearch",
-									"value": "jockey"
 								}
 							]
 						}
@@ -175,7 +203,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "",
+							"raw": "{\r\n    \"filters\": {\r\n        \"globalSearch\":[\"backcountry\",\"JCK001\"],\r\n        // \"brand\": \"Rolex\" \r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\",\r\n        \"styleId\": [\"JCK001\"]\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\",\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],  \r\n    },\r\n    \"orderBy\": [\r\n        {\r\n            \"lastUpdateTs\": \"desc\"\r\n        },\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -202,39 +230,6 @@
 								{
 									"key": "unique",
 									"value": "assignee"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "saveForLater",
-					"request": {
-						"method": "PATCH",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n  \"genus\": \"Climbing accessories\",\r\n  \"species\": \"Delay Devices\",\r\n  \"harmonizingData\": {\r\n    \"recommendedUse\": [\"Swimming\"],\r\n    \"ropeDiameter\": [\"<9.5mm\"],\r\n    \"type\": [\"Figure 10\"]\r\n  },\r\n  \"techspecs\": {\r\n    \"responsibleCollection\": \"Value3\",\r\n    \"material\": \"Value2\"\r\n  },\r\n  \"productTitle\": \"My product title123\",\r\n  \"topLine\": \"The top line\",\r\n  \"detailedDescription\": \"Detailed desc val1\",\r\n  \"listDescription\": \"My list of desc\",\r\n  \"bulletPoints\": \"bullet points 123\",\r\n  \"sizingChart\": \"my sizing chart\",\r\n  \"competitiveCyclistTopline\": \"top line 33\",\r\n  \"competitiveCyclistDescription\": \"desc 123 1\",\r\n  \"versionReason\": \"Editing\",\r\n  \"isPublished\": false\r\n}\r\n",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}workflows/647892bf54f29aeccc2398a4/saveForLater?email=nikhil.s@backcountry.com",
-							"host": [
-								"{{url}}workflows"
-							],
-							"path": [
-								"647892bf54f29aeccc2398a4",
-								"saveForLater"
-							],
-							"query": [
-								{
-									"key": "email",
-									"value": "nikhil.s@backcountry.com"
 								}
 							]
 						}
