@@ -208,7 +208,7 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     );
 
     const { data } = await axios.get(
-      `${process.env.ATTRIBUTE_API_PROD}/attribute-api/styles/${styleId}`,
+      `http://prod-attributeapi-vip.bcinfra.net/attribute-api/styles/${styleId}`,
       getConfig(req)
     );
 
@@ -236,11 +236,11 @@ router.get('/productInfo/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
     const { data: copyApiResponse } = await axios.get(
-      `${process.env.COPY_API_PROD}/copy-api/published-copy/${styleId}`,
+      `http://prod-copyapi-02.bcinfra.net:3001/copy-api/published-copy/${styleId}`,
       getConfig(req)
     );
     const { data: attributeApiResponse } = await axios.get(
-      `${process.env.ATTRIBUTE_API_PROD}/attribute-api/styles/${styleId}`,
+      `http://prod-attributeapi-vip.bcinfra.net/attribute-api/styles/${styleId}`,
       getConfig(req)
     );
     const { data: merchApiResponse } = await axios.get(
