@@ -197,58 +197,13 @@
 					"response": []
 				},
 				{
-					"name": "workflows/search?globalSearch",
-					"request": {
-						"method": "POST",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        \"status\": [\r\n            \"EDITING_COMPLETE\"\r\n            // \"WRITING_IN_PROGRESS\"\r\n        ]\r\n    },\r\n    \"orderBy\": [\r\n        {\r\n            \"lastUpdateTs\": \"desc\"\r\n        },\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}workflows/search?limit=10&page=1&globalSearch=puma",
-							"host": [
-								"{{url}}workflows"
-							],
-							"path": [
-								"search"
-							],
-							"query": [
-								{
-									"key": "unique",
-									"value": "status",
-									"disabled": true
-								},
-								{
-									"key": "limit",
-									"value": "10"
-								},
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "globalSearch",
-									"value": "puma"
-								}
-							]
-						}
-					},
-					"response": []
-				},
-				{
 					"name": "workflows/search?unique",
 					"request": {
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "",
+							"raw": "{\r\n    \"filters\": {\r\n        \"globalSearch\":[\"backcountry\",\"JCK001\"],\r\n        // \"brand\": \"Rolex\"\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\",\r\n        \"styleId\": [\"JCK001\"]\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\",\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],  \r\n    },\r\n    \"orderBy\": [\r\n        {\r\n            \"lastUpdateTs\": \"desc\"\r\n        },\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
