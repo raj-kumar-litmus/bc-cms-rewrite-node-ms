@@ -43,6 +43,7 @@ const filtersSchema = Joi.object({
   lastUpdateTs: Joi.date(),
   lastUpdatedBy: stringOrArrayOfStrings(),
   assignee: stringOrArrayOfStrings(),
+  globalSearch: stringOrArrayOfStrings(),
   excludeId: Joi.alternatives().try(
     Joi.array().items(
       Joi.string()

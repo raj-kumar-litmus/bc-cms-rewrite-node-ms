@@ -4,7 +4,13 @@ const { transformObject } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
-const { CreateProcess, Status, WorkflowAuditType } = require('./enums');
+const {
+  CreateProcess,
+  Status,
+  WorkflowAuditLogKeysEnum,
+  WorkflowKeysEnum,
+  WorkflowAuditType
+} = require('./enums');
 const { whereBuilder, deepCompare } = require('./utils');
 const {
   assignWorkflowDto,
@@ -146,7 +152,7 @@ router.post(
   }),
   async (req, res) => {
     try {
-      const { page = 1, limit = 10, unique, globalSearch } = req.query;
+      const { page = 1, limit = 10, unique } = req.query;
       const { filters = {}, orderBy = {} } = req.body;
       const parsedLimit = parseInt(limit, 10);
       const parsedPage = parseInt(page, 10);
@@ -158,14 +164,6 @@ router.post(
       const skip = (parsedPage - 1) * parsedLimit;
 
       const where = whereBuilder(filters);
-
-      if (globalSearch) {
-        where.OR = [
-          { styleId: { contains: globalSearch, mode: 'insensitive' } },
-          { brand: { contains: globalSearch, mode: 'insensitive' } },
-          { title: { contains: globalSearch, mode: 'insensitive' } }
-        ];
-      }
 
       let workflows;
       let total = 0;
@@ -229,6 +227,24 @@ router.post(
     }
   }
 );
+
+// Endpoint to fetch constants
+router.get('/constants', async (req, res) => {
+  try {
+    const constants = {
+      CreateProcess,
+      Status,
+      WorkflowKeysEnum,
+      WorkflowAuditLogKeysEnum,
+      WorkflowAuditType
+    };
+
+    return res.sendResponse(constants, 200);
+  } catch (error) {
+    console.error(error);
+    return res.sendResponse('An error occurred while fetching constants.', 500);
+  }
+});
 
 // Endpoint to retrieve workflow counts
 router.get('/counts', async (req, res) => {
