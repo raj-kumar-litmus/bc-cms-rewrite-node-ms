@@ -61,7 +61,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        // \"id\": \"647794ed1a9fcf5fde9b697e\"\r\n        \"id\": [\"647746bcc58fe1cfe9356ac6\",\"647746bcc58fe1cfe9356ac5\",\"647746bcc58fe1cfe9356ac9\"],\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"BC4XT8\"]\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\",\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        // \"editor\": \"editor1@backcountry.com\"\r\n        \"writer\": \"nikhil.s@backcountry.com\"\r\n    }\r\n}",
+							"raw": "{\r\n    \"filters\": {\r\n        // \"id\": \"647794ed1a9fcf5fde9b697e\"\r\n        \"id\": [\"647746bcc58fe1cfe9356ac6\",\"647746bcc58fe1cfe9356ac5\",\"647746bcc58fe1cfe9356ac9\"],\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"BC4XT8\"]\r\n        // \"status\": [\r\n        //     \"ASSIGNED_TO_WRITER\",\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        // \"editor\": \"editor1@backcountry.com\"\r\n        // \"writer\": \"nikhil.s@backcountry.com\"\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -130,7 +130,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        \"brand\": \"Rolex\"\r\n    }\r\n}",
+							"raw": "{\r\n    \"filters\": {\r\n        //    \"status\": [\"ASSIGNED_TO_WRITER\"]\r\n    },\r\n    \"orderBy\": [\r\n        { \"lastUpdateTs\": \"desc\"},\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -138,7 +138,7 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows/search?limit=10&page=1",
+							"raw": "{{url}}workflows/search?limit=10&page=1&globalSearch=jockey",
 							"host": [
 								"{{url}}workflows"
 							],
@@ -152,17 +152,16 @@
 									"disabled": true
 								},
 								{
-									"key": "globalSearch",
-									"value": "231",
-									"disabled": true
-								},
-								{
 									"key": "limit",
 									"value": "10"
 								},
 								{
 									"key": "page",
 									"value": "1"
+								},
+								{
+									"key": "globalSearch",
+									"value": "jockey"
 								}
 							]
 						}
@@ -174,6 +173,15 @@
 					"request": {
 						"method": "POST",
 						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
 						"url": {
 							"raw": "{{url}}workflows/search?limit=10&page=1&unique=assignee",
 							"host": [
@@ -437,13 +445,13 @@
 							}
 						],
 						"url": {
-							"raw": "{{url}}dataNormalization/genus/22/species",
+							"raw": "{{url}}dataNormalization/genus/165/species",
 							"host": [
 								"{{url}}dataNormalization"
 							],
 							"path": [
 								"genus",
-								"22",
+								"165",
 								"species"
 							]
 						}
