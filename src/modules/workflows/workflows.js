@@ -444,7 +444,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
         const workflowAuditLogs = workflows.map((workflow) => ({
           workflowId: workflow.id,
           ...changeLog,
-          auditType: WorkflowAuditType.WORKFLOW,
+          auditType: WorkflowAuditType.ASSIGNMENTS,
           createdBy: email
         }));
 

@@ -4,7 +4,7 @@ const CreateProcess = Object.freeze({
 });
 
 const WorkflowAuditType = Object.freeze({
-  WORKFLOW: 'WORKFLOW',
+  ASSIGNMENTS: 'ASSIGNMENTS',
   DATA_NORMALIZATION: 'DATA_NORMALIZATION'
 });
 
