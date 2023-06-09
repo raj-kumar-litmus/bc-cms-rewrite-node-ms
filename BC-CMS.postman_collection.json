@@ -258,6 +258,23 @@
 						}
 					},
 					"response": []
+				},
+				{
+					"name": "constants",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}workflows/constants",
+							"host": [
+								"{{url}}workflows"
+							],
+							"path": [
+								"constants"
+							]
+						}
+					},
+					"response": []
 				}
 			],
 			"event": [

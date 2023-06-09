@@ -26,6 +26,7 @@ module.exports = {
     'no-useless-constructor': 'error',
     'no-await-in-loop': 'off',
     'no-restricted-syntax': 'off',
+    'no-continue': 'off',
 
     // Strings
     quotes: ['error', 'single', { avoidEscape: true }],
