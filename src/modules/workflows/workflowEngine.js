@@ -35,8 +35,7 @@ module.exports = (workflow, { writer, editor, isPublished }) => {
         throw new Error('Editor assignment is not allowed at this stage of the workflow.');
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
-        changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
-      } else if (isPublished) {
+      } else {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastWriteCompleteTs] = new Date();
       }
@@ -76,8 +75,7 @@ module.exports = (workflow, { writer, editor, isPublished }) => {
         throw new Error('Writer assignment is not allowed at this stage of the workflow.');
       } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
-        changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_EDITOR;
-      } else if (isPublished) {
+      } else {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastEditCompleteTs] = new Date();
       }
