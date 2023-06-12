@@ -3,6 +3,11 @@ const CreateProcess = Object.freeze({
   WRITER_INTERFACE: 'WRITER_INTERFACE'
 });
 
+const WorkflowAuditType = Object.freeze({
+  ASSIGNMENTS: 'ASSIGNMENTS',
+  DATA_NORMALIZATION: 'DATA_NORMALIZATION'
+});
+
 const WorkflowKeysEnum = {
   id: 'id',
   admin: 'admin',
@@ -46,7 +51,8 @@ const WorkflowAuditLogKeysEnum = {
   lastEditCompleteTs: 'lastEditCompleteTs',
   lastWriteCompleteTs: 'lastWriteCompleteTs',
   editor: 'editor',
-  writer: 'writer'
+  writer: 'writer',
+  auditType: 'auditType'
 };
 
 const Status = Object.freeze({
@@ -63,5 +69,6 @@ module.exports = {
   CreateProcess,
   Status,
   WorkflowKeysEnum,
+  WorkflowAuditType,
   WorkflowAuditLogKeysEnum
 };

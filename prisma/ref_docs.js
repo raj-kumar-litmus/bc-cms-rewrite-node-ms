@@ -24,34 +24,26 @@ const workflow = {
 };
 
 // ## workbench_audit ##
-
 const workbenchAudit = {
-  workflow_id: 155,
-  styleId: 'CPJ17Y',
   genus: 'Climbing accessories',
   species: 'Belay Devices',
-  harmonizing_data: {
-    'Recommended Use': ['Ice climbing', 'Mountaineering'],
-    'Rope Diameter': ['<9.5mm'],
-    Type: ['Figure 8']
+  harmonizingData: {
+    recommendedUse: ['Ice climbing', 'Mountaineering'],
+    ropeDiameter: ['<9.5mm'],
+    type: ['Figure 8']
   },
   techspecs: {
-    'Responsible Collection': 'Value1',
-    Material: 'Value2'
+    responsibleCollection: 'Value1',
+    material: 'Value2'
   },
-  assignee: 'Sam Thomas',
-  version_ts: {
-    $date: '2020-10-28T23:58:18.000Z'
-  },
-  product_title: 'My product title',
-  top_line: 'The top line',
-  detailed_description: 'Detailed desc val1',
-  list_description: 'My list of desc',
-  bullet_points: 'bullet points 123',
-  sizing_chart: 'my sizing chart',
-  competitive_cyclist_topline: 'top line 33',
-  competitive_cyclist_description: 'desc 123 1',
-  version_reason: 'Editing',
-  status: 'WAITING_FOR_WRITER',
-  is_published: false
+  productTitle: 'My product title',
+  topLine: 'The top line',
+  detailedDescription: 'Detailed desc val1',
+  listDescription: 'My list of desc',
+  bulletPoints: 'bullet points 123',
+  sizingChart: 'my sizing chart',
+  competitiveCyclistTopline: 'top line 33',
+  competitiveCyclistDescription: 'desc 123 1',
+  versionReason: 'Editing',
+  isPublished: false
 };

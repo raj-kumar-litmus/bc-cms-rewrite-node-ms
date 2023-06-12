@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 const { Status, WorkflowKeysEnum } = require('./enums');
 
-module.exports = (workflow, { writer, editor }) => {
+module.exports = (workflow, { writer, editor, isPublished }) => {
   const currentStatus = workflow.status;
   const changeLog = {};
 
@@ -22,6 +22,9 @@ module.exports = (workflow, { writer, editor }) => {
         throw new Error('Editor assignment is not allowed at this stage of the workflow.');
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
+      } else if (isPublished) {
+        changeLog[WorkflowKeysEnum.status] = Status.WRITING_COMPLETE;
+        changeLog[WorkflowKeysEnum.lastWriteCompleteTs] = new Date();
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_IN_PROGRESS;
       }
@@ -32,7 +35,6 @@ module.exports = (workflow, { writer, editor }) => {
         throw new Error('Editor assignment is not allowed at this stage of the workflow.');
       } else if (writer) {
         changeLog[WorkflowKeysEnum.writer] = writer;
-        changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_WRITER;
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastWriteCompleteTs] = new Date();
@@ -60,6 +62,9 @@ module.exports = (workflow, { writer, editor }) => {
         throw new Error('Writer assignment is not allowed at this stage of the workflow.');
       } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
+      } else if (isPublished) {
+        changeLog[WorkflowKeysEnum.status] = Status.EDITING_COMPLETE;
+        changeLog[WorkflowKeysEnum.lastEditCompleteTs] = new Date();
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_IN_PROGRESS;
       }
@@ -70,7 +75,6 @@ module.exports = (workflow, { writer, editor }) => {
         throw new Error('Writer assignment is not allowed at this stage of the workflow.');
       } else if (editor) {
         changeLog[WorkflowKeysEnum.editor] = editor;
-        changeLog[WorkflowKeysEnum.status] = Status.ASSIGNED_TO_EDITOR;
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastEditCompleteTs] = new Date();
