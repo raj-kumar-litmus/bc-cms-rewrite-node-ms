@@ -2,6 +2,7 @@ const express = require('express');
 const axios = require('axios');
 const { validateMiddleware } = require('../../middlewares');
 const { groupsDto } = require('./dtos');
+const { properties } = require('../../properties');
 
 const router = express.Router();
 
@@ -14,7 +15,7 @@ const {
   MS_GRAPH_HOST_NAME,
   WRITERS_GROUP_ID,
   EDITOR_GROUP_ID
-} = process.env;
+} = properties;
 
 const getAccessToken = async () => {
   const URL = `${MS_LOGIN_HOST_NAME}/${TENANT_ID}/oauth2/v2.0/token`;
