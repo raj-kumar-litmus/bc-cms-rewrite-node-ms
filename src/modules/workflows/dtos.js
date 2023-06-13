@@ -2,9 +2,11 @@ const Joi = require('joi');
 
 const { Status, CreateProcess, WorkflowKeysEnum } = require('./enums');
 
-// Helper function to define a schema for string or array of strings
 const stringOrArrayOfStrings = () =>
-  Joi.alternatives().try(Joi.string().trim(), Joi.array().items(Joi.string()));
+  Joi.alternatives().try(
+    Joi.string().trim().allow(''),
+    Joi.array().items(Joi.string().trim().allow(''))
+  );
 
 const enumValidator = (Enum) => {
   return Joi.alternatives().try(
@@ -129,8 +131,7 @@ const UniqueKeysEnum = {
 const searchWorkflowQueryDto = Joi.object({
   page: Joi.number().integer().min(1),
   limit: Joi.number().integer().min(1),
-  unique: Joi.string().valid(...Object.values(UniqueKeysEnum)),
-  globalSearch: Joi.string()
+  unique: Joi.string().valid(...Object.values(UniqueKeysEnum))
 });
 
 module.exports = {

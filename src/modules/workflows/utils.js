@@ -4,8 +4,14 @@ const whereBuilder = (filters) => {
   const where = {};
 
   Object.entries(filters).forEach(([param, values]) => {
+    let updatedValues = values;
+
+    if (Array.isArray(updatedValues)) {
+      updatedValues = updatedValues.filter((value) => value !== '');
+    }
+
     if (param === 'globalSearch') {
-      const globalSearch = values;
+      const globalSearch = updatedValues;
 
       const searchFields = ['styleId', 'brand', 'title'];
       if (Array.isArray(globalSearch)) {
@@ -23,8 +29,6 @@ const whereBuilder = (filters) => {
       return;
     }
 
-    // Convert id to an array if it is not already an array
-    let updatedValues = values;
     if (param === WorkflowKeysEnum.id && !Array.isArray(updatedValues)) {
       updatedValues = [updatedValues];
     }
