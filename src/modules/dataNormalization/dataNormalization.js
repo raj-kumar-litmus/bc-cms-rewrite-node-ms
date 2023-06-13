@@ -173,7 +173,7 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
     Object.keys(groupedHAttributes).forEach(function (el) {
       hattributes[el] = groupedHAttributes[el].map((e) => ({
         ...e,
-        ...(!labels.includes(e.hattributevid) && { selected: true })
+        ...(labels.includes(e.hattributevid) && { selected: true })
       }));
     });
 
@@ -231,7 +231,7 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     Object.keys(groupedHAttributes).forEach(function (el) {
       hattributes[el] = groupedHAttributes[el].map((e) => ({
         ...e,
-        ...(!labels.includes(e.hattributevid) && { selected: true })
+        ...(labels.includes(e.hattributevid) && { selected: true })
       }));
     });
 
