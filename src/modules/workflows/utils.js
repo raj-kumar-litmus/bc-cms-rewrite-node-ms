@@ -21,8 +21,10 @@ const whereBuilder = (filters) => {
           }))
         };
       } else if (typeof globalSearch === 'string') {
+        const updatedGlobalSearch = globalSearch.replace(/[$*]/g, '\\$&');
+
         where.OR = searchFields.map((field) => ({
-          [field]: { contains: globalSearch, mode: 'insensitive' }
+          [field]: { contains: updatedGlobalSearch, mode: 'insensitive' }
         }));
       }
 
