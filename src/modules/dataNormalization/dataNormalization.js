@@ -4,6 +4,7 @@ const axios = require('axios');
 const { postgresPrisma } = require('../prisma');
 const { groupBy } = require('../../utils');
 
+const { ATTRIBUTE_API_DOMAIN_NAME, COPY_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME } = process.env;
 const router = express.Router();
 
 const getConfig = (req) => {
@@ -52,36 +53,6 @@ router.get('/styles/:styleId/techSpecs', async (req, res) => {
     res.sendResponse('Internal Server Error', 500);
   }
 });
-
-// router.get('/hattribute/:hattributeId', async (req, res) => {
-//   try {
-//     const { hattributeId } = req.params;
-//     const hAttributes = await postgresPrisma.dn_hattributev.findMany({
-//       where: {
-//         id: parseInt(hattributeId)
-//       }
-//     });
-//     return res.sendResponse(hAttributes);
-//   } catch (error) {
-//     console.error(error.message);
-//     res.send('Internal Server Error').status(500);
-//   }
-// });
-
-// router.get('/hattribute/genus/:genusid', async (req, res) => {
-//   try {
-//     const { genusid } = req.params;
-//     const hAttributes = await postgresPrisma.dn_genus_hattributev.findMany({
-//       where: {
-//         genusid: parseInt(genusid)
-//       }
-//     });
-//     return res.sendResponse(hAttributes);
-//   } catch (error) {
-//     console.error(error.message);
-//     res.send('Internal Server Error').status(500);
-//   }
-// });
 
 router.get('/genus', async (req, res) => {
   try {
@@ -138,7 +109,6 @@ router.get('/genus', async (req, res) => {
 router.get('/genus/:genusId/species', async (req, res) => {
   try {
     const { genusId } = req.params;
-    let dattributeLabel;
 
     const result = await postgresPrisma.$queryRaw`
       select
@@ -171,6 +141,49 @@ router.get('/genus/:genusId/species', async (req, res) => {
   } catch (error) {
     console.log(error);
     return res.sendResponse('Error while fetching species details', 500);
+  }
+});
+
+router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
+  try {
+    const { genusId, styleId } = req.params;
+
+    const labelFilter = await postgresPrisma.$queryRaw`
+      SELECT s.hattributevid , hattr.text, hattr.hattributelid, label.name FROM dn_genus_hattributev s
+      inner join dn_hattributev hattr on
+      hattr.id = s.hattributevid
+      inner join dn_hattributel label on
+      label.id = hattr.hattributelid
+      inner join dn_genus_hattributev dgh on
+      dgh.genusid = s.genusid
+      where s.genusid = ${parseInt(genusId)}
+      group by s.hattributevid, hattr.text, hattr.hattributelid, label.name`;
+
+    const groupedHAttributes = groupBy(labelFilter, (e) => e.name);
+
+    const { data } = await axios.get(
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
+    );
+
+    const labels = data.harmonizingAttributeLabels
+      .map((e) => e.harmonizingAttributeValues.map((l) => l.id))
+      .flat(Infinity);
+
+    const hattributes = {};
+    Object.keys(groupedHAttributes).forEach(function (el) {
+      hattributes[el] = groupedHAttributes[el].map((e) => ({
+        ...e,
+        ...(!labels.includes(e.hattributevid) && { selected: true })
+      }));
+    });
+
+    return res.sendResponse({
+      hattributes,
+      techSpecs: data.techSpecs
+    });
+  } catch (error) {
+    console.error(error.message);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
@@ -208,18 +221,18 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     );
 
     const { data } = await axios.get(
-      `http://prod-attributeapi-vip.bcinfra.net/attribute-api/styles/${styleId}`,
-      getConfig(req)
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
     );
 
     const labels = data.harmonizingAttributeLabels
       .map((e) => e.harmonizingAttributeValues.map((l) => l.id))
       .flat(Infinity);
     const hattributes = {};
-    Object.keys(groupedHAttributes).forEach((el) => {
-      hattributes[el] = groupedHAttributes[el].map((e) =>
-        !labels.includes(e.hattributevid) ? e : { ...e, selected: true }
-      );
+    Object.keys(groupedHAttributes).forEach(function (el) {
+      hattributes[el] = groupedHAttributes[el].map((e) => ({
+        ...e,
+        ...(!labels.includes(e.hattributevid) && { selected: true })
+      }));
     });
 
     return res.sendResponse({
@@ -228,7 +241,7 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     });
   } catch (error) {
     console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
@@ -236,19 +249,16 @@ router.get('/productInfo/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
     const { data: copyApiResponse } = await axios.get(
-      `http://prod-copyapi-02.bcinfra.net:3001/copy-api/published-copy/${styleId}`,
-      getConfig(req)
+      `${COPY_API_DOMAIN_NAME}/copy-api/published-copy/${styleId}`
     );
     const { data: attributeApiResponse } = await axios.get(
-      `http://prod-attributeapi-vip.bcinfra.net/attribute-api/styles/${styleId}`,
-      getConfig(req)
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
     );
     const { data: merchApiResponse } = await axios.get(
-      `http://merch01.bcinfra.net:8080/merchv3/products/${styleId}`,
-      getConfig(req)
+      `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`
     );
     // const { data: sizingChart } = await axios.get(
-    //   `http://merch01.bcinfra.net:8080/merchv3/size-charts`,
+    //   `${MERCH_API_DOMAIN_NAME}/merchv3/size-charts`,
     //   getConfig(req)
     // );
     return res.sendResponse({
@@ -259,7 +269,7 @@ router.get('/productInfo/:styleId', async (req, res) => {
     });
   } catch (err) {
     console.error(err.message);
-    res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
