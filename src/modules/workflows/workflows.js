@@ -86,36 +86,7 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
             data: transformedData
           });
 
-          const workflowDetails = await mongoPrisma.workbenchAudit.create({
-            data: {
-              genus: 'Climbing accessories',
-              species: 'Belay Devices',
-              harmonizingData: {
-                recommendedUse: ['Ice climbing', 'Mountaineering'],
-                ropeDiameter: ['<9.5mm'],
-                type: ['Figure 8']
-              },
-              techspecs: {
-                responsibleCollection: 'Value1',
-                material: 'Value2'
-              },
-              productTitle: 'My product title',
-              topLine: 'The top line',
-              detailedDescription: 'Detailed desc val1',
-              listDescription: 'My list of desc',
-              bulletPoints: 'bullet points 123',
-              sizingChart: 'my sizing chart',
-              competitiveCyclistTopline: 'top line 33',
-              competitiveCyclistDescription: 'desc 123 1',
-              createdBy: email,
-              versionReason: 'Editing',
-              isPublished: false,
-              auditType: WorkflowAuditType.DATA_NORMALIZATION,
-              workflowId: workflow.id
-            }
-          });
-
-          createdWorkflows.push({ workflow, workflowDetails });
+          createdWorkflows.push({ workflow });
         } catch (error) {
           console.log(error);
           failedWorkflows.push({ styleId, brand, title });

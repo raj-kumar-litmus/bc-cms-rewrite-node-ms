@@ -21,10 +21,10 @@ const whereBuilder = (filters) => {
           }))
         };
       } else if (typeof globalSearch === 'string') {
-        const updatedGlobalSearch = globalSearch.replace(/[$*]/g, '\\$&');
+        const escapedGlobalSearch = globalSearch.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
 
         where.OR = searchFields.map((field) => ({
-          [field]: { contains: updatedGlobalSearch, mode: 'insensitive' }
+          [field]: { contains: escapedGlobalSearch, mode: 'insensitive' }
         }));
       }
 
