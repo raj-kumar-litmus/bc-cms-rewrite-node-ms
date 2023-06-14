@@ -42,7 +42,7 @@ const WorkflowAuditLogKeysEnum = {
   sizingChart: 'sizingChart',
   species: 'species',
   status: 'status',
-  techspecs: 'techspecs',
+  techSpecs: 'techSpecs',
   topLine: 'topLine',
   versionReason: 'versionReason',
   createTs: 'createTs',

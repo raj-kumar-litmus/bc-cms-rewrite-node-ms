@@ -43,7 +43,7 @@ enum AuditType {
 model workbenchAudit {
   id                            String    @id @default(auto()) @map("_id") @db.ObjectId
   assignee                      String?
-  bulletPoints                  String?
+  bulletPoints                  Json?
   competitiveCyclistDescription String?
   competitiveCyclistTopline     String?
   detailedDescription           String?
@@ -66,7 +66,7 @@ model workbenchAudit {
   editor                        String?
   writer                        String?
   harmonizingData               Json?
-  techspecs                     Json?
+  techSpecs                     Json?
   changeLog                     Json?
 }
 

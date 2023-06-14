@@ -100,25 +100,20 @@ const searchWorkflowBodyDto = Joi.object({
 const workflowDetailsDto = Joi.object({
   genus: Joi.string().optional(),
   species: Joi.string().optional(),
-  harmonizingData: Joi.object({
-    recommendedUse: Joi.array().items(Joi.string()).optional(),
-    ropeDiameter: Joi.array().items(Joi.string()).optional(),
-    type: Joi.array().items(Joi.string()).optional()
-  }).optional(),
-  techspecs: Joi.object({
-    responsibleCollection: Joi.string().optional(),
-    material: Joi.string().optional()
-  }).optional(),
+  harmonizingData: Joi.object().allow(null).optional(),
+  techSpecs: Joi.object().allow(null).optional(),
   productTitle: Joi.string().optional(),
   topLine: Joi.string().optional(),
   detailedDescription: Joi.string().optional(),
   listDescription: Joi.string().optional(),
-  bulletPoints: Joi.string().optional(),
+  bulletPoints: Joi.array().items(Joi.string()).optional(),
   sizingChart: Joi.string().optional(),
   competitiveCyclistTopline: Joi.string().optional(),
   competitiveCyclistDescription: Joi.string().optional(),
   versionReason: Joi.string().optional(),
-  isPublished: Joi.boolean().optional()
+  isPublished: Joi.boolean().optional(),
+  auditType: Joi.string().optional(),
+  workflowId: Joi.string().optional()
 });
 
 const UniqueKeysEnum = {

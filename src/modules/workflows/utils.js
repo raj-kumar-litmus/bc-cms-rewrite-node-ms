@@ -64,8 +64,8 @@ const whereBuilder = (filters) => {
 };
 
 const deepCompare = (obj1, obj2, ignoreFields = []) => {
-  if (obj1 === null || obj2 === null || typeof obj1 !== 'object' || typeof obj2 !== 'object') {
-    throw new Error('Both objects must be valid non-null objects');
+  if (typeof obj2 !== 'object') {
+    throw new Error('obj2 must be a valid object');
   }
 
   const changes = {};
@@ -128,7 +128,21 @@ const deepCompare = (obj1, obj2, ignoreFields = []) => {
     }
   };
 
-  compare(obj1, obj2);
+  if (obj1 !== null && typeof obj1 === 'object') {
+    compare(obj1, obj2);
+  } else {
+    for (const key in obj2) {
+      if (Object.prototype.hasOwnProperty.call(obj2, key)) {
+        if (ignoreFields.includes(key)) {
+          continue; // Skip ignored fields
+        }
+        changes[key] = {
+          oldValue: null,
+          newValue: obj2[key]
+        };
+      }
+    }
+  }
 
   // Exclude changes where both oldValue and newValue are null
   for (const key in changes) {
@@ -139,6 +153,7 @@ const deepCompare = (obj1, obj2, ignoreFields = []) => {
       }
     }
   }
+
   const changeLog = {};
   for (const key in changes) {
     if (Object.prototype.hasOwnProperty.call(changes, key)) {
