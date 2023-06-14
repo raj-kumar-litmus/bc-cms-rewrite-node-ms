@@ -18,6 +18,21 @@ const getConfig = (req) => {
   };
 };
 
+const getStyle = async (styleId) => {
+  try {
+    const response = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`);
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      const notFoundError = new Error('Style not found.');
+      notFoundError.status = 404;
+      throw notFoundError;
+    } else {
+      throw new Error('An error occurred while fetching the style information.', 500);
+    }
+  }
+};
+
 router.get('/styles/:styleId', async (req, res) => {
   const { styleId } = req.params;
   const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${styleId}`;
@@ -170,7 +185,7 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       .flat(Infinity);
 
     const hattributes = {};
-    Object.keys(groupedHAttributes).forEach(function (el) {
+    Object.keys(groupedHAttributes).forEach((el) => {
       hattributes[el] = groupedHAttributes[el].map((e) => ({
         ...e,
         ...(labels.includes(e.hattributevid) && { selected: true })
@@ -228,7 +243,7 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       .map((e) => e.harmonizingAttributeValues.map((l) => l.id))
       .flat(Infinity);
     const hattributes = {};
-    Object.keys(groupedHAttributes).forEach(function (el) {
+    Object.keys(groupedHAttributes).forEach((el) => {
       hattributes[el] = groupedHAttributes[el].map((e) => ({
         ...e,
         ...(labels.includes(e.hattributevid) && { selected: true })
@@ -273,4 +288,7 @@ router.get('/productInfo/:styleId', async (req, res) => {
   }
 });
 
-module.exports = router;
+module.exports = {
+  router,
+  getStyle
+};

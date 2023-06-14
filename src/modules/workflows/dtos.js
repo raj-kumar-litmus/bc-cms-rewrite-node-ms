@@ -58,7 +58,7 @@ const filtersSchema = Joi.object({
   )
 }).unknown(false);
 
-const createWorkflowDto = Joi.object({
+const createWorkflowsDto = Joi.object({
   styles: Joi.array()
     .items(
       Joi.object({
@@ -69,6 +69,12 @@ const createWorkflowDto = Joi.object({
     )
     .min(1)
     .required()
+});
+
+const createWorkflowDto = Joi.object({
+  styleId: Joi.string().required(),
+  brand: Joi.string(),
+  title: Joi.string()
 });
 
 const assignWorkflowDto = Joi.object({
@@ -137,6 +143,7 @@ const searchWorkflowQueryDto = Joi.object({
 module.exports = {
   assignWorkflowDto,
   createWorkflowDto,
+  createWorkflowsDto,
   searchWorkflowBodyDto,
   searchWorkflowQueryDto,
   workflowDetailsDto

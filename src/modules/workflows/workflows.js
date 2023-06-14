@@ -15,10 +15,12 @@ const { whereBuilder, deepCompare } = require('./utils');
 const {
   assignWorkflowDto,
   createWorkflowDto,
+  createWorkflowsDto,
   searchWorkflowBodyDto,
   searchWorkflowQueryDto,
   workflowDetailsDto
 } = require('./dtos');
+const { getStyle } = require('../dataNormalization');
 
 const router = express.Router();
 
@@ -52,6 +54,47 @@ const findWorkflowById = async (id) => {
 
 // Endpoint to create a workflow
 router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, res) => {
+  try {
+    const {
+      body: { styleId },
+      query: { email = 'pc.admin@backCountry.com' }
+    } = req;
+
+    const { brandName, title } = await getStyle(styleId);
+
+    const transformedData = transformObject(
+      {
+        styleId,
+        createProcess: CreateProcess.WRITER_INTERFACE,
+        admin: email,
+        lastUpdatedBy: email
+      },
+      {
+        styleId: 'upperCase',
+        admin: 'lowerCase',
+        lastUpdatedBy: 'lowerCase'
+      }
+    );
+
+    const workflow = await mongoPrisma.workflow.create({
+      data: { ...transformedData, brand: brandName, title }
+    });
+
+    return res.sendResponse({ success: workflow }, 201);
+  } catch (error) {
+    console.error(error);
+
+    return res.sendResponse(
+      error.message || 'An error occurred while creating the workflow.',
+      error.status || 500
+    );
+  } finally {
+    await mongoPrisma.$disconnect();
+  }
+});
+
+// Endpoint to create a mutliple workflows
+router.post('/bulk', validateMiddleware({ body: createWorkflowsDto }), async (req, res) => {
   try {
     const {
       body: { styles },
