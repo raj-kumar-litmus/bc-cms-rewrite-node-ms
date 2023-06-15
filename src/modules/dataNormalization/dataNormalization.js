@@ -184,6 +184,13 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       .map((e) => e.harmonizingAttributeValues.map((l) => l.id))
       .flat(Infinity);
 
+    const techSpecLabels = await postgresPrisma.$queryRaw`
+      select da.id, da.name from dn_attributeorder dao 
+        inner join DN_Genus_AttributeL_AttributeType gal on dao.galatid = gal.id
+        inner join dn_attributel da on da.id=gal.attributelid
+        where gal.genusid =${parseInt(genusId)}
+        GROUP BY da.id`;
+
     const hattributes = {};
     Object.keys(groupedHAttributes).forEach((el) => {
       hattributes[el] = groupedHAttributes[el].map((e) => ({
@@ -194,7 +201,14 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
 
     return res.sendResponse({
       hattributes,
-      techSpecs: data.techSpecs
+      techSpecs: [
+        ...data.techSpecs.filter((e) => !techSpecLabels?.map((e) => e.name)?.includes(e.label)),
+        ...techSpecLabels?.map((e) => ({
+          ...e,
+          label: e.name,
+          value: data?.techSpecs?.find((l) => l?.label === e?.name)?.value || ''
+        }))
+      ]
     });
   } catch (error) {
     console.error(error.message);
@@ -268,6 +282,17 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
         }))
       ]
     });
+  } catch (error) {
+    console.error(error.message);
+    return res.sendResponse('Internal Server Error', 500);
+  }
+});
+
+router.get('/merchProduct/:styleId', async (req, res) => {
+  try {
+    const { styleId } = req.params;
+    const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`);
+    return res.sendResponse({ data });
   } catch (error) {
     console.error(error.message);
     return res.sendResponse('Internal Server Error', 500);
