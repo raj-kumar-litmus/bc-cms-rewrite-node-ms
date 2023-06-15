@@ -4,6 +4,7 @@ const { transformObject } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
+const { whereBuilder, createWorkflow } = require('./utils');
 const {
   CreateProcess,
   Status,
@@ -11,7 +12,6 @@ const {
   WorkflowKeysEnum,
   WorkflowAuditType
 } = require('./enums');
-const { whereBuilder, deepCompare } = require('./utils');
 const {
   assignWorkflowDto,
   createWorkflowDto,
