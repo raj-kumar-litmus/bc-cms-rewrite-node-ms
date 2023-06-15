@@ -235,6 +235,13 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       (e) => e.name
     );
 
+    const techSpecLabels = await postgresPrisma.$queryRaw`
+      SELECT da.id, da.name from dn_attributeorder dao 
+        inner join DN_Genus_AttributeL_AttributeType gal on dao.galatid = gal.id
+        inner join dn_attributel da on da.id=gal.attributelid
+        where gal.genusid =${parseInt(genusId)} and dao.dattributevid =${parseInt(speciesId)}
+        order by dao.position`;
+
     const { data } = await axios.get(
       `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
     );
@@ -252,7 +259,14 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
 
     return res.sendResponse({
       hattributes,
-      techSpecs: data.techSpecs
+      techSpecs: [
+        ...data.techSpecs.filter((e) => !techSpecLabels?.map((e) => e.name)?.includes(e.label)),
+        ...techSpecLabels?.map((e) => ({
+          ...e,
+          label: e.name,
+          value: data?.techSpecs?.find((l) => l?.label === e?.name)?.value || ''
+        }))
+      ]
     });
   } catch (error) {
     console.error(error.message);
@@ -263,24 +277,20 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
 router.get('/productInfo/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
-    const { data: copyApiResponse } = await axios.get(
-      `${COPY_API_DOMAIN_NAME}/copy-api/published-copy/${styleId}`
+    const results = await Promise.allSettled([
+      axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/published-copy/${styleId}`),
+      axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`),
+      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`),
+      axios.get(`http://merchdev01.bcinfra.net:8080/merchv3/size-charts?shouldSkipChart=true`)
+    ]);
+    const [copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart] = results.map(
+      (result) => result.value
     );
-    const { data: attributeApiResponse } = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
-    );
-    const { data: merchApiResponse } = await axios.get(
-      `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`
-    );
-    // const { data: sizingChart } = await axios.get(
-    //   `${MERCH_API_DOMAIN_NAME}/merchv3/size-charts`,
-    //   getConfig(req)
-    // );
     return res.sendResponse({
-      copyApiResponse,
-      merchApiResponse,
-      attributeApiResponse
-      // sizingChart
+      copyApiResponse: copyApiResponse?.data,
+      merchApiResponse: merchApiResponse?.data,
+      attributeApiResponse: attributeApiResponse?.data,
+      sizingChart: sizingChart?.data
     });
   } catch (err) {
     console.error(err.message);
