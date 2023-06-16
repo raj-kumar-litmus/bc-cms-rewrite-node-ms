@@ -3,6 +3,8 @@ const axios = require('axios');
 
 const { postgresPrisma } = require('../prisma');
 const { groupBy } = require('../../utils');
+const { validateMiddleware } = require('../../middlewares');
+const { getProductsDto } = require('./dtos');
 
 const { ATTRIBUTE_API_DOMAIN_NAME, COPY_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME } = process.env;
 const router = express.Router();
@@ -293,6 +295,33 @@ router.get('/merchProduct/:styleId', async (req, res) => {
     const { styleId } = req.params;
     const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`);
     return res.sendResponse({ data });
+  } catch (error) {
+    console.error(error.message);
+    return res.sendResponse('Internal Server Error', 500);
+  }
+});
+
+router.post('/productSearch', validateMiddleware({ body: getProductsDto }), async (req, res) => {
+  try {
+    const {
+      body: { styles }
+    } = req;
+    const success = [];
+    const failures = [];
+
+    await Promise.all(
+      styles.map(async (styleId) => {
+        try {
+          const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`);
+          const { style, title, brandName, lastModified, lastModifiedUsername } = data;
+          success.push({ style, title, brandName, lastModified, lastModifiedUsername });
+        } catch (err) {
+          failures.push(styleId);
+        }
+      })
+    );
+
+    return res.sendResponse({ success, failures });
   } catch (error) {
     console.error(error.message);
     return res.sendResponse('Internal Server Error', 500);
