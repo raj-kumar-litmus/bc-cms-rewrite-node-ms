@@ -33,6 +33,92 @@ const getStyle = async (styleId) => {
   }
 };
 
+const getStyleAttribites = async (styleId) => {
+  try {
+    const response = await axios.get(
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
+    );
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    if (error.response && error.response.status === 404) {
+      const notFoundError = new Error('Style not found.');
+      notFoundError.status = 404;
+      throw notFoundError;
+    } else {
+      throw new Error('An error occurred while fetching the style information.', 500);
+    }
+  }
+};
+
+const updateStyleAttributes = async (styleId, payload) => {
+  try {
+    const response = await axios.put(
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+      payload
+    );
+
+    console.log(`Succefully updated attributes for ${styleId}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    if (error.response && error.response.status === 404) {
+      const notFoundError = new Error('Style not found.');
+      notFoundError.status = 404;
+      throw notFoundError;
+    } else {
+      throw new Error('An error occurred while updating style information.', 500);
+    }
+  }
+};
+
+const saveToCopyDb = async (payload) => {
+  const { style: styleId } = payload;
+  try {
+    // const response = await axios.put(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, payload);
+    const response = await axios.put(
+      `http://copy-api.test.gcp.bcinfra.net/copy-api/copy/${styleId}`,
+      payload
+    );
+
+    console.log(`Succefully updated deatils to copy Db for ${styleId}`);
+    return response.data;
+  } catch (error) {
+    console.log(error);
+    if (error.response && error.response.status === 404) {
+      const notFoundError = new Error('Style not found.');
+      notFoundError.status = 404;
+      throw notFoundError;
+    } else {
+      throw new Error('An error occurred while updating the workflow information.', 500);
+    }
+  }
+};
+
+router.get('/styles/:styleId/attributes', async (req, res) => {
+  try {
+    const { styleId } = req.params;
+    const response = await getStyleAttribites(styleId);
+    return res.sendResponse(response);
+  } catch (error) {
+    console.error(error.message);
+    res.sendResponse('Internal Server Error', 500);
+  }
+});
+
+router.put('/styles/:styleId/attributes', async (req, res) => {
+  try {
+    const { styleId } = req.params;
+    const payload = req.body;
+
+    const response = await updateStyleAttributes(styleId, payload);
+    return res.sendResponse(response);
+  } catch (error) {
+    console.error(error.message);
+    res.sendResponse('Internal Server Error', 500);
+  }
+});
+
 router.get('/styles/:styleId', async (req, res) => {
   const { styleId } = req.params;
   const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${styleId}`;
@@ -325,5 +411,8 @@ router.get('/productInfo/:styleId', async (req, res) => {
 
 module.exports = {
   router,
-  getStyle
+  getStyle,
+  getStyleAttribites,
+  updateStyleAttributes,
+  saveToCopyDb
 };

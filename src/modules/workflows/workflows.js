@@ -20,7 +20,12 @@ const {
   searchWorkflowQueryDto,
   workflowDetailsDto
 } = require('./dtos');
-const { getStyle } = require('../dataNormalization');
+const {
+  getStyle,
+  getStyleAttribites,
+  updateStyleAttributes,
+  saveToCopyDb
+} = require('../dataNormalization');
 
 const router = express.Router();
 
@@ -481,7 +486,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
       return res.sendResponse(
         {
           message: `${updateCount} workflow${updateCount !== 1 ? 's' : ''} updated successfully`,
-          errors: errors.length ? errors : undefined
+          errors: errors.length ? errors : null
         },
         errors.length ? 207 : 200
       );
@@ -511,14 +516,118 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
   }
 });
 
+const toStyleAttributesModel = (styleId, newProductAttributes, currentProductAttributes) => {
+  const {
+    attributeLastModified,
+    genus,
+    species,
+    productGroup,
+    definingAttributeValue,
+    techSpecs,
+    harmonizingAttributeLabels
+  } = newProductAttributes;
+
+  const productAttributes = {
+    ageCategory: null,
+    genderCategory: null,
+    staleTechSpecs: [],
+
+    lastModified: attributeLastModified,
+    style: styleId,
+    genusId: genus && genus.id !== 0 ? Number(genus.id) : null,
+    genusName: genus && genus.name ? genus.name : null,
+    speciesId: species && species.id !== 0 ? Number(species.id) : null,
+    speciesName: species && species.name ? species.name : null,
+    productGroupId: productGroup && productGroup.id !== 0 ? Number(productGroup.id) : null,
+    productGroupName: productGroup && productGroup.name ? productGroup.name : null,
+    tags: currentProductAttributes ? currentProductAttributes.tags : null,
+    harmonizingAttributeLabels:
+      harmonizingAttributeLabels && harmonizingAttributeLabels.length
+        ? harmonizingAttributeLabels
+        : null,
+    techSpecs: techSpecs && techSpecs.length > 0 ? techSpecs : null
+  };
+
+  return productAttributes;
+};
+
+const updateBC = async (styleId, currentSnapshot) => {
+  const previousProductAttributes = await getStyleAttribites(styleId);
+
+  const newStyleAttributes = toStyleAttributesModel(
+    styleId,
+    currentSnapshot,
+    previousProductAttributes
+  );
+
+  // await updateStyleAttributes(styleId, newStyleAttributes);
+
+  const convertToCopyModel = (item) => {
+    const {
+      version,
+      active,
+      productTitle,
+      listDescription,
+      detailedDescription,
+      competitiveCyclistDescription,
+      bottomLine,
+      competitiveCyclistBottomLine,
+      writer,
+      editor,
+      bulletPoints,
+      brand,
+      productGroup,
+      sizingChart,
+      keywords
+    } = item;
+
+    const copyModel = {
+      version,
+      style: styleId,
+      status: active === true ? 'Published' : 'InProgress',
+      title: productTitle,
+      listDescription,
+      detailDescription: detailedDescription,
+      competitiveCyclistDescription,
+      bottomLine,
+      competitiveCyclistBottomLine,
+      writer,
+      editor,
+      bulletPoints,
+      brandId: brand.id,
+      productGroupId: productGroup.id
+    };
+
+    if (sizingChart && sizingChart.id !== 0) {
+      copyModel.sizingChartId = sizingChart.id;
+    }
+
+    if (keywords) {
+      copyModel.keywords = keywords.split(',');
+    }
+
+    return copyModel;
+  };
+
+  await saveToCopyDb(convertToCopyModel({ styleId, ...currentSnapshot }));
+
+  return newStyleAttributes;
+};
+
 // Endpoint to save a snapshot of a workflow for later audit log
-router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), async (req, res) => {
+router.patch('/:workflowId', async (req, res) => {
   try {
     const { workflowId } = req.params;
-    const { email = 'pc.editor@backcountry.com' } = req.query;
+    const currentSnapshot = req.body;
+
     const workflow = await findWorkflowById(workflowId);
 
-    const currentSnapshot = req.body;
+    // const { styleId } = workflow;
+
+    await updateBC('ORA000J', currentSnapshot);
+
+    return;
+    const { email = 'pc.editor@backcountry.com' } = req.query;
 
     const { isPublished } = currentSnapshot;
 

@@ -30,8 +30,8 @@ const properties = {
   EDITOR_GROUP_ID: PRODUCT_CONTENT_API_EDITOR_GROUP_ID
 };
 
-console.log('Environment variables');
-console.log(process.env);
+// console.log('Environment variables');
+// console.log(process.env);
 
 module.exports = {
   properties
