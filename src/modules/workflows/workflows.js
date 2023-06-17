@@ -616,7 +616,7 @@ const updateBC = async (styleId, currentSnapshot) => {
 
     try {
       const previousCopy = await getStyleCopy(styleId);
-      const newCopy = convertToCopyModel(styleId, currentSnapshot);
+      const newCopy = convertToCopyModel(styleId, currentSnapshot, previousCopy);
       let copyResult = await updateStyleCopy(newCopy);
 
       if (!copyResult.success) {
