@@ -15,7 +15,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"styleId\": \"WLR00C4\"\r\n}",
+							"raw": "{\r\n    \"styleId\": \"ORA000J\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -44,7 +44,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"CK0090\",\r\n            \"brand\": \"calvin klein\",\r\n            \"title\": \"Calvin Klein Men's Boxer Briefs\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"ZPU803\",\r\n            \"brand\": \"Shimano\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"NMM593\",\r\n            \"brand\": \"Patagonia\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"GYP300\",\r\n            \"brand\": \"SmartWool\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HBQ884\",\r\n            \"brand\": \"YETI\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"CHN129\",\r\n            \"brand\": \"Black Diamond\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"JDP256\",\r\n            \"brand\": \"Outdoor Research\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"LTM518\",\r\n            \"brand\": \"Outdoor Research\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"JVX315\",\r\n            \"brand\": \"Shimano\",\r\n            \"title\": \"Books Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"WKP976\",\r\n            \"brand\": \"The North Face\",\r\n            \"title\": \"Hiking Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"PPF244\",\r\n            \"brand\": \"Garmin\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"XJP554\",\r\n            \"brand\": \"Black Diamond\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"IVZ009\",\r\n            \"brand\": \"Garmin\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"MQN739\",\r\n            \"brand\": \"Noronna\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"VMP758\",\r\n            \"brand\": \"Noronna\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"PXM124\",\r\n            \"brand\": \"POC\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"XLY619\",\r\n            \"brand\": \"Black Diamond\",\r\n            \"title\": \"Hiking Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"GAP279\",\r\n            \"brand\": \"SRAM\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"DAH968\",\r\n            \"brand\": \"HOKA\",\r\n            \"title\": \"Books Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"DQH259\",\r\n            \"brand\": \"Mountain Hardware\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"YPK211\",\r\n            \"brand\": \"HOKA\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"ZBD080\",\r\n            \"brand\": \"Noronna\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"UCU904\",\r\n            \"brand\": \"Shimano\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HXQ059\",\r\n            \"brand\": \"SmartWool\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"IYR902\",\r\n            \"brand\": \"POC\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"JTQ682\",\r\n            \"brand\": \"SmartWool\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"GRX740\",\r\n            \"brand\": \"Garmin\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"SYT195\",\r\n            \"brand\": \"SmartWool\",\r\n            \"title\": \"Hiking Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"TKO630\",\r\n            \"brand\": \"Garmin\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"SQZ958\",\r\n            \"brand\": \"Shimano\",\r\n            \"title\": \"Books Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"NNX436\",\r\n            \"brand\": \"HOKA\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"MGA325\",\r\n            \"brand\": \"Burton\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HII320\",\r\n            \"brand\": \"Shimano\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"DTU773\",\r\n            \"brand\": \"POC\",\r\n            \"title\": \"Camping Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HTZ514\",\r\n            \"brand\": \"POC\",\r\n            \"title\": \"Hiking Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"IEG576\",\r\n            \"brand\": \"Salomon\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"GKP993\",\r\n            \"brand\": \"Patagonia\",\r\n            \"title\": \"Camping Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"PNL846\",\r\n            \"brand\": \"Garmin\",\r\n            \"title\": \"Hiking Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HYB910\",\r\n            \"brand\": \"The North Face\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"BXB353\",\r\n            \"brand\": \"Salomon\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"CKE810\",\r\n            \"brand\": \"Salomon\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"WFV839\",\r\n            \"brand\": \"Black Diamond\",\r\n            \"title\": \"Camping Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"ATY859\",\r\n            \"brand\": \"ON\",\r\n            \"title\": \"Camping Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HWE194\",\r\n            \"brand\": \"Salomon\",\r\n            \"title\": \"Camping Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"LPC946\",\r\n            \"brand\": \"Burton\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"SPG859\",\r\n            \"brand\": \"POC\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"XRC766\",\r\n            \"brand\": \"SmartWool\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"XZR831\",\r\n            \"brand\": \"Burton\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"KRQ848\",\r\n            \"brand\": \"Patagonia\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"XFC945\",\r\n            \"brand\": \"Salomon\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HBH756\",\r\n            \"brand\": \"Outdoor Research\",\r\n            \"title\": \"Camping Title\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -93,7 +93,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        \"id\": \"{{workflowId}}\"\r\n        // \"id\": [\"64817792f6cd8d0bd7c0cce3\",\"6481782bf6cd8d0bd7c0cd40\"]\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"nike\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"JCK001\",\"JCK002\",\"JCK03\"]\r\n        // \"status\": \"WRITING_IN_PROGRESS\"\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        // \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        // \"editor\": \"editor1@backcountry.com\"\r\n        \"writer\": \"pc.writer@backcountry.com\"\r\n    }\r\n}\r\n",
+							"raw": "{\r\n    \"filters\": {\r\n        \"id\": \"{{workflowId}}\"\r\n        // \"id\": [\"64817792f6cd8d0bd7c0cce3\",\"6481782bf6cd8d0bd7c0cd40\"]\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"nike\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"FWT622\"]\r\n        // \"status\": \"WRITING_IN_PROGRESS\"\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        // \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        // \"editor\": \"editor1@backcountry.com\"\r\n        \"writer\": \"pc.writer@backcountry.com\"\r\n    }\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -125,7 +125,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"competitiveCyclistDescription\": \"desc 123 1\",\r\n    \"competitiveCyclistTopline\": \"top line 33\",\r\n    \"detailedDescription\": \"Detailed desc val1\",\r\n    \"genus\": \"Climbing accessories\",\r\n    \"listDescription\": \"My list of desc\",\r\n    \"productTitle\": \"My product title123\",\r\n    \"sizingChart\": \"    my sizing chart\",\r\n    \"species\": \"Belay Devices\",\r\n    \"topLine\": \"The top line\",\r\n    \"versionReason\": \"Editing\",\r\n    \"techSpecs\": {\r\n        \"fit\": \"regular\",\r\n        \"Brim\": \"abc\"\r\n    },\r\n    \"harmonizingData\":{\r\n        \"test\": 123\r\n    }\r\n    // \"isPublished\": true\r\n}",
+							"raw": "{\r\n    \"version\": 9,\r\n    \"attributeLastModified\": \"2023-06-17T08:59:29.932Z\",\r\n    \"copyLastModified\": \"2023-06-17T08:59:32.355Z\",\r\n    \"isPublished\": false,\r\n    \"bulletPoints\": [\r\n        \"Glacier glasses for exploring past the treeline\",\r\n        \"Polarized lenses eliminate glare from blinding snow\",\r\n        \"Folding side flaps block out sun \",\r\n        \"Nose pads provide non-slip fit\",\r\n        \"Temple loops for attaching strap\"\r\n    ],\r\n    \"detailedDescription\": \"<p>The Orucase Saddle Bag HC uses strong rubber gear straps to keep our new saddle bag with our tubes, tools, and other essentials secure and free of loud rattling. It features a clamshell design to allow for easy access to all of our gear, while the internal organization is super clean thanks to the shockcord loops and a slim pocket.</p>\",\r\n    \"genus\": {\r\n        \"id\": 2,\r\n        \"name\": \"Bags\"\r\n    },\r\n    \"species\": {\r\n        \"id\": 1150,\r\n        \"name\": \"Bike\"\r\n    },\r\n    \"harmonizingAttributes\": [],\r\n    \"listDescription\": \"\",\r\n    \"productTitle\": \"Saddle Bag\",\r\n    \"techSpecs\": [\r\n        // {\r\n        //     \"labelId\": 88,\r\n        //     \"order\": 1,\r\n        //     \"label\": \"Material\",\r\n        //     \"value\": \"Kevlar reinforced X-Ply outer, foam liner\"\r\n        // },\r\n        {\r\n            \"labelId\": 38,\r\n            \"order\": 2,\r\n            \"label\": \"Volume\",\r\n            \"value\": \"25 cu. in., 30 cu. in.\"\r\n        },\r\n        {\r\n            \"labelId\": 150,\r\n            \"order\": 3,\r\n            \"label\": \"Mount\",\r\n            \"value\": \"gear straps\"\r\n        },\r\n        {\r\n            \"labelId\": 28,\r\n            \"order\": 4,\r\n            \"label\": \"Pockets\",\r\n            \"value\": \"internal slim pocket, internal shockcord loops\"\r\n        },\r\n        {\r\n            \"labelId\": 35,\r\n            \"order\": 5,\r\n            \"label\": \"Closure\",\r\n            \"value\": \"waterproof #8 YKK zipper\"\r\n        },\r\n        {\r\n            \"labelId\": 4,\r\n            \"order\": 6,\r\n            \"label\": \"Dimensions\",\r\n            \"value\": \"[25 cu. in.] 2.5 x 4 x 2.5in, [30 cu. in.] 2.5 x 4 x 3in\"\r\n        },\r\n        {\r\n            \"labelId\": 1742,\r\n            \"order\": 8,\r\n            \"label\": \"Activity\",\r\n            \"value\": \"road cycling, gravel\"\r\n        },\r\n        {\r\n            \"labelId\": 336,\r\n            \"order\": 9,\r\n            \"label\": \"Manufacturer Warranty\",\r\n            \"value\": \"lifetime\"\r\n        }\r\n    ],\r\n    \"sizingChart\": {\r\n        \"id\": 1\r\n    }\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -174,14 +174,14 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/{{workflowId}}/history/6488358c6326db9c97812d13",
+							"raw": "{{url}}workflows/{{workflowId}}/history/648d85d5a6be2f2226b83da1",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"{{workflowId}}",
 								"history",
-								"6488358c6326db9c97812d13"
+								"648d85d5a6be2f2226b83da1"
 							]
 						}
 					},
@@ -194,7 +194,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        \"globalSearch\": \"(\"\r\n        // \"brand\": \"Rolex\"\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\",\r\n        // \"styleId\": [\"JCK001\"]\r\n        // \"styleId\": \"$\"\r\n        // \"status\": [\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],  \r\n    },\r\n    \"orderBy\": [\r\n        {\r\n            \"lastUpdateTs\": \"desc\"\r\n        },\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"filters\": {\r\n        // \"globalSearch\": \"WLR00C4\"\r\n        // \"brand\": \"Rolex\"\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\",\r\n        \"styleId\": [\r\n            \"ORA000J\"\r\n        ]\r\n        // \"styleId\": \"$\"\r\n        // \"status\": [\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],  \r\n    },\r\n    \"orderBy\": [\r\n        {\r\n            \"lastUpdateTs\": \"desc\"\r\n        },\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -639,6 +639,58 @@
 							"path": [
 								"editors",
 								"members"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Styles",
+			"item": [
+				{
+					"name": "styleAttributes",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n  \"style\": \"ORA000J\",\r\n  \"genusId\": 2,\r\n  \"genusName\": \"Bags\",\r\n  \"speciesId\": 1150,\r\n  \"speciesName\": \"Bike\",\r\n  \"productGroupId\": 100000358,\r\n  \"productGroupName\": null,\r\n  \"ageCategory\": \"Adult\",\r\n  \"genderCategory\": \"Unisex\",\r\n  \"lastModified\": \"2023-06-16T13:44:21.243Z\",\r\n  \"tags\": [],\r\n  \"harmonizingAttributeLabels\": [],\r\n  \"techSpecs\": [\r\n    {\r\n      \"labelId\": 88,\r\n      \"order\": 1,\r\n      \"label\": \"Material\",\r\n      \"value\": \"Kevlar reinforced X-Ply outer, foam liner\"\r\n    },\r\n    {\r\n      \"labelId\": 38,\r\n      \"order\": 2,\r\n      \"label\": \"Volume\",\r\n      \"value\": \"25 cu. in., 30 cu. in.\"\r\n    },\r\n    {\r\n      \"labelId\": 150,\r\n      \"order\": 3,\r\n      \"label\": \"Mount\",\r\n      \"value\": \"gear straps\"\r\n    },\r\n    {\r\n      \"labelId\": 28,\r\n      \"order\": 4,\r\n      \"label\": \"Pockets\",\r\n      \"value\": \"internal slim pocket, internal shockcord loops\"\r\n    },\r\n    {\r\n      \"labelId\": 35,\r\n      \"order\": 5,\r\n      \"label\": \"Closure\",\r\n      \"value\": \"waterproof #8 YKK zipper\"\r\n    },\r\n    {\r\n      \"labelId\": 4,\r\n      \"order\": 6,\r\n      \"label\": \"Dimensions\",\r\n      \"value\": \"[25 cu. in.] 2.5 x 4 x 2.5in, [30 cu. in.] 2.5 x 4 x 3in\"\r\n    },\r\n    {\r\n      \"labelId\": 1742,\r\n      \"order\": 8,\r\n      \"label\": \"Activity\",\r\n      \"value\": \"road cycling, gravel\"\r\n    },\r\n    {\r\n      \"labelId\": 336,\r\n      \"order\": 9,\r\n      \"label\": \"Manufacturer Warranty\",\r\n      \"value\": \"lifetime\"\r\n    }\r\n  ],\r\n  \"staleTechSpecs\": []\r\n}\r\n",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/ORA000J/attributes",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"ORA000J",
+								"attributes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "styleAttributes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/ORA000J/attributes",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"ORA000J",
+								"attributes"
 							]
 						}
 					},
