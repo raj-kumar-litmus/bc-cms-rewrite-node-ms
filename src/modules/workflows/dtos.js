@@ -131,9 +131,6 @@ const workflowDetailsDto = Joi.object({
   detailedDescription: Joi.string().empty('').optional(),
   listDescription: Joi.string().empty('').optional(),
   bulletPoints: Joi.array().items(Joi.string().empty('')).optional(),
-  sizingChart: Joi.object({
-    id: Joi.number().optional()
-  }).optional(),
   competitiveCyclistTopline: Joi.string().empty('').optional(),
   competitiveCyclistDescription: Joi.string().empty('').optional(),
   versionReason: Joi.string().empty('').optional(),
