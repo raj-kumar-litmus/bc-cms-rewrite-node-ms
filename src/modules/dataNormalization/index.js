@@ -3,7 +3,8 @@ const {
   getStyle,
   getStyleAttributes,
   updateStyleAttributes,
-  saveToCopyDb
+  getStyleCopy,
+  updateStyleCopy
 } = require('./dataNormalization');
 
 module.exports = {
@@ -11,5 +12,6 @@ module.exports = {
   getStyle,
   getStyleAttributes,
   updateStyleAttributes,
-  saveToCopyDb
+  getStyleCopy,
+  updateStyleCopy
 };

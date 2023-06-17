@@ -64,12 +64,12 @@ model workbenchAudit {
   writer                        String?
   version                       Int?
 
-  genus           Json?
-  species         Json?
-  harmonizingData Json?
-  techSpecs       Json?
-  sizingChart     Json?
-  changeLog       Json?
+  genus                 Json?
+  species               Json?
+  harmonizingAttributes Json?
+  techSpecs             Json?
+  sizingChart           Json?
+  changeLog             Json?
 }
 
 /// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.

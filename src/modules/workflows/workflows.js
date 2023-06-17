@@ -24,7 +24,8 @@ const {
   getStyle,
   getStyleAttributes,
   updateStyleAttributes,
-  saveToCopyDb
+  getStyleCopy,
+  updateStyleCopy
 } = require('../dataNormalization');
 
 const router = express.Router();
@@ -516,19 +517,18 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
   }
 });
 
-const convertToAttributesModel = (styleId, newProductAttributes) => {
+const convertToAttributesModel = (styleId, newProductAttributes, previousProductAttributes) => {
   const {
     attributeLastModified,
     genus,
     species,
-    productGroup,
     techSpecs,
     harmonizingAttributeLabels,
-    tags,
-    ageCategory,
-    genderCategory,
     staleTechSpecs
   } = newProductAttributes;
+
+  const { productGroupId, productGroupName, ageCategory, genderCategory, tags } =
+    previousProductAttributes;
 
   const productAttributes = {
     style: styleId,
@@ -536,8 +536,8 @@ const convertToAttributesModel = (styleId, newProductAttributes) => {
     genusName: genus && genus.name ? genus.name : null,
     speciesId: species && species.id !== 0 ? Number(species.id) : null,
     speciesName: species && species.name ? species.name : null,
-    productGroupId: productGroup && productGroup.id !== 0 ? Number(productGroup.id) : null,
-    productGroupName: productGroup && productGroup.name ? productGroup.name : null,
+    productGroupId,
+    productGroupName,
     ageCategory,
     genderCategory,
     lastModified: attributeLastModified,
@@ -560,18 +560,21 @@ const convertToCopyModel = (styleId, item) => {
     productTitle,
     listDescription,
     detailedDescription,
-    competitiveCyclistDescription,
-    bottomLine,
-    competitiveCyclistBottomLine,
     writer,
     editor,
     bulletPoints,
-    brand,
-    productGroup,
     sizingChart,
-    keywords,
     copyLastModified
   } = item;
+
+  const {
+    competitiveCyclistDescription,
+    competitiveCyclistBottomLine,
+    brand,
+    bottomLine,
+    productGroup,
+    keywords
+  } = previousCopy;
 
   const copyModel = {
     __v: version,
@@ -586,17 +589,14 @@ const convertToCopyModel = (styleId, item) => {
     writer,
     editor,
     bulletPoints,
-    brandId: brand.id,
-    productGroupId: productGroup.id,
+    brandId: brand.id ?? null,
+    keywords: keywords ?? null,
+    productGroupId: productGroup.id ?? null,
     lastModified: copyLastModified
   };
 
   if (sizingChart && sizingChart.id !== 0) {
     copyModel.sizingChartId = sizingChart.id;
-  }
-
-  if (keywords) {
-    copyModel.keywords = keywords.split(',');
   }
 
   return copyModel;
@@ -605,8 +605,7 @@ const convertToCopyModel = (styleId, item) => {
 const updateBC = async (styleId, currentSnapshot) => {
   try {
     const previousAttributes = await getStyleAttributes(styleId);
-    const newAttributes = convertToAttributesModel(styleId, currentSnapshot);
-    const newCopy = convertToCopyModel(styleId, currentSnapshot);
+    const newAttributes = convertToAttributesModel(styleId, currentSnapshot, previousAttributes);
 
     const attributesResult = await updateStyleAttributes(styleId, newAttributes);
     if (!attributesResult.success) {
@@ -614,8 +613,11 @@ const updateBC = async (styleId, currentSnapshot) => {
         attributesApi: attributesResult
       };
     }
-    let copyResult;
-    copyResult = await saveToCopyDb(newCopy);
+
+    const previousCopy = await getStyleCopy(styleId);
+    const newCopy = convertToCopyModel(styleId, currentSnapshot, previousCopy);
+
+    let copyResult = await updateStyleCopy(newCopy);
 
     if (!copyResult.success) {
       try {
@@ -633,13 +635,12 @@ const updateBC = async (styleId, currentSnapshot) => {
       copyApi: copyResult
     };
   } catch (error) {
-    console.error('Error updating BC:', error);
     throw new Error(`Failed while updating to BC about the changes: ${error.message}`);
   }
 };
 
 // Endpoint to save a snapshot of a workflow for later audit log
-router.patch('/:workflowId', async (req, res) => {
+router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), async (req, res) => {
   try {
     const { workflowId } = req.params;
     const currentSnapshot = req.body;
