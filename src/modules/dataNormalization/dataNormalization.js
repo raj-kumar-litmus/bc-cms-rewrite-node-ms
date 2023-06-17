@@ -1,5 +1,6 @@
 const express = require('express');
 const axios = require('axios');
+const https = require('https');
 
 const { postgresPrisma } = require('../prisma');
 const { groupBy } = require('../../utils');
@@ -33,14 +34,14 @@ const getStyle = async (styleId) => {
   }
 };
 
-const getStyleAttribites = async (styleId) => {
+const getStyleAttributes = async (styleId) => {
   try {
     const response = await axios.get(
       `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
     );
     return response.data;
   } catch (error) {
-    console.log(error);
+    // console.log(error);
     if (error.response && error.response.status === 404) {
       const notFoundError = new Error('Style not found.');
       notFoundError.status = 404;
@@ -58,47 +59,41 @@ const updateStyleAttributes = async (styleId, payload) => {
       payload
     );
 
-    console.log(`Succefully updated attributes for ${styleId}`);
-    return response.data;
+    console.log(`Successfully updated attributes for ${styleId}`);
+    return { success: true, data: response.data };
   } catch (error) {
-    console.log(error);
-    if (error.response && error.response.status === 404) {
-      const notFoundError = new Error('Style not found.');
-      notFoundError.status = 404;
-      throw notFoundError;
-    } else {
-      throw new Error('An error occurred while updating style information.', 500);
-    }
+    // console.log(error);
+
+    const errorMessage =
+      error.response?.data || 'An error occurred while updating product attributes';
+    return { success: false, error: errorMessage };
   }
 };
 
 const saveToCopyDb = async (payload) => {
   const { style: styleId } = payload;
-  try {
-    // const response = await axios.put(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, payload);
-    const response = await axios.put(
-      `http://copy-api.test.gcp.bcinfra.net/copy-api/copy/${styleId}`,
-      payload
-    );
 
-    console.log(`Succefully updated deatils to copy Db for ${styleId}`);
-    return response.data;
+  const agent = new https.Agent({ rejectUnauthorized: false });
+
+  try {
+    await axios.put(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, payload, {
+      httpsAgent: agent
+    });
+
+    console.log(`Successfully updated copy for ${styleId}`);
+    return { success: true };
   } catch (error) {
-    console.log(error);
-    if (error.response && error.response.status === 404) {
-      const notFoundError = new Error('Style not found.');
-      notFoundError.status = 404;
-      throw notFoundError;
-    } else {
-      throw new Error('An error occurred while updating the workflow information.', 500);
-    }
+   // console.log(error);
+
+    const errorMessage = error.response?.data || 'An error occurred while updating copy';
+    return { success: false, error: errorMessage };
   }
 };
 
 router.get('/styles/:styleId/attributes', async (req, res) => {
   try {
     const { styleId } = req.params;
-    const response = await getStyleAttribites(styleId);
+    const response = await getStyleAttributes(styleId);
     return res.sendResponse(response);
   } catch (error) {
     console.error(error.message);
@@ -412,7 +407,7 @@ router.get('/productInfo/:styleId', async (req, res) => {
 module.exports = {
   router,
   getStyle,
-  getStyleAttribites,
+  getStyleAttributes,
   updateStyleAttributes,
   saveToCopyDb
 };

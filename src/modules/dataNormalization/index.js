@@ -1,7 +1,7 @@
 const {
   router: dataNormalization,
   getStyle,
-  getStyleAttribites,
+  getStyleAttributes,
   updateStyleAttributes,
   saveToCopyDb
 } = require('./dataNormalization');
@@ -9,7 +9,7 @@ const {
 module.exports = {
   dataNormalization,
   getStyle,
-  getStyleAttribites,
+  getStyleAttributes,
   updateStyleAttributes,
   saveToCopyDb
 };

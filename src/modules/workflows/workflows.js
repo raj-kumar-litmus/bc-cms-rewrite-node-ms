@@ -4,7 +4,7 @@ const { transformObject } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
-const { whereBuilder, createWorkflow } = require('./utils');
+const { whereBuilder, createWorkflow, deepCompare } = require('./utils');
 const {
   CreateProcess,
   Status,
@@ -22,7 +22,7 @@ const {
 } = require('./dtos');
 const {
   getStyle,
-  getStyleAttribites,
+  getStyleAttributes,
   updateStyleAttributes,
   saveToCopyDb
 } = require('../dataNormalization');
@@ -516,23 +516,21 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
   }
 });
 
-const toStyleAttributesModel = (styleId, newProductAttributes, currentProductAttributes) => {
+const convertToAttributesModel = (styleId, newProductAttributes) => {
   const {
     attributeLastModified,
     genus,
     species,
     productGroup,
-    definingAttributeValue,
     techSpecs,
-    harmonizingAttributeLabels
+    harmonizingAttributeLabels,
+    tags,
+    ageCategory,
+    genderCategory,
+    staleTechSpecs
   } = newProductAttributes;
 
   const productAttributes = {
-    ageCategory: null,
-    genderCategory: null,
-    staleTechSpecs: [],
-
-    lastModified: attributeLastModified,
     style: styleId,
     genusId: genus && genus.id !== 0 ? Number(genus.id) : null,
     genusName: genus && genus.name ? genus.name : null,
@@ -540,78 +538,104 @@ const toStyleAttributesModel = (styleId, newProductAttributes, currentProductAtt
     speciesName: species && species.name ? species.name : null,
     productGroupId: productGroup && productGroup.id !== 0 ? Number(productGroup.id) : null,
     productGroupName: productGroup && productGroup.name ? productGroup.name : null,
-    tags: currentProductAttributes ? currentProductAttributes.tags : null,
+    ageCategory,
+    genderCategory,
+    lastModified: attributeLastModified,
+    tags: tags ? tags : null,
     harmonizingAttributeLabels:
       harmonizingAttributeLabels && harmonizingAttributeLabels.length
         ? harmonizingAttributeLabels
-        : null,
-    techSpecs: techSpecs && techSpecs.length > 0 ? techSpecs : null
+        : [],
+    techSpecs: techSpecs ?? [],
+    staleTechSpecs: staleTechSpecs ?? []
   };
 
   return productAttributes;
 };
 
-const updateBC = async (styleId, currentSnapshot) => {
-  const previousProductAttributes = await getStyleAttribites(styleId);
+const convertToCopyModel = (styleId, item) => {
+  const {
+    version,
+    isPublished,
+    productTitle,
+    listDescription,
+    detailedDescription,
+    competitiveCyclistDescription,
+    bottomLine,
+    competitiveCyclistBottomLine,
+    writer,
+    editor,
+    bulletPoints,
+    brand,
+    productGroup,
+    sizingChart,
+    keywords,
+    copyLastModified
+  } = item;
 
-  const newStyleAttributes = toStyleAttributesModel(
-    styleId,
-    currentSnapshot,
-    previousProductAttributes
-  );
-
-  // await updateStyleAttributes(styleId, newStyleAttributes);
-
-  const convertToCopyModel = (item) => {
-    const {
-      version,
-      active,
-      productTitle,
-      listDescription,
-      detailedDescription,
-      competitiveCyclistDescription,
-      bottomLine,
-      competitiveCyclistBottomLine,
-      writer,
-      editor,
-      bulletPoints,
-      brand,
-      productGroup,
-      sizingChart,
-      keywords
-    } = item;
-
-    const copyModel = {
-      version,
-      style: styleId,
-      status: active === true ? 'Published' : 'InProgress',
-      title: productTitle,
-      listDescription,
-      detailDescription: detailedDescription,
-      competitiveCyclistDescription,
-      bottomLine,
-      competitiveCyclistBottomLine,
-      writer,
-      editor,
-      bulletPoints,
-      brandId: brand.id,
-      productGroupId: productGroup.id
-    };
-
-    if (sizingChart && sizingChart.id !== 0) {
-      copyModel.sizingChartId = sizingChart.id;
-    }
-
-    if (keywords) {
-      copyModel.keywords = keywords.split(',');
-    }
-
-    return copyModel;
+  const copyModel = {
+    __v: version,
+    style: styleId,
+    status: isPublished === true ? 'Published' : 'InProgress',
+    title: productTitle,
+    listDescription,
+    detailDescription: detailedDescription,
+    competitiveCyclistDescription,
+    bottomLine,
+    competitiveCyclistBottomLine,
+    writer,
+    editor,
+    bulletPoints,
+    brandId: brand.id,
+    productGroupId: productGroup.id,
+    lastModified: copyLastModified
   };
 
-  await saveToCopyDb(convertToCopyModel({ styleId, ...currentSnapshot }));
+  if (sizingChart && sizingChart.id !== 0) {
+    copyModel.sizingChartId = sizingChart.id;
+  }
 
-  return newStyleAttributes;
+  if (keywords) {
+    copyModel.keywords = keywords.split(',');
+  }
+
+  return copyModel;
+};
+
+const updateBC = async (styleId, currentSnapshot) => {
+  try {
+    const previousAttributes = await getStyleAttributes(styleId);
+    const newAttributes = convertToAttributesModel(styleId, currentSnapshot);
+    const newCopy = convertToCopyModel(styleId, currentSnapshot);
+
+    const attributesResult = await updateStyleAttributes(styleId, newAttributes);
+    if (!attributesResult.success) {
+      return {
+        attributesApi: attributesResult
+      };
+    }
+    let copyResult;
+    copyResult = await saveToCopyDb(newCopy);
+
+    if (!copyResult.success) {
+      try {
+        previousAttributes.lastModified = attributesResult.lastModified;
+        await updateStyleAttributes(styleId, previousAttributes);
+        console.log(`Rolled back attributes for style ${styleId}`);
+      } catch (error) {
+        console.log(`Could not rollback attributes for style ${styleId}`);
+      }
+      throw new Error('Error occurred while saving copy to the DB.');
+    }
+
+    return {
+      attributesApi: attributesResult,
+      copyApi: copyResult
+    };
+  } catch (error) {
+    console.error('Error updating BC:', error);
+    throw new Error(`Failed while updating to BC about the changes: ${error.message}`);
+  }
 };
 
 // Endpoint to save a snapshot of a workflow for later audit log
@@ -622,11 +646,8 @@ router.patch('/:workflowId', async (req, res) => {
 
     const workflow = await findWorkflowById(workflowId);
 
-    // const { styleId } = workflow;
+    const { styleId } = workflow;
 
-    await updateBC('ORA000J', currentSnapshot);
-
-    return;
     const { email = 'pc.editor@backcountry.com' } = req.query;
 
     const { isPublished } = currentSnapshot;
@@ -636,6 +657,21 @@ router.patch('/:workflowId', async (req, res) => {
     if (Object.keys(currentSnapshot).length === 0 && Object.keys(changeLog).length === 0) {
       res.sendResponse('No changes detected. Nothing to save.', 400);
       return;
+    }
+
+    const { attributesApi, copyApi } = await updateBC(styleId, currentSnapshot);
+
+    const allFailed = !attributesApi.success || !copyApi.success;
+
+    if (allFailed) {
+      return res.sendResponse(
+        {
+          message: 'An error occurred while saving workflow deatils to BC.',
+          attributesApi,
+          copyApi
+        },
+        400
+      );
     }
 
     if (Object.keys(changeLog).length) {
@@ -677,7 +713,9 @@ router.patch('/:workflowId', async (req, res) => {
         'createTs',
         'createdBy',
         'workflowId',
-        'auditType'
+        'auditType',
+        'attributeLastModified',
+        'copyLastModified'
       ]);
 
       changeLog = { ...changeLog, ...diff };
@@ -688,11 +726,13 @@ router.patch('/:workflowId', async (req, res) => {
       return;
     }
 
+    const { copyLastModified, attributeLastModified, ...restOfCurrentSnapshot } = currentSnapshot;
+
     await mongoPrisma.workbenchAudit.create({
       data: {
         workflowId,
         createdBy: email,
-        ...currentSnapshot,
+        ...restOfCurrentSnapshot,
         auditType: WorkflowAuditType.DATA_NORMALIZATION,
         changeLog
       }
