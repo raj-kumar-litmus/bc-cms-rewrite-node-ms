@@ -77,7 +77,6 @@ const updateStyleAttributes = async (styleId, payload) => {
       payload
     );
 
-    console.log(`Successfully updated attributes for ${styleId}`);
     return { success: true, data: response.data };
   } catch (error) {
     const errorMessage =
@@ -92,18 +91,18 @@ const updateStyleCopy = async (payload) => {
   const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
   try {
-    await axios.put(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, payload, {
+    const response = await axios.put(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, payload, {
       httpsAgent
     });
 
-    console.log(`Successfully updated copy for ${styleId}`);
-    return { success: true };
+    return { success: true, data: response.data };
   } catch (error) {
     const errorMessage = error.response?.data || 'An error occurred while updating copy';
     return { success: false, error: errorMessage };
   }
 };
 
+//TODO: Move this to styles route
 router.get('/styles/:styleId/attributes', async (req, res) => {
   try {
     const { styleId } = req.params;
@@ -115,13 +114,50 @@ router.get('/styles/:styleId/attributes', async (req, res) => {
   }
 });
 
+//TODO: Move this to styles route
 router.put('/styles/:styleId/attributes', async (req, res) => {
   try {
     const { styleId } = req.params;
     const payload = req.body;
 
-    const response = await updateStyleAttributes(styleId, payload);
+    const { success, data, error } = await updateStyleAttributes(styleId, payload);
+
+    if (success) {
+      return res.sendResponse(data);
+    } else {
+      return res.sendResponse(error, error.status || 500);
+    }
+  } catch (error) {
+    console.error(error.message);
+    res.sendResponse('Internal Server Error', 500);
+  }
+});
+
+//TODO: Move this to styles route
+router.get('/styles/:styleId/copy', async (req, res) => {
+  try {
+    const { styleId } = req.params;
+    const response = await getStyleCopy(styleId);
     return res.sendResponse(response);
+  } catch (error) {
+    console.error(error.message);
+    res.sendResponse('Internal Server Error', 500);
+  }
+});
+
+//TODO: Move this to styles route
+router.put('/styles/:styleId/copy', async (req, res) => {
+  try {
+    const { styleId } = req.params;
+    const payload = req.body;
+
+    const { success, data, error } = await updateStyleCopy(styleId, payload);
+
+    if (success) {
+      return res.sendResponse(data);
+    } else {
+      return res.sendResponse(error, error.status || 500);
+    }
   } catch (error) {
     console.error(error.message);
     res.sendResponse('Internal Server Error', 500);
