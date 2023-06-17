@@ -553,7 +553,7 @@ const convertToAttributesModel = (styleId, newProductAttributes, previousProduct
   return productAttributes;
 };
 
-const convertToCopyModel = (styleId, item) => {
+const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
   const {
     version,
     isPublished,
@@ -565,7 +565,7 @@ const convertToCopyModel = (styleId, item) => {
     bulletPoints,
     sizingChart,
     copyLastModified
-  } = item;
+  } = currentCopy;
 
   const {
     competitiveCyclistDescription,
@@ -614,20 +614,27 @@ const updateBC = async (styleId, currentSnapshot) => {
       };
     }
 
-    const previousCopy = await getStyleCopy(styleId);
-    const newCopy = convertToCopyModel(styleId, currentSnapshot, previousCopy);
+    try {
+      const previousCopy = await getStyleCopy(styleId);
+      const newCopy = convertToCopyModel(styleId, currentSnapshot);
+      let copyResult = await updateStyleCopy(newCopy);
 
-    let copyResult = await updateStyleCopy(newCopy);
-
-    if (!copyResult.success) {
-      try {
-        previousAttributes.lastModified = attributesResult.lastModified;
-        await updateStyleAttributes(styleId, previousAttributes);
-        console.log(`Rolled back attributes for style ${styleId}`);
-      } catch (error) {
-        console.log(`Could not rollback attributes for style ${styleId}`);
+      if (!copyResult.success) {
+        throw new Error('Error occurred while saving copy to the DB.');
       }
-      throw new Error('Error occurred while saving copy to the DB.');
+    } catch (error) {
+      try {
+        console.log(`Rolling back attributes for style ${styleId}`);
+        previousAttributes.lastModified = attributesResult.data.lastModified;
+        const rollbackAttributesResult = await updateStyleAttributes(styleId, previousAttributes);
+        if (!rollbackAttributesResult.success) {
+          console.log(`Could not rollback attributes for style ${styleId}`);
+        } else {
+          console.log(`Rolled back attributes for style ${styleId}`);
+        }
+      } catch (error) {
+        throw error;
+      }
     }
 
     return {
@@ -662,9 +669,9 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
 
     const { attributesApi, copyApi } = await updateBC(styleId, currentSnapshot);
 
-    const allFailed = !attributesApi.success || !copyApi.success;
+    const failedToUpdateBC = !attributesApi.success || !copyApi.success;
 
-    if (allFailed) {
+    if (failedToUpdateBC) {
       return res.sendResponse(
         {
           message: 'An error occurred while saving workflow deatils to BC.',

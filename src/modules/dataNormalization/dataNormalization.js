@@ -51,7 +51,6 @@ const getStyleAttributes = async (styleId) => {
   }
 };
 
-
 const getStyleCopy = async (styleId) => {
   try {
     const response = await axios.get(
