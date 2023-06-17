@@ -611,10 +611,11 @@ const updateBC = async (styleId, currentSnapshot) => {
       };
     }
 
+    let copyResult;
     try {
       const previousCopy = await getStyleCopy(styleId);
       const newCopy = convertToCopyModel(styleId, currentSnapshot, previousCopy);
-      let copyResult = await updateStyleCopy(newCopy);
+      copyResult = await updateStyleCopy(newCopy);
 
       if (!copyResult.success) {
         throw new Error('Error occurred while saving copy to the DB.');
