@@ -53,9 +53,11 @@ const getStyleAttributes = async (styleId) => {
 
 const getStyleCopy = async (styleId) => {
   try {
-    const response = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
-    );
+    const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+
+    const response = await axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
+      httpsAgent
+    });
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
@@ -87,11 +89,11 @@ const updateStyleAttributes = async (styleId, payload) => {
 const updateStyleCopy = async (payload) => {
   const { style: styleId } = payload;
 
-  const agent = new https.Agent({ rejectUnauthorized: false });
+  const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
   try {
     await axios.put(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, payload, {
-      httpsAgent: agent
+      httpsAgent
     });
 
     console.log(`Successfully updated copy for ${styleId}`);

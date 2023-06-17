@@ -27,6 +27,7 @@ const {
   getStyleCopy,
   updateStyleCopy
 } = require('../dataNormalization');
+const { version } = require('yargs');
 
 const router = express.Router();
 
@@ -569,11 +570,11 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
   const {
     competitiveCyclistDescription,
     competitiveCyclistBottomLine,
-    brand,
+    brandId,
     bottomLine,
-    productGroup,
+    productGroupId,
     keywords,
-    sizingChart
+    sizingChartId
   } = previousCopy;
 
   const copyModel = {
@@ -589,10 +590,10 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
     writer,
     editor,
     bulletPoints,
-    brandId: brand.id ?? null,
-    keywords: keywords ?? null,
-    sizingChartId: sizingChart.id ?? null,
-    productGroupId: productGroup.id ?? null,
+    brandId,
+    keywords,
+    sizingChartId,
+    productGroupId,
     lastModified: copyLastModified
   };
 
@@ -600,39 +601,27 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
 };
 
 const updateBC = async (styleId, currentSnapshot) => {
-  try {
-    const previousAttributes = await getStyleAttributes(styleId);
-    const newAttributes = convertToAttributesModel(styleId, currentSnapshot, previousAttributes);
+  let previousAttributes;
+  let attributesResult;
+  let copyResult;
 
-    const attributesResult = await updateStyleAttributes(styleId, newAttributes);
+  try {
+    previousAttributes = await getStyleAttributes(styleId);
+    const newAttributes = convertToAttributesModel(styleId, currentSnapshot, previousAttributes);
+    attributesResult = await updateStyleAttributes(styleId, newAttributes);
+
     if (!attributesResult.success) {
       return {
         attributesApi: attributesResult
       };
     }
 
-    let copyResult;
-    try {
-      const previousCopy = await getStyleCopy(styleId);
-      const newCopy = convertToCopyModel(styleId, currentSnapshot, previousCopy);
-      copyResult = await updateStyleCopy(newCopy);
+    const previousCopy = await getStyleCopy(styleId);
+    const newCopy = convertToCopyModel(styleId, currentSnapshot, previousCopy);
+    copyResult = await updateStyleCopy(newCopy);
 
-      if (!copyResult.success) {
-        throw new Error('Error occurred while saving copy to the DB.');
-      }
-    } catch (error) {
-      try {
-        console.log(`Rolling back attributes for style ${styleId}`);
-        previousAttributes.lastModified = attributesResult.data.lastModified;
-        const rollbackAttributesResult = await updateStyleAttributes(styleId, previousAttributes);
-        if (!rollbackAttributesResult.success) {
-          console.log(`Could not rollback attributes for style ${styleId}`);
-        } else {
-          console.log(`Rolled back attributes for style ${styleId}`);
-        }
-      } catch (error) {
-        throw error;
-      }
+    if (!copyResult.success) {
+      throw new Error('Error occurred while saving copy to the DB.');
     }
 
     return {
@@ -640,7 +629,14 @@ const updateBC = async (styleId, currentSnapshot) => {
       copyApi: copyResult
     };
   } catch (error) {
-    throw new Error(`Failed while updating to BC about the changes: ${error.message}`);
+    console.log(`Failed while updating BC about the changes: ${error.message}`);
+    if (attributesResult) {
+      console.log(`Rolling back attributes for style ${styleId}`);
+      previousAttributes.lastModified = attributesResult.data.lastModified;
+      await updateStyleAttributes(styleId, previousAttributes);
+      console.log(`Rolled back attributes for style ${styleId}`);
+    }
+    throw new Error(`Failed while updating BC about the changes: ${error.message}`);
   }
 };
 
@@ -667,7 +663,8 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
 
     const { attributesApi, copyApi } = await updateBC(styleId, currentSnapshot);
 
-    const failedToUpdateBC = !attributesApi.success || !copyApi.success;
+    const failedToUpdateBC =
+      !attributesApi || !copyApi || !attributesApi.success || !copyApi.success;
 
     if (failedToUpdateBC) {
       return res.sendResponse(
