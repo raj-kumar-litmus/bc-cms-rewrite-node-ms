@@ -13,7 +13,7 @@
     "prisma:generate:mongo": "npx prisma generate --schema=./prisma/mongoSchema.prisma --generator=mongoClient",
     "prisma:generate:postgres": "npx prisma generate --schema=./prisma/postgresSchema.prisma --generator=postgresClient",
     "prisma:generate": "npm run prisma:generate:mongo && npm run prisma:generate:postgres",
-    "prepare": "husky install",
+    "prepare": "husky install && chmod ug+x .husky/*",
     "postinstall": "npm run prisma:generate && husky install"
   },
   "keywords": [],
