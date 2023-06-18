@@ -441,7 +441,7 @@ router.get('/productInfo/:styleId', async (req, res) => {
     ]);
     const [copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart] = results.map(
       (result) => result.value
-    );
+    ); 
     return res.sendResponse({
       copyApiResponse: copyApiResponse?.data,
       merchApiResponse: merchApiResponse?.data,

@@ -135,6 +135,7 @@ const workflowDetailsDto = Joi.object({
   competitiveCyclistDescription: Joi.string().empty('').optional(),
   versionReason: Joi.string().empty('').optional(),
   isPublished: Joi.boolean().optional(),
+  isQuickFix: Joi.boolean().optional(),
   auditType: Joi.string().empty('').optional(),
   version: Joi.number().required(),
   attributeLastModified: Joi.string().required(),

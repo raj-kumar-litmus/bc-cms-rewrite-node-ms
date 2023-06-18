@@ -13,6 +13,8 @@
     "prisma:generate:mongo": "npx prisma generate --schema=./prisma/mongoSchema.prisma --generator=mongoClient",
     "prisma:generate:postgres": "npx prisma generate --schema=./prisma/postgresSchema.prisma --generator=postgresClient",
     "prisma:generate": "npm run prisma:generate:mongo && npm run prisma:generate:postgres",
+    "prisma:format": "npx prisma format --schema=./prisma/mongoSchema.prisma",
+    "prisma:push": "npx prisma db push --schema=./prisma/mongoSchema.prisma",
     "prepare": "husky install",
     "postinstall": "npm run prisma:generate && husky install"
   },

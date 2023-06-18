@@ -1,7 +1,7 @@
 /* eslint-disable indent */
 const { Status, WorkflowKeysEnum } = require('./enums');
 
-module.exports = (workflow, { writer, editor, isPublished }) => {
+module.exports = (workflow, { writer, editor, isPublished, isQuickFix }) => {
   const currentStatus = workflow.status;
   const changeLog = {};
 
