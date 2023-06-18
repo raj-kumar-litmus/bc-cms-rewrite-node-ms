@@ -21,7 +21,7 @@ const {
   workflowDetailsDto
 } = require('./dtos');
 const { getStyle } = require('../dataNormalization');
-
+console.log('testing..');
 const router = express.Router();
 
 const findWorkflowById = async (id) => {
