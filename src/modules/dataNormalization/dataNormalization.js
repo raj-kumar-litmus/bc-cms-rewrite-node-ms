@@ -8,6 +8,8 @@ const { groupBy } = require('../../utils');
 const { ATTRIBUTE_API_DOMAIN_NAME, COPY_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME } = process.env;
 const router = express.Router();
 
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
+
 const getConfig = (req) => {
   const { cookie: Cookie } = req.headers; // Retrieve the Cookie header value
 
@@ -53,8 +55,6 @@ const getStyleAttributes = async (styleId) => {
 
 const getStyleCopy = async (styleId) => {
   try {
-    const httpsAgent = new https.Agent({ rejectUnauthorized: false });
-
     const response = await axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
       httpsAgent
     });
@@ -74,7 +74,8 @@ const updateStyleAttributes = async (styleId, payload) => {
   try {
     const response = await axios.put(
       `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
-      payload
+      payload,
+      { httpsAgent }
     );
 
     return { success: true, data: response.data };
@@ -87,8 +88,6 @@ const updateStyleAttributes = async (styleId, payload) => {
 
 const updateStyleCopy = async (payload) => {
   const { style: styleId } = payload;
-
-  const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
   try {
     const response = await axios.put(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, payload, {
