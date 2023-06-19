@@ -1,6 +1,5 @@
-const axios = require('axios');
 const { WorkflowKeysEnum, CreateProcess } = require('./enums');
-const { transformObject, groupBy } = require('../../utils');
+const { transformObject } = require('../../utils');
 const { getStyle } = require('../dataNormalization');
 const { mongoPrisma } = require('../prisma');
 
@@ -206,7 +205,7 @@ const createWorkflow = async ({ styleId, email = 'pc.admin@backcountry.com' }) =
     };
   } catch (error) {
     console.log(error);
-    return;
+    return null;
   }
 };
 

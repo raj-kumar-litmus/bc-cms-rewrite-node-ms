@@ -204,8 +204,10 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
     return res.sendResponse({
       hattributes,
       techSpecs: [
-        ...data.techSpecs.filter((e) => !techSpecLabels?.map((e) => e.name)?.includes(e.label)),
-        ...techSpecLabels?.map((e) => ({
+        ...data.techSpecs.filter(
+          ({ label }) => !techSpecLabels?.map(({ name }) => name)?.includes(label)
+        ),
+        ...techSpecLabels.map((e) => ({
           ...e,
           label: e.name,
           value: data?.techSpecs?.find((l) => l?.label === e?.name)?.value || ''
@@ -276,8 +278,10 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     return res.sendResponse({
       hattributes,
       techSpecs: [
-        ...data.techSpecs.filter((e) => !techSpecLabels?.map((e) => e.name)?.includes(e.label)),
-        ...techSpecLabels?.map((e) => ({
+        ...data.techSpecs.filter(
+          ({ label }) => !techSpecLabels?.map(({ name }) => name)?.includes(label)
+        ),
+        ...techSpecLabels.map((e) => ({
           ...e,
           label: e.name,
           value: data?.techSpecs?.find((l) => l?.label === e?.name)?.value || ''

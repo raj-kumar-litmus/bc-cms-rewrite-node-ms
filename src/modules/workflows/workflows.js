@@ -4,7 +4,7 @@ const { transformObject } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
-const { whereBuilder, createWorkflow } = require('./utils');
+const { whereBuilder, deepCompare } = require('./utils');
 const {
   CreateProcess,
   Status,
@@ -20,8 +20,9 @@ const {
   searchWorkflowQueryDto,
   workflowDetailsDto
 } = require('./dtos');
+
 const { getStyle } = require('../dataNormalization');
-console.log('testing..');
+
 const router = express.Router();
 
 const findWorkflowById = async (id) => {
