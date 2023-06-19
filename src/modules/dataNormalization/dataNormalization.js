@@ -335,7 +335,7 @@ router.get('/productInfo/:styleId', async (req, res) => {
       axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/published-copy/${styleId}`),
       axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`),
       axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`),
-      axios.get(`http://merchdev01.bcinfra.net:8080/merchv3/size-charts?shouldSkipChart=true`)
+      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/size-charts?shouldSkipChart=true`)
     ]);
     const [copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart] = results.map(
       (result) => result.value

@@ -1,4 +1,3 @@
-// const subscriptionNameOrId = 'YOUR_SUBSCRIPTION_NAME_OR_ID';
 const { PubSub } = require('@google-cloud/pubsub');
 const { createWorkflow } = require('../modules/workflows/utils');
 
