@@ -561,10 +561,9 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
     productTitle,
     listDescription,
     detailedDescription,
-    writer,
-    editor,
     bulletPoints,
-    copyLastModified
+    copyLastModified,
+    sizingChart
   } = currentCopy;
 
   const {
@@ -573,8 +572,9 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
     brandId,
     bottomLine,
     productGroupId,
-    keywords,
-    sizingChartId
+    writer,
+    editor,
+    keywords
   } = previousCopy;
 
   const copyModel = {
@@ -592,7 +592,7 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
     bulletPoints,
     brandId,
     keywords,
-    sizingChartId,
+    sizingChartId: sizingChart?.id ?? null,
     productGroupId,
     lastModified: copyLastModified
   };
