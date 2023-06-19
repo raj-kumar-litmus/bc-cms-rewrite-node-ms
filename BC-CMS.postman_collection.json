@@ -6,6 +6,119 @@
 	},
 	"item": [
 		{
+			"name": "Styles",
+			"item": [
+				{
+					"name": "attributes",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer eyJ0eXAiOiJKV1QiLCJub25jZSI6IlFGckdMSUVkMGhneHNvYkM2NElrRjEyVXVoZUNTUXp5dkxreUtiZElzRDgiLCJhbGciOiJSUzI1NiIsIng1dCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiJodHRwczovL2dyYXBoLm1pY3Jvc29mdC5jb20iLCJpc3MiOiJodHRwczovL3N0cy53aW5kb3dzLm5ldC9kMzJiN2MzYS1jNWUxLTRkZDMtYjk3My0zZDZhMzZiMDU4YjIvIiwiaWF0IjoxNjg3MTUzNDI1LCJuYmYiOjE2ODcxNTM0MjUsImV4cCI6MTY4NzE1NzMyNSwiYWlvIjoiRTJaZ1lOZ29ZWDdoNDVuTXF6KzJXbnVwL3R0MEZ3QT0iLCJhcHBfZGlzcGxheW5hbWUiOiJQcm9kdWN0IENvbnRlbnQgVUkiLCJhcHBpZCI6IjMxZjJjZDY1LWZlMTYtNGI2NC04Y2JmLWNiMzA1NWY1NDE1YyIsImFwcGlkYWNyIjoiMSIsImlkcCI6Imh0dHBzOi8vc3RzLndpbmRvd3MubmV0L2QzMmI3YzNhLWM1ZTEtNGRkMy1iOTczLTNkNmEzNmIwNThiMi8iLCJpZHR5cCI6ImFwcCIsIm9pZCI6IjljZGZjNzZjLTRhZWYtNGQ2OS1hNWViLTgxZGUzYTdhYTllMyIsInJoIjoiMC5BUmdBT253cjAtSEYwMDI1Y3oxcU5yQllzZ01BQUFBQUFBQUF3QUFBQUFBQUFBQVlBQUEuIiwicm9sZXMiOlsiR3JvdXAuUmVhZC5BbGwiLCJEaXJlY3RvcnkuUmVhZC5BbGwiLCJVc2VyLlJlYWQuQWxsIiwiR3JvdXBNZW1iZXIuUmVhZC5BbGwiXSwic3ViIjoiOWNkZmM3NmMtNGFlZi00ZDY5LWE1ZWItODFkZTNhN2FhOWUzIiwidGVuYW50X3JlZ2lvbl9zY29wZSI6Ik5BIiwidGlkIjoiZDMyYjdjM2EtYzVlMS00ZGQzLWI5NzMtM2Q2YTM2YjA1OGIyIiwidXRpIjoiMFBmYVpQSjZ4a1dEcUdEd1NsV0VBQSIsInZlciI6IjEuMCIsIndpZHMiOlsiMDk5N2ExZDAtMGQxZC00YWNiLWI0MDgtZDVjYTczMTIxZTkwIl0sInhtc190Y2R0IjoxNDQyOTQ0NzgzfQ.LDeHAszRCPU1R5nk6M5GQ-yPwisqLc2aNqdl6_HRyCV1JFSgTdxT42oFnha8-SJHYS1Uu1aK-PSHpoQcLAyz-UUqcB4jJMyfLp8_yCS7VFomGk0BDNd-G59v2733GKNNfYGOCzuOVoHF2NqUEhzp259Y_6x7f4W2upMxr8Pz4M6c6M4fnJ55einGcXfDyCbd3fTbyPiFloNPBqcS-uqXprZBy1hO-Z9h_OTwh3UXFbZDwJsJihnJIL0YTdLOqGDtXG8rSVzZ2BTFthiANWN7v2O8eab4-4hwcPdv3UIl2iTZcNVPJCIQ7UudC2cbew7npaDox0j1goZrh7UnURoQmw",
+								"type": "default",
+								"disabled": true
+							}
+						],
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/PATZA07/attributes",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"PATZA07",
+								"attributes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "attributes",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"style\": \"ORA000J\",\r\n    \"genusId\": 2,\r\n    \"genusName\": \"Bags\",\r\n    \"speciesId\": 1150,\r\n    \"speciesName\": \"Bike\",\r\n    \"productGroupId\": 100000358,\r\n    \"productGroupName\": null,\r\n    \"ageCategory\": \"Adult\",\r\n    \"genderCategory\": \"Unisex\",\r\n    \"lastModified\": \"2023-06-17T08:07:29.932Z\",\r\n    \"tags\": [],\r\n    \"harmonizingAttributeLabels\": [],\r\n    \"techSpecs\": [\r\n        {\r\n            \"labelId\": 88,\r\n            \"order\": 1,\r\n            \"label\": \"Material\",\r\n            \"value\": \"Kevlar reinforced X-Ply outer, foam liner\"\r\n        },\r\n        {\r\n            \"labelId\": 38,\r\n            \"order\": 2,\r\n            \"label\": \"Volume\",\r\n            \"value\": \"25 cu. in., 30 cu. in.\"\r\n        },\r\n        {\r\n            \"labelId\": 150,\r\n            \"order\": 3,\r\n            \"label\": \"Mount\",\r\n            \"value\": \"gear straps\"\r\n        },\r\n        {\r\n            \"labelId\": 28,\r\n            \"order\": 4,\r\n            \"label\": \"Pockets\",\r\n            \"value\": \"internal slim pocket, internal shockcord loops\"\r\n        },\r\n        {\r\n            \"labelId\": 35,\r\n            \"order\": 5,\r\n            \"label\": \"Closure\",\r\n            \"value\": \"waterproof #8 YKK zipper\"\r\n        },\r\n        {\r\n            \"labelId\": 4,\r\n            \"order\": 6,\r\n            \"label\": \"Dimensions\",\r\n            \"value\": \"[25 cu. in.] 2.5 x 4 x 2.5in, [30 cu. in.] 2.5 x 4 x 3in\"\r\n        }\r\n        // ,\r\n        // {\r\n        //     \"labelId\": 1742,\r\n        //     \"order\": 8,\r\n        //     \"label\": \"Activity\",\r\n        //     \"value\": \"road cycling, gravel\"\r\n        // },\r\n        // {\r\n        //     \"labelId\": 336,\r\n        //     \"order\": 9,\r\n        //     \"label\": \"Manufacturer Warranty\",\r\n        //     \"value\": \"lifetime\"\r\n        // }\r\n    ],\r\n    \"staleTechSpecs\": []\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/ORA000J/attributes",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"ORA000J",
+								"attributes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/ORA000J/copy",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"ORA000J",
+								"copy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "copy",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"_id\": \"646bd9e49918b4ea3bf5ab9a\",\r\n    \"style\": \"ORA000J\",\r\n    \"title\": \"Saddle Bag HC\",\r\n    \"listDescription\": \"\",\r\n    \"detailDescription\": \"<p>\",\r\n    \"bottomLine\": \"Why We Like The Orucase Saddle Bag HC\",\r\n    \"sizingChartId\": 1,\r\n    \"bulletPoints\": [],\r\n    \"keywords\": [\r\n        \"\"\r\n    ],\r\n    \"writer\": \"mckbrowne\",\r\n    \"editor\": null,\r\n    \"status\": \"InProgress\",\r\n    \"competitiveCyclistDescription\": \"\",\r\n    \"competitiveCyclistBottomLine\": \"\",\r\n    \"productGroupId\": 100000358,\r\n    \"brandId\": 200004670,\r\n    \"__v\": 10,\r\n    \"skuCopy\": [],\r\n    \"lastModified\": \"2023-06-17T11:37:29.741Z\",\r\n    \"created\": \"2023-05-22T21:08:52.152Z\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/ORA000J/copy",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"ORA000J",
+								"copy"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Workflows",
 			"item": [
 				{
@@ -125,7 +238,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"version\": 14,\r\n    \"attributeLastModified\": \"2023-06-17T08:59:29.932Z\",\r\n    \"copyLastModified\": \"2023-06-17T12:59:41.759Z\",\r\n    \"isPublished\": false,\r\n    \"bulletPoints\": [\r\n        \"Glacier glasses for exploring past the treeline\",\r\n        \"Polarized lenses eliminate glare from blinding snow\",\r\n        \"Folding side flaps block out sun \",\r\n        \"Nose pads provide non-slip fit\",\r\n        \"Temple loops for attaching strap\"\r\n    ],\r\n    \"detailedDescription\": \"<p>The Orucase Saddle Bag HC uses strong rubber gear straps to keep our new saddle bag with our tubes, tools, and other essentials secure and free of loud rattling. It features a clamshell design to allow for easy access to all of our gear, while the internal organization is super clean thanks to the shockcord loops and a slim pocket.</p>\",\r\n    \"genus\": {\r\n        \"id\": 2,\r\n        \"name\": \"Bags\"\r\n    },\r\n    \"species\": {\r\n        \"id\": 1150,\r\n        \"name\": \"Bike\"\r\n    },\r\n    \"harmonizingAttributes\": [],\r\n    \"listDescription\": \"\",\r\n    \"productTitle\": \"Saddle Bag\",\r\n    \"techSpecs\": [\r\n        {\r\n            \"labelId\": 88,\r\n            \"order\": 1,\r\n            \"label\": \"Material\",\r\n            \"value\": \"Kevlar reinforced X-Ply outer, foam liner\"\r\n        },\r\n        {\r\n            \"labelId\": 38,\r\n            \"order\": 2,\r\n            \"label\": \"Volume\",\r\n            \"value\": \"25 cu. in., 30 cu. in.\"\r\n        },\r\n        {\r\n            \"labelId\": 150,\r\n            \"order\": 3,\r\n            \"label\": \"Mount\",\r\n            \"value\": \"gear straps\"\r\n        },\r\n        {\r\n            \"labelId\": 28,\r\n            \"order\": 4,\r\n            \"label\": \"Pockets\",\r\n            \"value\": \"internal slim pocket, internal shockcord loops\"\r\n        },\r\n        {\r\n            \"labelId\": 35,\r\n            \"order\": 5,\r\n            \"label\": \"Closure\",\r\n            \"value\": \"waterproof #8 YKK zipper\"\r\n        },\r\n        {\r\n            \"labelId\": 4,\r\n            \"order\": 6,\r\n            \"label\": \"Dimensions\",\r\n            \"value\": \"[25 cu. in.] 2.5 x 4 x 2.5in, [30 cu. in.] 2.5 x 4 x 3in\"\r\n        },\r\n        {\r\n            \"labelId\": 1742,\r\n            \"order\": 8,\r\n            \"label\": \"Activity\",\r\n            \"value\": \"road cycling, gravel\"\r\n        },\r\n        {\r\n            \"labelId\": 336,\r\n            \"order\": 9,\r\n            \"label\": \"Manufacturer Warranty\",\r\n            \"value\": \"lifetime\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"isQuickFix\": true,\r\n    \"version\": 18,\r\n    \"attributeLastModified\": \"2023-06-17T13:44:02.172Z\",\r\n    \"copyLastModified\": \"2023-06-17T13:55:16.206Z\",\r\n    // \"isPublished\": true,\r\n    \"bulletPoints\": [\r\n        // \"Glacier glasses for exploring past the treeline\",\r\n        // \"Polarized lenses eliminate glare from blinding snow\",\r\n        // \"Folding side flaps block out sun \",\r\n        // \"Nose pads provide non-slip fit\",\r\n        \"Temple loops for attaching strap\"\r\n    ],\r\n    \"detailedDescription\": \"<p>The Orucase Saddle Bag HC uses strong rubber gear straps to keep our new saddle bag with our tubes, tools, and other essentials secure and free of loud rattling. It features a clamshell design to allow for easy access to all of our gear, while the internal organization is super clean thanks to the shockcord loops and a slim pocket.</p>\",\r\n    // \"genus\": {\r\n    //     \"id\": 2,\r\n    //     \"name\": \"Bags\"\r\n    // },\r\n    \"species\": {\r\n        \"id\": 1150,\r\n        \"name\": \"Bike\"\r\n    },\r\n    \"harmonizingAttributeLabels\": [\r\n        {\r\n            \"id\": 99,\r\n            \"text\": \"Activity\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 2831,\r\n                    \"text\": \"Lifestyle\"\r\n                }\r\n            ]\r\n        }\r\n        // {\r\n        //     \"id\": 156,\r\n        //     \"text\": \"Fit\",\r\n        //     \"harmonizingAttributeValues\": [\r\n        //         {\r\n        //             \"id\": 2099,\r\n        //             \"text\": \"Regular/Relaxed\"\r\n        //         }\r\n        //     ]\r\n        // },\r\n        // {\r\n        //     \"id\": 113,\r\n        //     \"text\": \"Hood\",\r\n        //     \"harmonizingAttributeValues\": [\r\n        //         {\r\n        //             \"id\": 519,\r\n        //             \"text\": \"No\"\r\n        //         }\r\n        //     ]\r\n        // },\r\n        // {\r\n        //     \"id\": 144,\r\n        //     \"text\": \"Material\",\r\n        //     \"harmonizingAttributeValues\": [\r\n        //         {\r\n        //             \"id\": 735,\r\n        //             \"text\": \"Cotton\"\r\n        //         }\r\n        //     ]\r\n        // },\r\n        // {\r\n        //     \"id\": 120,\r\n        //     \"text\": \"Recommended Use\",\r\n        //     \"harmonizingAttributeValues\": [\r\n        //         {\r\n        //             \"id\": 749,\r\n        //             \"text\": \"Casual\"\r\n        //         }\r\n        //     ]\r\n        // },\r\n        // {\r\n        //     \"id\": 243,\r\n        //     \"text\": \"Shirt Style\",\r\n        //     \"harmonizingAttributeValues\": [\r\n        //         {\r\n        //             \"id\": 998,\r\n        //             \"text\": \"Crew\"\r\n        //         }\r\n        //     ]\r\n        // },\r\n        // {\r\n        //     \"id\": 36,\r\n        //     \"text\": \"Sleeve Length\",\r\n        //     \"harmonizingAttributeValues\": [\r\n        //         {\r\n        //             \"id\": 78,\r\n        //             \"text\": \"Short-Sleeve\"\r\n        //         }\r\n        //     ]\r\n        // },\r\n        // {\r\n        //     \"id\": 425,\r\n        //     \"text\": \"Sustainability\",\r\n        //     \"harmonizingAttributeValues\": [\r\n        //         {\r\n        //             \"id\": 3050,\r\n        //             \"text\": \"Organic Materials\"\r\n        //         },\r\n        //         {\r\n        //             \"id\": 3052,\r\n        //             \"text\": \"Responsibly Sourced\"\r\n        //         }\r\n        //     ]\r\n        // }\r\n    ],\r\n    \"listDescription\": \"\",\r\n    \"productTitle\": \"Saddle Bag\",\r\n    \"techSpecs\": [\r\n        // {\r\n        //     \"labelId\": 88,\r\n        //     \"order\": 1,\r\n        //     \"label\": \"Material\",\r\n        //     \"value\": \"Kevlar reinforced X-Ply outer, foam liner\"\r\n        // },\r\n        // {\r\n        //     \"labelId\": 38,\r\n        //     \"order\": 2,\r\n        //     \"label\": \"Volume\",\r\n        //     \"value\": \"25 cu. in., 30 cu. in.\"\r\n        // },\r\n        // {\r\n        //     \"labelId\": 150,\r\n        //     \"order\": 3,\r\n        //     \"label\": \"Mount\",\r\n        //     \"value\": \"gear straps\"\r\n        // },\r\n        // {\r\n        //     \"labelId\": 28,\r\n        //     \"order\": 4,\r\n        //     \"label\": \"Pockets\",\r\n        //     \"value\": \"internal slim pocket, internal shockcord loops\"\r\n        // },\r\n        // {\r\n        //     \"labelId\": 35,\r\n        //     \"order\": 5,\r\n        //     \"label\": \"Closure\",\r\n        //     \"value\": \"waterproof #8 YKK zipper\"\r\n        // },\r\n        // {\r\n        //     \"labelId\": 4,\r\n        //     \"order\": 6,\r\n        //     \"label\": \"Dimensions\",\r\n        //     \"value\": \"[25 cu. in.] 2.5 x 4 x 2.5in, [30 cu. in.] 2.5 x 4 x 3in\"\r\n        // },\r\n        // {\r\n        //     \"labelId\": 1742,\r\n        //     \"order\": 8,\r\n        //     \"label\": \"Activity\",\r\n        //     \"value\": \"road cycling, gravel\"\r\n        // },\r\n        {\r\n            \"labelId\": 336,\r\n            \"order\": 9,\r\n            \"label\": \"Manufacturer Warranty\",\r\n            \"value\": \"lifetime\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -151,37 +264,47 @@
 					"response": []
 				},
 				{
-					"name": "workflow/workflowId/history",
+					"name": "history",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/{{workflowId}}/history",
+							"raw": "{{url}}workflows/{{workflowId}}/history?page=1&limit=2",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"{{workflowId}}",
 								"history"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "workflow/workflowId/history/historyId",
+					"name": "historyId",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/{{workflowId}}/history/648d9af9d908c835ec7bbc3d",
+							"raw": "{{url}}workflows/{{workflowId}}/history/648dbd0eb3c791db77e60ecb",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"{{workflowId}}",
 								"history",
-								"648d9af9d908c835ec7bbc3d"
+								"648dbd0eb3c791db77e60ecb"
 							]
 						}
 					},
@@ -639,112 +762,6 @@
 							"path": [
 								"editors",
 								"members"
-							]
-						}
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Styles",
-			"item": [
-				{
-					"name": "attributes",
-					"request": {
-						"method": "GET",
-						"header": [],
-						"url": {
-							"raw": "{{url}}dataNormalization/styles/ORA000J/attributes",
-							"host": [
-								"{{url}}dataNormalization"
-							],
-							"path": [
-								"styles",
-								"ORA000J",
-								"attributes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "attributes",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"style\": \"ORA000J\",\r\n    \"genusId\": 2,\r\n    \"genusName\": \"Bags\",\r\n    \"speciesId\": 1150,\r\n    \"speciesName\": \"Bike\",\r\n    \"productGroupId\": 100000358,\r\n    \"productGroupName\": null,\r\n    \"ageCategory\": \"Adult\",\r\n    \"genderCategory\": \"Unisex\",\r\n    \"lastModified\": \"2023-06-17T08:07:29.932Z\",\r\n    \"tags\": [],\r\n    \"harmonizingAttributeLabels\": [],\r\n    \"techSpecs\": [\r\n        {\r\n            \"labelId\": 88,\r\n            \"order\": 1,\r\n            \"label\": \"Material\",\r\n            \"value\": \"Kevlar reinforced X-Ply outer, foam liner\"\r\n        },\r\n        {\r\n            \"labelId\": 38,\r\n            \"order\": 2,\r\n            \"label\": \"Volume\",\r\n            \"value\": \"25 cu. in., 30 cu. in.\"\r\n        },\r\n        {\r\n            \"labelId\": 150,\r\n            \"order\": 3,\r\n            \"label\": \"Mount\",\r\n            \"value\": \"gear straps\"\r\n        },\r\n        {\r\n            \"labelId\": 28,\r\n            \"order\": 4,\r\n            \"label\": \"Pockets\",\r\n            \"value\": \"internal slim pocket, internal shockcord loops\"\r\n        },\r\n        {\r\n            \"labelId\": 35,\r\n            \"order\": 5,\r\n            \"label\": \"Closure\",\r\n            \"value\": \"waterproof #8 YKK zipper\"\r\n        },\r\n        {\r\n            \"labelId\": 4,\r\n            \"order\": 6,\r\n            \"label\": \"Dimensions\",\r\n            \"value\": \"[25 cu. in.] 2.5 x 4 x 2.5in, [30 cu. in.] 2.5 x 4 x 3in\"\r\n        }\r\n        // ,\r\n        // {\r\n        //     \"labelId\": 1742,\r\n        //     \"order\": 8,\r\n        //     \"label\": \"Activity\",\r\n        //     \"value\": \"road cycling, gravel\"\r\n        // },\r\n        // {\r\n        //     \"labelId\": 336,\r\n        //     \"order\": 9,\r\n        //     \"label\": \"Manufacturer Warranty\",\r\n        //     \"value\": \"lifetime\"\r\n        // }\r\n    ],\r\n    \"staleTechSpecs\": []\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}dataNormalization/styles/ORA000J/attributes",
-							"host": [
-								"{{url}}dataNormalization"
-							],
-							"path": [
-								"styles",
-								"ORA000J",
-								"attributes"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "copy",
-					"protocolProfileBehavior": {
-						"disableBodyPruning": true
-					},
-					"request": {
-						"method": "GET",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": ""
-						},
-						"url": {
-							"raw": "{{url}}dataNormalization/styles/ORA000J/copy",
-							"host": [
-								"{{url}}dataNormalization"
-							],
-							"path": [
-								"styles",
-								"ORA000J",
-								"copy"
-							]
-						}
-					},
-					"response": []
-				},
-				{
-					"name": "copy",
-					"request": {
-						"method": "PUT",
-						"header": [],
-						"body": {
-							"mode": "raw",
-							"raw": "{\r\n    \"_id\": \"646bd9e49918b4ea3bf5ab9a\",\r\n    \"style\": \"ORA000J\",\r\n    \"title\": \"Saddle Bag HC\",\r\n    \"listDescription\": \"\",\r\n    \"detailDescription\": \"<p>\",\r\n    \"bottomLine\": \"Why We Like The Orucase Saddle Bag HC\",\r\n    \"sizingChartId\": 1,\r\n    \"bulletPoints\": [],\r\n    \"keywords\": [\r\n        \"\"\r\n    ],\r\n    \"writer\": \"mckbrowne\",\r\n    \"editor\": null,\r\n    \"status\": \"InProgress\",\r\n    \"competitiveCyclistDescription\": \"\",\r\n    \"competitiveCyclistBottomLine\": \"\",\r\n    \"productGroupId\": 100000358,\r\n    \"brandId\": 200004670,\r\n    \"__v\": 10,\r\n    \"skuCopy\": [],\r\n    \"lastModified\": \"2023-06-17T11:37:29.741Z\",\r\n    \"created\": \"2023-05-22T21:08:52.152Z\"\r\n}",
-							"options": {
-								"raw": {
-									"language": "json"
-								}
-							}
-						},
-						"url": {
-							"raw": "{{url}}dataNormalization/styles/ORA000J/copy",
-							"host": [
-								"{{url}}dataNormalization"
-							],
-							"path": [
-								"styles",
-								"ORA000J",
-								"copy"
 							]
 						}
 					},
