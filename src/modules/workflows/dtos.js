@@ -124,7 +124,11 @@ const workflowDetailsDto = Joi.object({
     id: Joi.number().optional(),
     name: Joi.string().optional()
   }).optional(),
-  harmonizingAttributes: Joi.array().items(harmonizingAttributeSchema).allow(null).optional(),
+  sizingChart: Joi.object({
+    id: Joi.number().optional(),
+    name: Joi.string().optional()
+  }).optional(),
+  harmonizingAttributeLabels: Joi.array().items(harmonizingAttributeSchema).allow(null).optional(),
   techSpecs: Joi.array().items(techSpecSchema).optional(),
   productTitle: Joi.string().empty('').optional(),
   topLine: Joi.string().empty('').optional(),

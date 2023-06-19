@@ -39,8 +39,7 @@ const getStyle = async (styleId) => {
 const getStyleAttributes = async (styleId) => {
   try {
     const response = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
-      { httpsAgent }
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
     );
     return response.data;
   } catch (error) {
