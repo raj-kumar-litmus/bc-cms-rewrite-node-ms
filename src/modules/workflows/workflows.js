@@ -4,7 +4,7 @@ const { transformObject } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
-const { whereBuilder, createWorkflow } = require('./utils');
+const { whereBuilder, deepCompare } = require('./utils');
 const {
   CreateProcess,
   Status,
@@ -20,6 +20,7 @@ const {
   searchWorkflowQueryDto,
   workflowDetailsDto
 } = require('./dtos');
+
 const { getStyle } = require('../dataNormalization');
 
 const router = express.Router();
@@ -83,6 +84,10 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
     return res.sendResponse({ success: workflow }, 201);
   } catch (error) {
     console.error(error);
+
+    if (error.code === 'P2002') {
+      return res.sendResponse('Workflow with the styleId already exists', 400);
+    }
 
     return res.sendResponse(
       error.message || 'An error occurred while creating the workflow.',
@@ -329,23 +334,42 @@ router.get('/:id', async (req, res) => {
 
 // Endpoint to retrieve a specific workflow's history
 router.get('/:workflowId/history', async (req, res) => {
-  try {
-    const { workflowId } = req.params;
+  const { workflowId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
 
-    const auditLogs = await mongoPrisma.workbenchAudit.findMany({
-      select: {
-        id: true,
-        createdBy: true,
-        createTs: true,
-        auditType: true
-      },
-      where: {
-        workflowId
-      },
-      orderBy: {
-        createTs: 'desc'
-      }
-    });
+  const parsedLimit = parseInt(limit, 10);
+  const parsedPage = parseInt(page, 10);
+
+  if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
+    return res.sendResponse('Invalid page or limit value.', 400);
+  }
+
+  const skip = (parsedPage - 1) * parsedLimit;
+
+  try {
+    const [auditLogs, total] = await Promise.all([
+      mongoPrisma.workbenchAudit.findMany({
+        select: {
+          id: true,
+          createdBy: true,
+          createTs: true,
+          auditType: true
+        },
+        where: {
+          workflowId
+        },
+        skip,
+        take: parsedLimit,
+        orderBy: {
+          createTs: 'desc'
+        }
+      }),
+      mongoPrisma.workbenchAudit.count({
+        where: {
+          workflowId
+        }
+      })
+    ]);
 
     const filteredData = auditLogs.map((log) => {
       const filteredLog = {};
@@ -357,7 +381,20 @@ router.get('/:workflowId/history', async (req, res) => {
       return filteredLog;
     });
 
-    return res.sendResponse(filteredData);
+    const pageCount = Math.ceil(total / parsedLimit);
+    const currentPageCount = filteredData.length;
+
+    const response = {
+      data: filteredData,
+      pagination: {
+        total,
+        pageCount,
+        currentPage: parsedPage,
+        currentPageCount
+      }
+    };
+
+    return res.sendResponse(response);
   } catch (error) {
     console.error(error);
     return res.sendResponse("An error occurred while getting workflow's history.", 500);

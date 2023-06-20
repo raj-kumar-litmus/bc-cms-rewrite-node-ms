@@ -6,6 +6,112 @@
 	},
 	"item": [
 		{
+			"name": "Styles",
+			"item": [
+				{
+					"name": "attributes",
+					"request": {
+						"method": "GET",
+						"header": [],
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/HYFZ02E/attributes",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"HYFZ02E",
+								"attributes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "attributes",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"style\": \"PAT029Y\",\r\n\"genusId\": 22,\r\n\"genusName\": \"Jackets\",\r\n\"speciesId\": 1072,\r\n\"speciesName\": \"Synthetic - Technical\",\r\n\"productGroupId\": 100000115,\r\n\"productGroupName\": \"Men's Synthetic Insulation Jackets\",\r\n\"ageCategory\": \"Adult\",\r\n\"genderCategory\": \"Male\",\r\n\"lastModified\": \"2021-05-11T22:05:08.724Z\",\r\n\"tags\": [],\r\n\"harmonizingAttributeLabels\": [\r\n    {\r\n        \"id\": 99,\r\n        \"text\": \"Activity\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 2830,\r\n                \"text\": \"Hike & Camp\"\r\n            },\r\n            {\r\n                \"id\": 2831,\r\n                \"text\": \"Lifestyle\"\r\n            },\r\n            {\r\n                \"id\": 2833,\r\n                \"text\": \"Ski\"\r\n            },\r\n            {\r\n                \"id\": 2834,\r\n                \"text\": \"Snowboard\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 422,\r\n        \"text\": \"Content Treatment\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 2978,\r\n                \"text\": \"Tier 2\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 259,\r\n        \"text\": \"Features\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 1084,\r\n                \"text\": \"Water Resistant\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 156,\r\n        \"text\": \"Fit\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 2099,\r\n                \"text\": \"Regular/Relaxed\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 113,\r\n        \"text\": \"Hood\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 518,\r\n                \"text\": \"Yes\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 131,\r\n        \"text\": \"Insulation\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 2040,\r\n                \"text\": \"Synthetic Fill\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 299,\r\n        \"text\": \"Insulation Weight\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 1412,\r\n                \"text\": \"Lightweight\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 150,\r\n        \"text\": \"Length\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 1005,\r\n                \"text\": \"Short\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 120,\r\n        \"text\": \"Recommended Use\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 616,\r\n                \"text\": \"Ice Climbing\"\r\n            },\r\n            {\r\n                \"id\": 634,\r\n                \"text\": \"Mountaineering\"\r\n            },\r\n            {\r\n                \"id\": 749,\r\n                \"text\": \"Casual\"\r\n            },\r\n            {\r\n                \"id\": 1004,\r\n                \"text\": \"Hiking\"\r\n            },\r\n            {\r\n                \"id\": 2839,\r\n                \"text\": \"All-Mountain Skiing\"\r\n            },\r\n            {\r\n                \"id\": 2840,\r\n                \"text\": \"Freeride/Powder Skiing\"\r\n            },\r\n            {\r\n                \"id\": 2845,\r\n                \"text\": \"Backcountry Skiing\"\r\n            },\r\n            {\r\n                \"id\": 2897,\r\n                \"text\": \"All-Mountain Snowboarding\"\r\n            },\r\n            {\r\n                \"id\": 2899,\r\n                \"text\": \"Backcountry Snowboarding\"\r\n            },\r\n            {\r\n                \"id\": 2900,\r\n                \"text\": \"Freeride/Powder Snowboarding\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 243,\r\n        \"text\": \"Shirt Style\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 1329,\r\n                \"text\": \"Full-Zip\"\r\n            }\r\n        ]\r\n    }\r\n],\r\n\"staleTechSpecs\": [],\r\n\"techSpecs\": [\r\n    {\r\n        \"id\": 11789854,\r\n        \"labelId\": 88,\r\n        \"order\": 1,\r\n        \"label\": \"Material\",\r\n        \"value\": \"Pertex Quantum (10D nylon ripstop)\"\r\n    },\r\n    {\r\n        \"id\": 11789855,\r\n        \"labelId\": 109,\r\n        \"order\": 2,\r\n        \"label\": \"Insulation\",\r\n        \"value\": \"65g PlumaFill (100% polyester)\"\r\n    },\r\n    {\r\n        \"id\": 11789856,\r\n        \"labelId\": 272,\r\n        \"order\": 3,\r\n        \"label\": \"Fit\",\r\n        \"value\": \"regular\"\r\n    },\r\n    {\r\n        \"id\": 11789857,\r\n        \"labelId\": 106,\r\n        \"order\": 4,\r\n        \"label\": \"Length\",\r\n        \"value\": \"hip\"\r\n    },\r\n    {\r\n        \"id\": 11789858,\r\n        \"labelId\": 599,\r\n        \"order\": 5,\r\n        \"label\": \"Center Back Length\",\r\n        \"value\": \"[x-large] 30.5in\"\r\n    },\r\n    {\r\n        \"id\": 11789859,\r\n        \"labelId\": 517,\r\n        \"order\": 6,\r\n        \"label\": \"Hood\",\r\n        \"value\": \"yes\"\r\n    },\r\n    {\r\n        \"id\": 11789860,\r\n        \"labelId\": 28,\r\n        \"order\": 7,\r\n        \"label\": \"Pockets\",\r\n        \"value\": \"2 handwarmer zip\"\r\n    },\r\n    {\r\n        \"id\": 11789861,\r\n        \"labelId\": 113,\r\n        \"order\": 12,\r\n        \"label\": \"Claimed Weight\",\r\n        \"value\": \"9.3oz\"\r\n    },\r\n    {\r\n        \"id\": 11789862,\r\n        \"labelId\": 283,\r\n        \"order\": 13,\r\n        \"label\": \"Recommended Use\",\r\n        \"value\": \"all-mountain skiing, all-mountain snowboarding, casual, hiking\"\r\n    },\r\n    {\r\n        \"id\": 11789863,\r\n        \"labelId\": 336,\r\n        \"order\": 14,\r\n        \"label\": \"Manufacturer Warranty\",\r\n        \"value\": \"lifetime\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/PAT029Y/attributes",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"PAT029Y",
+								"attributes"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "copy",
+					"protocolProfileBehavior": {
+						"disableBodyPruning": true
+					},
+					"request": {
+						"method": "GET",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": ""
+						},
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/PAT029Y/copy",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"PAT029Y",
+								"copy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "copy",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n        \"_id\": \"5a32baae39f785000dce62a9\",\r\n        \"created\": \"2017-12-14T17:53:50.868Z\",\r\n        \"lastModified\": \"2022-10-01T04:31:37.105Z\",\r\n        \"style\": \"PAT029Y\",\r\n        \"title\": \"Micro Puff Hooded Insulated Jacket - Men's\",\r\n        \"listDescription\": \"\",\r\n        \"detailDescription\": \"<p>Before anything else, we slide the Patagonia Micro Puff Hooded Insulated Jacket over our baselayer at the snowshoeing trailhead. So when the storm clouds roll in and snow starts to dump, we can just zip up a waterproof shell over it and comfortably watch the world turn snowy white. <br></p>\",\r\n        \"bottomLine\": \"Why We Like The Micro Puff Hooded Insulated Jacket\",\r\n        \"sizingChartId\": 11,\r\n        \"writer\": \"bbaisley\",\r\n        \"editor\": \"bbaisley\",\r\n        \"status\": \"Published\",\r\n        \"competitiveCyclistDescription\": \"\",\r\n        \"competitiveCyclistBottomLine\": \"\",\r\n        \"productGroupId\": 100000115,\r\n        \"brandId\": 54,\r\n        \"__v\": 20,\r\n        \"keywords\": [\r\n            \"mountaineering outerwear\",\r\n            \"           technical jackets\",\r\n            \"           insulated jackets\",\r\n            \"           alpine jackets\",\r\n            \"           patagonia micro puff jacket\"\r\n        ],\r\n        \"bulletPoints\": [\r\n            \"Warm, windproof jacket for chilly climbing or backcountry days\",\r\n            \"Water-repellent Pertex Quantum sheds light precipitation\",\r\n            \"PlumaFill insulation mimics down for lightweight warmth\",\r\n            \"Regular fit offers room for baselayers\",\r\n            \"Elasticized cuffs and hem seal in warmth\",\r\n            \"Multiple pockets stash snacks, maps, and your phone\"\r\n        ],\r\n        \"skuCopy\": []\r\n    \r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}dataNormalization/styles/PAT029Y/copy",
+							"host": [
+								"{{url}}dataNormalization"
+							],
+							"path": [
+								"styles",
+								"PAT029Y",
+								"copy"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
 			"name": "Workflows",
 			"item": [
 				{
@@ -15,7 +121,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"styleId\": \"WLR00C4\"\r\n}",
+							"raw": "{\r\n    \"styleId\": \"ORA000J\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -44,7 +150,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"CK0090\",\r\n            \"brand\": \"calvin klein\",\r\n            \"title\": \"Calvin Klein Men's Boxer Briefs\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"styles\": [\r\n        {\r\n            \"styleId\": \"ZPU803\",\r\n            \"brand\": \"Shimano\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"NMM593\",\r\n            \"brand\": \"Patagonia\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"GYP300\",\r\n            \"brand\": \"SmartWool\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HBQ884\",\r\n            \"brand\": \"YETI\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"CHN129\",\r\n            \"brand\": \"Black Diamond\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"JDP256\",\r\n            \"brand\": \"Outdoor Research\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"LTM518\",\r\n            \"brand\": \"Outdoor Research\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"JVX315\",\r\n            \"brand\": \"Shimano\",\r\n            \"title\": \"Books Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"WKP976\",\r\n            \"brand\": \"The North Face\",\r\n            \"title\": \"Hiking Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"PPF244\",\r\n            \"brand\": \"Garmin\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"XJP554\",\r\n            \"brand\": \"Black Diamond\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"IVZ009\",\r\n            \"brand\": \"Garmin\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"MQN739\",\r\n            \"brand\": \"Noronna\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"VMP758\",\r\n            \"brand\": \"Noronna\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"PXM124\",\r\n            \"brand\": \"POC\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"XLY619\",\r\n            \"brand\": \"Black Diamond\",\r\n            \"title\": \"Hiking Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"GAP279\",\r\n            \"brand\": \"SRAM\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"DAH968\",\r\n            \"brand\": \"HOKA\",\r\n            \"title\": \"Books Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"DQH259\",\r\n            \"brand\": \"Mountain Hardware\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"YPK211\",\r\n            \"brand\": \"HOKA\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"ZBD080\",\r\n            \"brand\": \"Noronna\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"UCU904\",\r\n            \"brand\": \"Shimano\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HXQ059\",\r\n            \"brand\": \"SmartWool\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"IYR902\",\r\n            \"brand\": \"POC\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"JTQ682\",\r\n            \"brand\": \"SmartWool\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"GRX740\",\r\n            \"brand\": \"Garmin\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"SYT195\",\r\n            \"brand\": \"SmartWool\",\r\n            \"title\": \"Hiking Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"TKO630\",\r\n            \"brand\": \"Garmin\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"SQZ958\",\r\n            \"brand\": \"Shimano\",\r\n            \"title\": \"Books Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"NNX436\",\r\n            \"brand\": \"HOKA\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"MGA325\",\r\n            \"brand\": \"Burton\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HII320\",\r\n            \"brand\": \"Shimano\",\r\n            \"title\": \"Boys Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"DTU773\",\r\n            \"brand\": \"POC\",\r\n            \"title\": \"Camping Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HTZ514\",\r\n            \"brand\": \"POC\",\r\n            \"title\": \"Hiking Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"IEG576\",\r\n            \"brand\": \"Salomon\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"GKP993\",\r\n            \"brand\": \"Patagonia\",\r\n            \"title\": \"Camping Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"PNL846\",\r\n            \"brand\": \"Garmin\",\r\n            \"title\": \"Hiking Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HYB910\",\r\n            \"brand\": \"The North Face\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"BXB353\",\r\n            \"brand\": \"Salomon\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"CKE810\",\r\n            \"brand\": \"Salomon\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"WFV839\",\r\n            \"brand\": \"Black Diamond\",\r\n            \"title\": \"Camping Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"ATY859\",\r\n            \"brand\": \"ON\",\r\n            \"title\": \"Camping Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HWE194\",\r\n            \"brand\": \"Salomon\",\r\n            \"title\": \"Camping Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"LPC946\",\r\n            \"brand\": \"Burton\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"SPG859\",\r\n            \"brand\": \"POC\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"XRC766\",\r\n            \"brand\": \"SmartWool\",\r\n            \"title\": \"Toddlers Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"XZR831\",\r\n            \"brand\": \"Burton\",\r\n            \"title\": \"Women Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"KRQ848\",\r\n            \"brand\": \"Patagonia\",\r\n            \"title\": \"Mens Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"XFC945\",\r\n            \"brand\": \"Salomon\",\r\n            \"title\": \"Kids Title\"\r\n        },\r\n        {\r\n            \"styleId\": \"HBH756\",\r\n            \"brand\": \"Outdoor Research\",\r\n            \"title\": \"Camping Title\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -93,7 +199,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        \"id\": \"{{workflowId}}\"\r\n        // \"id\": [\"64817792f6cd8d0bd7c0cce3\",\"6481782bf6cd8d0bd7c0cd40\"]\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"nike\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"JCK001\",\"JCK002\",\"JCK03\"]\r\n        // \"status\": \"WRITING_IN_PROGRESS\"\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        // \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        // \"editor\": \"editor1@backcountry.com\"\r\n        \"writer\": \"pc.writer@backcountry.com\"\r\n    }\r\n}\r\n",
+							"raw": "{\r\n    \"filters\": {\r\n        \"id\": \"{{workflowId}}\"\r\n        // \"id\": [\"64817792f6cd8d0bd7c0cce3\",\"6481782bf6cd8d0bd7c0cd40\"]\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"nike\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"FWT622\"]\r\n        // \"status\": \"WRITING_IN_PROGRESS\"\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        // \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        \"editor\": \"editor1@backcountry.com\"\r\n        // \"writer\": \"pc.writer@backcountry.com\"\r\n    }\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -125,7 +231,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"competitiveCyclistDescription\": \"desc 123 1\",\r\n    \"competitiveCyclistTopline\": \"top line 33\",\r\n    \"detailedDescription\": \"Detailed desc val1\",\r\n    \"genus\": \"Climbing accessories\",\r\n    \"listDescription\": \"My list of desc\",\r\n    \"productTitle\": \"My product title123\",\r\n    \"sizingChart\": \"    my sizing chart\",\r\n    \"species\": \"Belay Devices\",\r\n    \"topLine\": \"The top line\",\r\n    \"versionReason\": \"Editing\",\r\n    \"techSpecs\": {\r\n        \"fit\": \"regular\",\r\n        \"Brim\": \"abc\"\r\n    },\r\n    \"harmonizingData\":{\r\n        \"test\": 123\r\n    }\r\n    // \"isPublished\": true\r\n}",
+							"raw": "{\r\n    // \"isQuickFix\": true,\r\n    // \"isPublished\": true,\r\n    \"version\": 20,\r\n    \"attributeLastModified\": \"2021-05-11T22:05:08.724Z\",\r\n    \"copyLastModified\": \"2022-10-01T04:31:37.105Z\",\r\n    \"bulletPoints\": [\r\n        // \"Warm, windproof jacket for chilly climbing or backcountry days\",\r\n        // \"Water-repellent Pertex Quantum sheds light precipitation\",\r\n        // \"PlumaFill insulation mimics down for lightweight warmth\",\r\n        // \"Regular fit offers room for baselayers\",\r\n        \"Elasticized cuffs and hem seal in warmth\",\r\n        \"Multiple pockets stash snacks, maps, and your phone\"\r\n    ],\r\n    \"detailedDescription\": \"<p>Before anything else, we slide the Patagonia Micro Puff Hooded Insulated Jacket over our baselayer at the snowshoeing trailhead. So when the storm clouds roll in and snow starts to dump, we can just zip up a waterproof shell over it and comfortably watch the world turn snowy white. --- Nikhil updates <br></p>\",\r\n    \"genus\": {\r\n        \"id\": 22,\r\n        \"name\": \"Jackets\"\r\n    },\r\n    \"species\": {\r\n        \"id\": 1072,\r\n        \"name\": \"Synthetic - Technical\"\r\n    },\r\n    \"sizingChart\": {\r\n        \"id\": 11\r\n    },\r\n    \"harmonizingAttributeLabels\": [\r\n        {\r\n            \"id\": 99,\r\n            \"text\": \"Activity\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 2830,\r\n                    \"text\": \"Hike & Camp\"\r\n                },\r\n                {\r\n                    \"id\": 2831,\r\n                    \"text\": \"Lifestyle\"\r\n                },\r\n                {\r\n                    \"id\": 2833,\r\n                    \"text\": \"Ski\"\r\n                },\r\n                {\r\n                    \"id\": 2834,\r\n                    \"text\": \"Snowboard\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 422,\r\n            \"text\": \"Content Treatment\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 2978,\r\n                    \"text\": \"Tier 2\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 259,\r\n            \"text\": \"Features\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 1084,\r\n                    \"text\": \"Water Resistant\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 156,\r\n            \"text\": \"Fit\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 2099,\r\n                    \"text\": \"Regular/Relaxed\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 113,\r\n            \"text\": \"Hood\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 518,\r\n                    \"text\": \"Yes\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 131,\r\n            \"text\": \"Insulation\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 2040,\r\n                    \"text\": \"Synthetic Fill\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 299,\r\n            \"text\": \"Insulation Weight\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 1412,\r\n                    \"text\": \"Lightweight\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 150,\r\n            \"text\": \"Length\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 1005,\r\n                    \"text\": \"Short\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 120,\r\n            \"text\": \"Recommended Use\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 616,\r\n                    \"text\": \"Ice Climbing\"\r\n                },\r\n                {\r\n                    \"id\": 634,\r\n                    \"text\": \"Mountaineering\"\r\n                },\r\n                {\r\n                    \"id\": 749,\r\n                    \"text\": \"Casual\"\r\n                },\r\n                {\r\n                    \"id\": 1004,\r\n                    \"text\": \"Hiking\"\r\n                },\r\n                {\r\n                    \"id\": 2839,\r\n                    \"text\": \"All-Mountain Skiing\"\r\n                },\r\n                {\r\n                    \"id\": 2840,\r\n                    \"text\": \"Freeride/Powder Skiing\"\r\n                },\r\n                {\r\n                    \"id\": 2845,\r\n                    \"text\": \"Backcountry Skiing\"\r\n                },\r\n                {\r\n                    \"id\": 2897,\r\n                    \"text\": \"All-Mountain Snowboarding\"\r\n                },\r\n                {\r\n                    \"id\": 2899,\r\n                    \"text\": \"Backcountry Snowboarding\"\r\n                },\r\n                {\r\n                    \"id\": 2900,\r\n                    \"text\": \"Freeride/Powder Snowboarding\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 243,\r\n            \"text\": \"Shirt Style\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 1329,\r\n                    \"text\": \"Full-Zip\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"bottomLine\": \"Why We Like The 32oz Wide Mouth Flex Straw Water Bottle\",\r\n    \"competitiveCyclistBottomLine\": \"\",\r\n    \"listDescription\": \"nikhil's update\",\r\n    \"techSpecs\": [\r\n        {\r\n            \"labelId\": 88,\r\n            \"order\": 1,\r\n            \"label\": \"Material\",\r\n            \"value\": \"Pertex Quantum (10D nylon ripstop)\"\r\n        },\r\n        {\r\n            \"labelId\": 109,\r\n            \"order\": 2,\r\n            \"label\": \"Insulation\",\r\n            \"value\": \"65g PlumaFill (100% polyester)\"\r\n        },\r\n        {\r\n            \"labelId\": 272,\r\n            \"order\": 3,\r\n            \"label\": \"Fit\",\r\n            \"value\": \"regular\"\r\n        },\r\n        {\r\n            \"labelId\": 106,\r\n            \"order\": 4,\r\n            \"label\": \"Length\",\r\n            \"value\": \"hip\"\r\n        },\r\n        {\r\n            \"labelId\": 599,\r\n            \"order\": 5,\r\n            \"label\": \"Center Back Length\",\r\n            \"value\": \"[x-large] 30.5in\"\r\n        },\r\n        {\r\n            \"labelId\": 517,\r\n            \"order\": 6,\r\n            \"label\": \"Hood\",\r\n            \"value\": \"yes\"\r\n        },\r\n        {\r\n            \"labelId\": 28,\r\n            \"order\": 7,\r\n            \"label\": \"Pockets\",\r\n            \"value\": \"2 handwarmer zip\"\r\n        },\r\n        {\r\n            \"labelId\": 113,\r\n            \"order\": 12,\r\n            \"label\": \"Claimed Weight\",\r\n            \"value\": \"9.3oz\"\r\n        },\r\n        {\r\n            \"labelId\": 283,\r\n            \"order\": 13,\r\n            \"label\": \"Recommended Use\",\r\n            \"value\": \"all-mountain skiing, all-mountain snowboarding, casual, hiking\"\r\n        },\r\n        {\r\n            \"labelId\": 336,\r\n            \"order\": 14,\r\n            \"label\": \"Manufacturer Warranty\",\r\n            \"value\": \"lifetime\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -151,37 +257,47 @@
 					"response": []
 				},
 				{
-					"name": "workflow/workflowId/history",
+					"name": "history",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/{{workflowId}}/history",
+							"raw": "{{url}}workflows/{{workflowId}}/history?page=1&limit=2",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"{{workflowId}}",
 								"history"
+							],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "limit",
+									"value": "2"
+								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "workflow/workflowId/history/historyId",
+					"name": "historyId",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/{{workflowId}}/history/6488358c6326db9c97812d13",
+							"raw": "{{url}}workflows/{{workflowId}}/history/648dbd0eb3c791db77e60ecb",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"{{workflowId}}",
 								"history",
-								"6488358c6326db9c97812d13"
+								"648dbd0eb3c791db77e60ecb"
 							]
 						}
 					},
@@ -194,7 +310,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        \"globalSearch\": \"(\"\r\n        // \"brand\": \"Rolex\"\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\",\r\n        // \"styleId\": [\"JCK001\"]\r\n        // \"styleId\": \"$\"\r\n        // \"status\": [\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],  \r\n    },\r\n    \"orderBy\": [\r\n        {\r\n            \"lastUpdateTs\": \"desc\"\r\n        },\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"filters\": {\r\n        // \"globalSearch\": \"WLR00C4\"\r\n        // \"brand\": \"Rolex\"\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\",\r\n        \"styleId\": [\r\n            \"ORA000J\"\r\n        ]\r\n        // \"styleId\": \"$\"\r\n        // \"status\": [\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],  \r\n    },\r\n    \"orderBy\": [\r\n        {\r\n            \"lastUpdateTs\": \"desc\"\r\n        },\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
