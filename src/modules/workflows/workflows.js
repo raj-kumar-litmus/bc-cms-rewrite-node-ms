@@ -654,7 +654,8 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
 
     const { isPublished, isQuickFix } = currentSnapshot;
 
-    let changeLog = isQuickFix === true ? {} : workflowEngine(workflow, { isPublished });
+    let changeLog =
+      isQuickFix === true ? { isPublished: true } : workflowEngine(workflow, { isPublished });
 
     if (Object.keys(currentSnapshot).length === 0 && Object.keys(changeLog).length === 0) {
       res.sendResponse('No changes detected. Nothing to save.', 400);
