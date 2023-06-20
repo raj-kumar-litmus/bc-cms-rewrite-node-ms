@@ -1,10 +1,10 @@
 const express = require('express');
 const axios = require('axios');
 
-const { postgresPrisma } = require('../prisma');
+const { postgresPrisma, mongoPrisma } = require('../prisma');
 const { groupBy } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
-const { getProductsDto } = require('./dtos');
+const { getStylesDto } = require('./dtos');
 
 const { ATTRIBUTE_API_DOMAIN_NAME, COPY_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME } = process.env;
 const router = express.Router();
@@ -201,16 +201,28 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       }));
     });
 
+    const updatedTechSpecLabels = techSpecLabels.map((e) => {
+      const {
+        order = '',
+        labelId = '',
+        value = ''
+      } = data?.techSpecs?.find(({ label }) => label === e?.name) || {};
+      return {
+        ...e,
+        label: e.name,
+        order,
+        labelId,
+        value
+      };
+    });
+
+    const filteredTechSpecs = data.techSpecs.filter(
+      ({ label }) => !techSpecLabels?.map(({ name }) => name)?.includes(label)
+    );
+
     return res.sendResponse({
       hattributes,
-      techSpecs: [
-        ...data.techSpecs.filter((e) => !techSpecLabels?.map((e) => e.name)?.includes(e.label)),
-        ...techSpecLabels?.map((e) => ({
-          ...e,
-          label: e.name,
-          value: data?.techSpecs?.find((l) => l?.label === e?.name)?.value || ''
-        }))
-      ]
+      techSpecs: [...filteredTechSpecs, ...updatedTechSpecLabels]
     });
   } catch (error) {
     console.error(error.message);
@@ -273,16 +285,28 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       }));
     });
 
+    const updatedTechSpecLabels = techSpecLabels.map((e) => {
+      const {
+        order = '',
+        labelId = '',
+        value = ''
+      } = data?.techSpecs?.find(({ label }) => label === e?.name) || {};
+      return {
+        ...e,
+        label: e.name,
+        order,
+        labelId,
+        value
+      };
+    });
+
+    const filteredTechSpecs = data.techSpecs.filter(
+      ({ label }) => !techSpecLabels?.map(({ name }) => name)?.includes(label)
+    );
+
     return res.sendResponse({
       hattributes,
-      techSpecs: [
-        ...data.techSpecs.filter((e) => !techSpecLabels?.map((e) => e.name)?.includes(e.label)),
-        ...techSpecLabels?.map((e) => ({
-          ...e,
-          label: e.name,
-          value: data?.techSpecs?.find((l) => l?.label === e?.name)?.value || ''
-        }))
-      ]
+      techSpecs: [...filteredTechSpecs, ...updatedTechSpecLabels]
     });
   } catch (error) {
     console.error(error.message);
@@ -301,30 +325,38 @@ router.get('/merchProduct/:styleId', async (req, res) => {
   }
 });
 
-router.post('/productSearch', validateMiddleware({ body: getProductsDto }), async (req, res) => {
+router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (req, res) => {
   try {
     const {
       body: { styles }
     } = req;
     const success = [];
     const failures = [];
+    const workflowExists = [];
 
     await Promise.all(
       styles.map(async (styleId) => {
-        try {
-          const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`);
-          const { style, title, brandName, lastModified, lastModifiedUsername } = data;
-          success.push({ style, title, brandName, lastModified, lastModifiedUsername });
-        } catch (err) {
-          failures.push(styleId);
+        const count = await mongoPrisma.workflow.count({ where: { styleId } });
+        if (!count) {
+          try {
+            const { data } = await axios.get(
+              `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`
+            );
+            const { style, title, brandName, lastModified, lastModifiedUsername } = data;
+            success.push({ style, title, brandName, lastModified, lastModifiedUsername });
+          } catch (err) {
+            failures.push(styleId);
+          }
+        } else {
+          workflowExists.push(styleId);
         }
       })
     );
 
-    return res.sendResponse({ success, failures });
+    return res.sendResponse({ success, failures, workflowExists });
   } catch (error) {
     console.error(error.message);
-    return res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Error occured while searching for styles', 500);
   }
 });
 
