@@ -305,7 +305,7 @@ router.get('/merchProduct/:styleId', async (req, res) => {
   }
 });
 
-router.post('/productSearch', validateMiddleware({ body: getProductsDto }), async (req, res) => {
+router.post('/styleSearch', validateMiddleware({ body: getProductsDto }), async (req, res) => {
   try {
     const {
       body: { styles }
@@ -328,7 +328,7 @@ router.post('/productSearch', validateMiddleware({ body: getProductsDto }), asyn
     return res.sendResponse({ success, failures });
   } catch (error) {
     console.error(error.message);
-    return res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Error occured while searching for styles', 500);
   }
 });
 

@@ -9,7 +9,11 @@ const listenForMessages = (subscriptionNameOrId) => {
     console.log('message received from pubsub');
     console.log(message);
     const { style: styleId } = JSON.parse(message.data.toString()) || {};
-    await createWorkflow({ styleId });
+    try {
+      await createWorkflow({ styleId });
+    } catch (error) {
+      console.log(error);
+    }
     message.ack();
   };
   subscription.on('message', messageHandler);

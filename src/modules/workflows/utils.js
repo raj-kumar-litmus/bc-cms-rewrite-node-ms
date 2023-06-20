@@ -180,33 +180,28 @@ const deepCompare = (obj1, obj2, ignoreFields = []) => {
 };
 
 const createWorkflow = async ({ styleId, email = 'pc.admin@backcountry.com' }) => {
-  try {
-    const { brandName, title } = await getStyle(styleId);
+  const { brandName, title } = await getStyle(styleId);
 
-    const transformedData = transformObject(
-      {
-        styleId,
-        createProcess: CreateProcess.WRITER_INTERFACE,
-        admin: email,
-        lastUpdatedBy: email
-      },
-      {
-        styleId: 'upperCase',
-        admin: 'lowerCase',
-        lastUpdatedBy: 'lowerCase'
-      }
-    );
+  const transformedData = transformObject(
+    {
+      styleId,
+      createProcess: CreateProcess.WRITER_INTERFACE,
+      admin: email,
+      lastUpdatedBy: email
+    },
+    {
+      styleId: 'upperCase',
+      admin: 'lowerCase',
+      lastUpdatedBy: 'lowerCase'
+    }
+  );
 
-    const workflow = await mongoPrisma.workflow.create({
-      data: { ...transformedData, brand: brandName, title }
-    });
-    return {
-      workflow
-    };
-  } catch (error) {
-    console.log(error);
-    return null;
-  }
+  const workflow = await mongoPrisma.workflow.create({
+    data: { ...transformedData, brand: brandName, title }
+  });
+  return {
+    workflow
+  };
 };
 
 module.exports = { whereBuilder, deepCompare, createWorkflow };
