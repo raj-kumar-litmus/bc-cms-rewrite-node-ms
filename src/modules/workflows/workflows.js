@@ -84,6 +84,10 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
   } catch (error) {
     console.error(error);
 
+    if (error.code === 'P2002') {
+      return res.sendResponse('Workflow with the styleId already exists', 400);
+    }
+
     return res.sendResponse(
       error.message || 'An error occurred while creating the workflow.',
       error.status || 500
