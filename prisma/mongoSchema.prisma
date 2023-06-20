@@ -63,6 +63,8 @@ model workbenchAudit {
   editor                        String?
   writer                        String?
   version                       Int?
+  competitiveCyclistBottomLine  String?
+  bottomLine                    String?
 
   genus                      Json?
   species                    Json?
