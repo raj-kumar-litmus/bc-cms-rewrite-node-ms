@@ -4,7 +4,7 @@ const { transformObject } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
-const { whereBuilder, createWorkflow, deepCompare } = require('./utils');
+const { whereBuilder, deepCompare } = require('./utils');
 const {
   CreateProcess,
   Status,
@@ -27,7 +27,6 @@ const {
   getStyleCopy,
   updateStyleCopy
 } = require('../dataNormalization');
-const { version } = require('yargs');
 
 const router = express.Router();
 
@@ -90,6 +89,10 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
     return res.sendResponse({ success: workflow }, 201);
   } catch (error) {
     console.error(error);
+
+    if (error.code === 'P2002') {
+      return res.sendResponse('Workflow with the styleId already exists', 400);
+    }
 
     return res.sendResponse(
       error.message || 'An error occurred while creating the workflow.',
@@ -326,33 +329,52 @@ router.get('/:id', async (req, res) => {
       }
     });
 
-    res.sendResponse({ workflow, workflowDeatils });
+    return res.sendResponse({ workflow, workflowDeatils });
   } catch (error) {
     console.error(error);
 
-    res.sendResponse(error.message, error.status || 500);
+    return res.sendResponse(error.message, error.status || 500);
   }
 });
 
 // Endpoint to retrieve a specific workflow's history
 router.get('/:workflowId/history', async (req, res) => {
-  try {
-    const { workflowId } = req.params;
+  const { workflowId } = req.params;
+  const { page = 1, limit = 10 } = req.query;
 
-    const auditLogs = await mongoPrisma.workbenchAudit.findMany({
-      select: {
-        id: true,
-        createdBy: true,
-        createTs: true,
-        auditType: true
-      },
-      where: {
-        workflowId
-      },
-      orderBy: {
-        createTs: 'desc'
-      }
-    });
+  const parsedLimit = parseInt(limit, 10);
+  const parsedPage = parseInt(page, 10);
+
+  if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
+    return res.sendResponse('Invalid page or limit value.', 400);
+  }
+
+  const skip = (parsedPage - 1) * parsedLimit;
+
+  try {
+    const [auditLogs, total] = await Promise.all([
+      mongoPrisma.workbenchAudit.findMany({
+        select: {
+          id: true,
+          createdBy: true,
+          createTs: true,
+          auditType: true
+        },
+        where: {
+          workflowId
+        },
+        skip,
+        take: parsedLimit,
+        orderBy: {
+          createTs: 'desc'
+        }
+      }),
+      mongoPrisma.workbenchAudit.count({
+        where: {
+          workflowId
+        }
+      })
+    ]);
 
     const filteredData = auditLogs.map((log) => {
       const filteredLog = {};
@@ -364,7 +386,20 @@ router.get('/:workflowId/history', async (req, res) => {
       return filteredLog;
     });
 
-    return res.sendResponse(filteredData);
+    const pageCount = Math.ceil(total / parsedLimit);
+    const currentPageCount = filteredData.length;
+
+    const response = {
+      data: filteredData,
+      pagination: {
+        total,
+        pageCount,
+        currentPage: parsedPage,
+        currentPageCount
+      }
+    };
+
+    return res.sendResponse(response);
   } catch (error) {
     console.error(error);
     return res.sendResponse("An error occurred while getting workflow's history.", 500);
@@ -542,7 +577,7 @@ const convertToAttributesModel = (styleId, newProductAttributes, previousProduct
     ageCategory,
     genderCategory,
     lastModified: attributeLastModified,
-    tags: tags ? tags : null,
+    tags: tags || null,
     harmonizingAttributeLabels:
       harmonizingAttributeLabels && harmonizingAttributeLabels.length
         ? harmonizingAttributeLabels
@@ -563,19 +598,12 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
     bulletPoints,
     copyLastModified,
     sizingChart,
-    competitiveCyclistDescription
+    competitiveCyclistDescription,
+    competitiveCyclistBottomLine,
+    bottomLine
   } = currentCopy;
 
-  const {
-    competitiveCyclistBottomLine,
-    brandId,
-    bottomLine,
-    productGroupId,
-    writer,
-    productTitle,
-    editor,
-    keywords
-  } = previousCopy;
+  const { brandId, productGroupId, writer, productTitle, editor, keywords } = previousCopy;
 
   const copyModel = {
     __v: version,
@@ -658,8 +686,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
       isQuickFix === true ? { isPublished: true } : workflowEngine(workflow, { isPublished });
 
     if (Object.keys(currentSnapshot).length === 0 && Object.keys(changeLog).length === 0) {
-      res.sendResponse('No changes detected. Nothing to save.', 400);
-      return;
+      return res.sendResponse('No changes detected. Nothing to save.', 400);
     }
 
     const { attributesApi, copyApi } = await updateBC(styleId, currentSnapshot);
@@ -730,8 +757,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
     }
 
     if (Object.keys(changeLog).length === 0) {
-      res.sendResponse('No changes detected. Nothing to save.', 400);
-      return;
+      return res.sendResponse('No changes detected. Nothing to save.', 400);
     }
 
     const {
@@ -751,7 +777,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
       }
     });
 
-    res.sendResponse({
+    return res.sendResponse({
       workflowId,
       createdBy: email,
       ...currentSnapshot,
@@ -760,7 +786,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
   } catch (error) {
     console.error(error);
 
-    res.sendResponse(
+    return res.sendResponse(
       error.message || 'An error occurred while saving workflow for later',
       error.status || 500
     );

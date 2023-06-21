@@ -63,13 +63,15 @@ model workbenchAudit {
   editor                        String?
   writer                        String?
   version                       Int?
+  competitiveCyclistBottomLine  String?
+  bottomLine                    String?
 
-  genus                 Json?
-  species               Json?
-  harmonizingAttributes Json?
-  techSpecs             Json?
-  sizingChart           Json?
-  changeLog             Json?
+  genus                      Json?
+  species                    Json?
+  harmonizingAttributeLabels Json?
+  techSpecs                  Json?
+  sizingChart                Json?
+  changeLog                  Json?
 }
 
 /// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.
@@ -86,7 +88,7 @@ model workflow {
   lastUpdatedBy       String?
   lastWriteCompleteTs DateTime?        @db.Date
   status              Status           @default(WAITING_FOR_WRITER)
-  styleId             String
+  styleId             String           @unique
   title               String?
   writer              String?
   assignee            String?

@@ -18,7 +18,11 @@ const transformObject = (data, transformations) => {
 /* eslint-disable-next-line */
 const groupBy = (x, f) => x.reduce((a, b, i) => ((a[f(b, i, x)] ||= []).push(b), a), {});
 
+const deDuplicate = (arr, field) =>
+  arr.filter((obj, index) => arr.findIndex((item) => item[field] === obj[field]) === index);
+
 module.exports = {
   transformObject,
+  deDuplicate,
   groupBy
 };
