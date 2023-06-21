@@ -2,7 +2,8 @@ const Joi = require('joi');
 
 const GroupsEnum = {
   editors: 'editors',
-  writers: 'writers'
+  writers: 'writers',
+  all: 'all'
 };
 
 const groupsDto = Joi.object({

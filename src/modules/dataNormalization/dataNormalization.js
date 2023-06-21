@@ -2,8 +2,10 @@ const express = require('express');
 const axios = require('axios');
 const https = require('https');
 
-const { postgresPrisma } = require('../prisma');
+const { postgresPrisma, mongoPrisma } = require('../prisma');
 const { groupBy } = require('../../utils');
+const { validateMiddleware } = require('../../middlewares');
+const { getStylesDto } = require('./dtos');
 
 const { ATTRIBUTE_API_DOMAIN_NAME, COPY_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME } = process.env;
 const router = express.Router();
@@ -101,7 +103,7 @@ const updateStyleCopy = async (payload) => {
   }
 };
 
-//TODO: Move this to styles route
+// TODO: Move this to styles route
 router.get('/styles/:styleId/attributes', async (req, res) => {
   try {
     const { styleId } = req.params;
@@ -109,11 +111,11 @@ router.get('/styles/:styleId/attributes', async (req, res) => {
     return res.sendResponse(response);
   } catch (error) {
     console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
-//TODO: Move this to styles route
+// TODO: Move this to styles route
 router.put('/styles/:styleId/attributes', async (req, res) => {
   try {
     const { styleId } = req.params;
@@ -123,16 +125,15 @@ router.put('/styles/:styleId/attributes', async (req, res) => {
 
     if (success) {
       return res.sendResponse(data);
-    } else {
-      return res.sendResponse(error, error.status || 500);
     }
+    return res.sendResponse(error, error.status || 500);
   } catch (error) {
     console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
-//TODO: Move this to styles route
+// TODO: Move this to styles route
 router.get('/styles/:styleId/copy', async (req, res) => {
   try {
     const { styleId } = req.params;
@@ -140,11 +141,11 @@ router.get('/styles/:styleId/copy', async (req, res) => {
     return res.sendResponse(response);
   } catch (error) {
     console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
-//TODO: Move this to styles route
+// TODO: Move this to styles route
 router.put('/styles/:styleId/copy', async (req, res) => {
   try {
     const { styleId } = req.params;
@@ -154,12 +155,11 @@ router.put('/styles/:styleId/copy', async (req, res) => {
 
     if (success) {
       return res.sendResponse(data);
-    } else {
-      return res.sendResponse(error, error.status || 500);
     }
+    return res.sendResponse(error, error.status || 500);
   } catch (error) {
     console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
@@ -174,10 +174,10 @@ router.get('/styles/:styleId', async (req, res) => {
       }
     } = await axios.get(url, getConfig(req));
 
-    res.sendResponse({ styleId, brand: brand.name, title: productTitle });
+    return res.sendResponse({ styleId, brand: brand.name, title: productTitle });
   } catch (error) {
     console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
@@ -192,10 +192,10 @@ router.get('/styles/:styleId/techSpecs', async (req, res) => {
       }
     } = await axios.get(url, getConfig(req));
 
-    res.sendResponse(techSpecs);
+    return res.sendResponse(techSpecs);
   } catch (error) {
     console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
@@ -315,7 +315,7 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       .flat(Infinity);
 
     const techSpecLabels = await postgresPrisma.$queryRaw`
-      select da.id, da.name from dn_attributeorder dao 
+      SELECT da.id, da.name as label, MAX(dao.id) as labelId, MIN(dao.position)as order from dn_attributeorder dao 
         inner join DN_Genus_AttributeL_AttributeType gal on dao.galatid = gal.id
         inner join dn_attributel da on da.id=gal.attributelid
         where gal.genusid =${parseInt(genusId)}
@@ -329,16 +329,20 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       }));
     });
 
+    const updatedTechSpecLabels = techSpecLabels
+      .filter((e) => {
+        return !data.techSpecs.map(({ label }) => label)?.includes(e.label);
+      })
+      .map(({ id, label, labelid, order }) => ({
+        id,
+        label,
+        labelId: labelid,
+        order
+      }));
+
     return res.sendResponse({
       hattributes,
-      techSpecs: [
-        ...data.techSpecs.filter((e) => !techSpecLabels?.map((e) => e.name)?.includes(e.label)),
-        ...techSpecLabels?.map((e) => ({
-          ...e,
-          label: e.name,
-          value: data?.techSpecs?.find((l) => l?.label === e?.name)?.value || ''
-        }))
-      ]
+      techSpecs: [...data.techSpecs, ...updatedTechSpecLabels]
     });
   } catch (error) {
     console.error(error.message);
@@ -380,11 +384,11 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     );
 
     const techSpecLabels = await postgresPrisma.$queryRaw`
-      SELECT da.id, da.name from dn_attributeorder dao 
+      SELECT da.id, da.name as label, MAX(dao.id) as labelId, MIN(dao.position)as order from dn_attributeorder dao
         inner join DN_Genus_AttributeL_AttributeType gal on dao.galatid = gal.id
         inner join dn_attributel da on da.id=gal.attributelid
         where gal.genusid =${parseInt(genusId)} and dao.dattributevid =${parseInt(speciesId)}
-        order by dao.position`;
+        GROUP BY da.id`;
 
     const { data } = await axios.get(
       `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
@@ -401,16 +405,20 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       }));
     });
 
+    const updatedTechSpecLabels = techSpecLabels
+      .filter((e) => {
+        return !data.techSpecs.map(({ label }) => label)?.includes(e.label);
+      })
+      .map(({ id, label, labelid, order }) => ({
+        id,
+        label,
+        labelId: labelid,
+        order
+      }));
+
     return res.sendResponse({
       hattributes,
-      techSpecs: [
-        ...data.techSpecs.filter((e) => !techSpecLabels?.map((e) => e.name)?.includes(e.label)),
-        ...techSpecLabels?.map((e) => ({
-          ...e,
-          label: e.name,
-          value: data?.techSpecs?.find((l) => l?.label === e?.name)?.value || ''
-        }))
-      ]
+      techSpecs: [...data.techSpecs, ...updatedTechSpecLabels]
     });
   } catch (error) {
     console.error(error.message);
@@ -429,6 +437,41 @@ router.get('/merchProduct/:styleId', async (req, res) => {
   }
 });
 
+router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (req, res) => {
+  try {
+    const {
+      body: { styles }
+    } = req;
+    const success = [];
+    const failures = [];
+    const workflowExists = [];
+
+    await Promise.all(
+      styles.map(async (styleId) => {
+        const count = await mongoPrisma.workflow.count({ where: { styleId } });
+        if (!count) {
+          try {
+            const { data } = await axios.get(
+              `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`
+            );
+            const { style, title, brandName, lastModified, lastModifiedUsername } = data;
+            success.push({ style, title, brandName, lastModified, lastModifiedUsername });
+          } catch (err) {
+            failures.push(styleId);
+          }
+        } else {
+          workflowExists.push(styleId);
+        }
+      })
+    );
+
+    return res.sendResponse({ success, failures, workflowExists });
+  } catch (error) {
+    console.error(error.message);
+    return res.sendResponse('Error occured while searching for styles', 500);
+  }
+});
+
 router.get('/productInfo/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
@@ -436,7 +479,7 @@ router.get('/productInfo/:styleId', async (req, res) => {
       axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/published-copy/${styleId}`),
       axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`),
       axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`),
-      axios.get(`http://merchdev01.bcinfra.net:8080/merchv3/size-charts?shouldSkipChart=true`)
+      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/size-charts?shouldSkipChart=true`)
     ]);
     const [copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart] = results.map(
       (result) => result.value

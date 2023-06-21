@@ -3,6 +3,8 @@ const axios = require('axios');
 const { validateMiddleware } = require('../../middlewares');
 const { groupsDto } = require('./dtos');
 const { properties } = require('../../properties');
+const { deDuplicate } = require('../../utils');
+const { fetchGroupMembers } = require('./utils');
 
 const router = express.Router();
 
@@ -12,7 +14,7 @@ const {
   DEFAULT_MS_GRAPH_SCOPE,
   MS_LOGIN_HOST_NAME,
   TENANT_ID,
-  MS_GRAPH_HOST_NAME,
+  ADMIN_GROUP_ID,
   WRITERS_GROUP_ID,
   EDITOR_GROUP_ID
 } = properties;
@@ -78,14 +80,18 @@ router.get('/:type/members', validateMiddleware({ params: groupsDto }), async (r
   }
 
   try {
-    const URL = `${MS_GRAPH_HOST_NAME}/groups/${groupId}/members`;
-    const {
-      data: { value: members }
-    } = await axios.get(URL, {
-      headers: {
-        Authorization: accessToken
-      }
-    });
+    if (type === 'all') {
+      const results = await Promise.allSettled([
+        fetchGroupMembers(ADMIN_GROUP_ID, accessToken),
+        fetchGroupMembers(WRITERS_GROUP_ID, accessToken),
+        fetchGroupMembers(EDITOR_GROUP_ID, accessToken)
+      ]);
+
+      const members = Array.isArray(results) && results.map((result) => result?.value);
+
+      return res.sendResponse(deDuplicate(members.flat(Infinity), 'mail'), 200);
+    }
+    const members = await fetchGroupMembers(groupId, accessToken);
 
     return res.sendResponse(members, 200);
   } catch (error) {

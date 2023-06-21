@@ -2,9 +2,9 @@ name: product-content-api
 
 on:
   push:
-    branches: [main]
+    branches: [main,master]
 env:
-  app: product-content-api-release
+  app: product-content-api-release-candidate
   major_version: '1.0'
   DOCKER_REPO: us-central1-docker.pkg.dev/bcg-prj-sha-ss-tools-gl-01
   DOCKER_PACKAGE_GROUP: merch-eng-docker
@@ -92,7 +92,7 @@ jobs:
           # Required mail subject:
           subject: ${{ github.job }} job of ${{ github.repository }} has ${{ job.status }}
           # Required recipients' addresses:
-          to: renuchand.ramraj@backcountry.com, arun.uppala@backcountry.com,purna.sahoo@backcountry.com
+          to: raj.kumar@backcountry.com,muhammad.hammad@backcountry.com
           from: merchcontent-engineers@backcountry.com # <user@example.com>
           # Optional whether this connection use TLS (default is true if server_port is 465)
           # secure: true
