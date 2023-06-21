@@ -187,7 +187,7 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       .flat(Infinity);
 
     const techSpecLabels = await postgresPrisma.$queryRaw`
-      select da.id, da.name from dn_attributeorder dao 
+      SELECT da.id, da.name as label, MAX(dao.id) as labelId, MIN(dao.position)as order from dn_attributeorder dao 
         inner join DN_Genus_AttributeL_AttributeType gal on dao.galatid = gal.id
         inner join dn_attributel da on da.id=gal.attributelid
         where gal.genusid =${parseInt(genusId)}
@@ -201,28 +201,20 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       }));
     });
 
-    const updatedTechSpecLabels = techSpecLabels.map((e) => {
-      const {
-        order = '',
-        labelId = '',
-        value = ''
-      } = data?.techSpecs?.find(({ label }) => label === e?.name) || {};
-      return {
-        ...e,
-        label: e.name,
-        order,
-        labelId,
-        value
-      };
-    });
-
-    const filteredTechSpecs = data.techSpecs.filter(
-      ({ label }) => !techSpecLabels?.map(({ name }) => name)?.includes(label)
-    );
+    const updatedTechSpecLabels = techSpecLabels
+      .filter((e) => {
+        return !data.techSpecs.map(({ label }) => label)?.includes(e.label);
+      })
+      .map(({ id, label, labelid, order }) => ({
+        id,
+        label,
+        labelId: labelid,
+        order
+      }));
 
     return res.sendResponse({
       hattributes,
-      techSpecs: [...filteredTechSpecs, ...updatedTechSpecLabels]
+      techSpecs: [...data.techSpecs, ...updatedTechSpecLabels]
     });
   } catch (error) {
     console.error(error.message);
@@ -264,11 +256,11 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     );
 
     const techSpecLabels = await postgresPrisma.$queryRaw`
-      SELECT da.id, da.name from dn_attributeorder dao 
+      SELECT da.id, da.name as label, MAX(dao.id) as labelId, MIN(dao.position)as order from dn_attributeorder dao
         inner join DN_Genus_AttributeL_AttributeType gal on dao.galatid = gal.id
         inner join dn_attributel da on da.id=gal.attributelid
         where gal.genusid =${parseInt(genusId)} and dao.dattributevid =${parseInt(speciesId)}
-        order by dao.position`;
+        GROUP BY da.id`;
 
     const { data } = await axios.get(
       `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
@@ -285,28 +277,20 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       }));
     });
 
-    const updatedTechSpecLabels = techSpecLabels.map((e) => {
-      const {
-        order = '',
-        labelId = '',
-        value = ''
-      } = data?.techSpecs?.find(({ label }) => label === e?.name) || {};
-      return {
-        ...e,
-        label: e.name,
-        order,
-        labelId,
-        value
-      };
-    });
-
-    const filteredTechSpecs = data.techSpecs.filter(
-      ({ label }) => !techSpecLabels?.map(({ name }) => name)?.includes(label)
-    );
+    const updatedTechSpecLabels = techSpecLabels
+      .filter((e) => {
+        return !data.techSpecs.map(({ label }) => label)?.includes(e.label);
+      })
+      .map(({ id, label, labelid, order }) => ({
+        id,
+        label,
+        labelId: labelid,
+        order
+      }));
 
     return res.sendResponse({
       hattributes,
-      techSpecs: [...filteredTechSpecs, ...updatedTechSpecLabels]
+      techSpecs: [...data.techSpecs, ...updatedTechSpecLabels]
     });
   } catch (error) {
     console.error(error.message);
