@@ -680,9 +680,10 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
 
     const { email = 'pc.editor@backcountry.com' } = req.query;
 
-    const { isPublished } = currentSnapshot;
+    const { isPublished, isQuickFix } = currentSnapshot;
 
-    let changeLog = workflowEngine(workflow, { isPublished });
+    let changeLog =
+      isQuickFix === true ? { isPublished: true } : workflowEngine(workflow, { isPublished });
 
     if (Object.keys(currentSnapshot).length === 0 && Object.keys(changeLog).length === 0) {
       return res.sendResponse('No changes detected. Nothing to save.', 400);
@@ -748,14 +749,23 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
         'copyLastModified'
       ]);
 
-      changeLog = { ...changeLog, ...diff };
+      changeLog = {
+        ...changeLog,
+        ...diff,
+        isQuickFix: isQuickFix === true ? isQuickFix : undefined
+      };
     }
 
     if (Object.keys(changeLog).length === 0) {
       return res.sendResponse('No changes detected. Nothing to save.', 400);
     }
 
-    const { copyLastModified, attributeLastModified, ...restOfCurrentSnapshot } = currentSnapshot;
+    const {
+      copyLastModified,
+      attributeLastModified,
+      isQuickFix: _,
+      ...restOfCurrentSnapshot
+    } = currentSnapshot;
 
     await mongoPrisma.workbenchAudit.create({
       data: {
