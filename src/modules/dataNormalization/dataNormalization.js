@@ -12,17 +12,6 @@ const router = express.Router();
 
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
-const getConfig = (req) => {
-  const { cookie: Cookie } = req.headers; // Retrieve the Cookie header value
-
-  return {
-    headers: {
-      Cookie
-    },
-    followRedirects: true
-  };
-};
-
 const getStyle = async (styleId) => {
   try {
     const response = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`);
@@ -157,42 +146,6 @@ router.put('/styles/:styleId/copy', async (req, res) => {
       return res.sendResponse(data);
     }
     return res.sendResponse(error, error.status || 500);
-  } catch (error) {
-    console.error(error.message);
-    return res.sendResponse('Internal Server Error', 500);
-  }
-});
-
-router.get('/styles/:styleId', async (req, res) => {
-  const { styleId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${styleId}`;
-  console.log(url);
-  try {
-    const {
-      data: {
-        item: { brand, productTitle }
-      }
-    } = await axios.get(url, getConfig(req));
-
-    return res.sendResponse({ styleId, brand: brand.name, title: productTitle });
-  } catch (error) {
-    console.error(error.message);
-    return res.sendResponse('Internal Server Error', 500);
-  }
-});
-
-router.get('/styles/:styleId/techSpecs', async (req, res) => {
-  const { styleId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${styleId}`;
-  console.log(url);
-  try {
-    const {
-      data: {
-        item: { techSpecs }
-      }
-    } = await axios.get(url, getConfig(req));
-
-    return res.sendResponse(techSpecs);
   } catch (error) {
     console.error(error.message);
     return res.sendResponse('Internal Server Error', 500);
