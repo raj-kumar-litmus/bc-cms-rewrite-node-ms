@@ -14,7 +14,7 @@ const {
   DEFAULT_MS_GRAPH_SCOPE,
   MS_LOGIN_HOST_NAME,
   TENANT_ID,
-  MS_GRAPH_HOST_NAME,
+  ADMIN_GROUP_ID,
   WRITERS_GROUP_ID,
   EDITOR_GROUP_ID
 } = properties;
@@ -82,22 +82,18 @@ router.get('/:type/members', validateMiddleware({ params: groupsDto }), async (r
   try {
     if (type === 'all') {
       const results = await Promise.allSettled([
+        fetchGroupMembers(ADMIN_GROUP_ID, accessToken),
         fetchGroupMembers(WRITERS_GROUP_ID, accessToken),
         fetchGroupMembers(EDITOR_GROUP_ID, accessToken)
       ]);
 
-      const [writersGroupMembers, editorsGroupMembers] =
-        Array.isArray(results) && results.map((result) => result?.value);
+      const members = Array.isArray(results) && results.map((result) => result?.value);
 
-      return res.sendResponse(
-        deDuplicate([...writersGroupMembers, ...editorsGroupMembers], 'mail'),
-        200
-      );
-    } else {
-      const members = await fetchGroupMembers(groupId, accessToken);
-
-      return res.sendResponse(members, 200);
+      return res.sendResponse(deDuplicate(members.flat(Infinity), 'mail'), 200);
     }
+    const members = await fetchGroupMembers(groupId, accessToken);
+
+    return res.sendResponse(members, 200);
   } catch (error) {
     console.error(error);
     return res.sendResponse('Failed to fetch members', 500);
