@@ -201,20 +201,17 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       }));
     });
 
-    const updatedTechSpecLabels = techSpecLabels
-      .filter((e) => {
-        return !data.techSpecs.map(({ label }) => label)?.includes(e.label);
-      })
-      .map(({ id, label, labelid, order }) => ({
-        id,
-        label,
-        labelId: labelid,
-        order
-      }));
+    const updatedTechSpecLabels = techSpecLabels.map(({ id, label, labelid, order }) => ({
+      id,
+      label,
+      labelId: labelid,
+      value: data.techSpecs.find((e) => e.label === label)?.value,
+      order
+    }));
 
     return res.sendResponse({
       hattributes,
-      techSpecs: [...data.techSpecs, ...updatedTechSpecLabels]
+      techSpecs: [...updatedTechSpecLabels]
     });
   } catch (error) {
     console.error(error.message);
@@ -277,20 +274,17 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       }));
     });
 
-    const updatedTechSpecLabels = techSpecLabels
-      .filter((e) => {
-        return !data.techSpecs.map(({ label }) => label)?.includes(e.label);
-      })
-      .map(({ id, label, labelid, order }) => ({
-        id,
-        label,
-        labelId: labelid,
-        order
-      }));
+    const updatedTechSpecLabels = techSpecLabels.map(({ id, label, labelid, order }) => ({
+      id,
+      label,
+      labelId: labelid,
+      value: data.techSpecs.find((e) => e.label === label)?.value,
+      order
+    }));
 
     return res.sendResponse({
       hattributes,
-      techSpecs: [...data.techSpecs, ...updatedTechSpecLabels]
+      techSpecs: [...updatedTechSpecLabels]
     });
   } catch (error) {
     console.error(error.message);
