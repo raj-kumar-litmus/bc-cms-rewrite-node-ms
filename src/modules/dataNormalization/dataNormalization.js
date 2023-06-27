@@ -14,7 +14,9 @@ const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
 const getStyle = async (styleId) => {
   try {
-    const response = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`);
+    const response = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
+      httpsAgent
+    });
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
@@ -30,7 +32,10 @@ const getStyle = async (styleId) => {
 const getStyleAttributes = async (styleId) => {
   try {
     const response = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+      {
+        httpsAgent
+      }
     );
     return response.data;
   } catch (error) {
@@ -260,7 +265,10 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
     const groupedHAttributes = groupBy(labelFilter, (e) => e.name);
 
     const { data } = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+      {
+        httpsAgent
+      }
     );
 
     const labels = data.harmonizingAttributeLabels
@@ -344,7 +352,10 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
         GROUP BY da.id`;
 
     const { data } = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+      {
+        httpsAgent
+      }
     );
 
     const labels = data.harmonizingAttributeLabels
@@ -382,7 +393,9 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
 router.get('/merchProduct/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
-    const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`);
+    const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
+      httpsAgent
+    });
     return res.sendResponse({ data });
   } catch (error) {
     console.error(error.message);
@@ -405,7 +418,10 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
         if (!count) {
           try {
             const { data } = await axios.get(
-              `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`
+              `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`,
+              {
+                httpsAgent
+              }
             );
             const { style, title, brandName, lastModified, lastModifiedUsername } = data;
             success.push({ style, title, brandName, lastModified, lastModifiedUsername });
@@ -429,10 +445,18 @@ router.get('/productInfo/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
     const results = await Promise.allSettled([
-      axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/published-copy/${styleId}`),
-      axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`),
-      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`),
-      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/size-charts?shouldSkipChart=true`)
+      axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/published-copy/${styleId}`, {
+        httpsAgent
+      }),
+      axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`, {
+        httpsAgent
+      }),
+      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
+        httpsAgent
+      }),
+      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/size-charts?shouldSkipChart=true`, {
+        httpsAgent
+      })
     ]);
     const [copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart] = results.map(
       (result) => result.value

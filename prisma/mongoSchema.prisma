@@ -93,4 +93,5 @@ model workflow {
   writer              String?
   assignee            String?
   workbenchAudits     workbenchAudit[]
+  isPublished         Boolean?
 }

@@ -554,16 +554,10 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
 });
 
 const convertToAttributesModel = (styleId, newProductAttributes, previousProductAttributes) => {
-  const {
-    attributeLastModified,
-    genus,
-    species,
-    techSpecs,
-    harmonizingAttributeLabels,
-    staleTechSpecs
-  } = newProductAttributes;
+  const { genus, species, techSpecs, harmonizingAttributeLabels, staleTechSpecs } =
+    newProductAttributes;
 
-  const { productGroupId, productGroupName, ageCategory, genderCategory, tags } =
+  const { productGroupId, productGroupName, ageCategory, genderCategory, tags, lastModified } =
     previousProductAttributes;
 
   const productAttributes = {
@@ -576,7 +570,7 @@ const convertToAttributesModel = (styleId, newProductAttributes, previousProduct
     productGroupName,
     ageCategory,
     genderCategory,
-    lastModified: attributeLastModified,
+    lastModified,
     tags: tags || null,
     harmonizingAttributeLabels:
       harmonizingAttributeLabels && harmonizingAttributeLabels.length
@@ -591,7 +585,6 @@ const convertToAttributesModel = (styleId, newProductAttributes, previousProduct
 
 const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
   const {
-    version,
     isPublished,
     listDescription,
     detailedDescription,
@@ -603,10 +596,10 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
     bottomLine
   } = currentCopy;
 
-  const { brandId, productGroupId, writer, productTitle, editor, keywords } = previousCopy;
+  const { __v, brandId, productGroupId, writer, productTitle, editor, keywords } = previousCopy;
 
   const copyModel = {
-    __v: version,
+    __v,
     style: styleId,
     status: isPublished === true ? 'Published' : 'InProgress',
     title: productTitle,
@@ -727,6 +720,8 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
       });
     }
 
+    let hasDiff = false;
+
     if (Object.keys(currentSnapshot).length) {
       const previousSnapshot = await mongoPrisma.workbenchAudit.findFirst({
         where: {
@@ -746,8 +741,11 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
         'workflowId',
         'auditType',
         'attributeLastModified',
-        'copyLastModified'
+        'copyLastModified',
+        'isQuickFix'
       ]);
+
+      hasDiff = Object.keys(diff).length > 0;
 
       changeLog = {
         ...changeLog,
@@ -756,7 +754,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
       };
     }
 
-    if (Object.keys(changeLog).length === 0) {
+    if (Object.keys(changeLog).length === 0 || !hasDiff) {
       return res.sendResponse('No changes detected. Nothing to save.', 400);
     }
 
