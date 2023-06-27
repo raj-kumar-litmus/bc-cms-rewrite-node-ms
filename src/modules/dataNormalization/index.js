@@ -1,3 +1,17 @@
-const { router: dataNormalization, getStyle } = require('./dataNormalization');
+const {
+  router: dataNormalization,
+  getStyle,
+  getStyleAttributes,
+  updateStyleAttributes,
+  getStyleCopy,
+  updateStyleCopy
+} = require('./dataNormalization');
 
-module.exports = { dataNormalization, getStyle };
+module.exports = {
+  dataNormalization,
+  getStyle,
+  getStyleAttributes,
+  updateStyleAttributes,
+  getStyleCopy,
+  updateStyleCopy
+};

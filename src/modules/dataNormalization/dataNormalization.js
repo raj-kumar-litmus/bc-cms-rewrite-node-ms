@@ -1,5 +1,6 @@
 const express = require('express');
 const axios = require('axios');
+const https = require('https');
 
 const { postgresPrisma, mongoPrisma } = require('../prisma');
 const { groupBy } = require('../../utils');
@@ -9,20 +10,13 @@ const { getStylesDto } = require('./dtos');
 const { ATTRIBUTE_API_DOMAIN_NAME, COPY_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME } = process.env;
 const router = express.Router();
 
-const getConfig = (req) => {
-  const { cookie: Cookie } = req.headers; // Retrieve the Cookie header value
-
-  return {
-    headers: {
-      Cookie
-    },
-    followRedirects: true
-  };
-};
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
 const getStyle = async (styleId) => {
   try {
-    const response = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`);
+    const response = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
+      httpsAgent
+    });
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
@@ -35,39 +29,131 @@ const getStyle = async (styleId) => {
   }
 };
 
-router.get('/styles/:styleId', async (req, res) => {
-  const { styleId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${styleId}`;
-  console.log(url);
+const getStyleAttributes = async (styleId) => {
   try {
-    const {
-      data: {
-        item: { brand, productTitle }
+    const response = await axios.get(
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+      {
+        httpsAgent
       }
-    } = await axios.get(url, getConfig(req));
+    );
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      const notFoundError = new Error('Style not found.');
+      notFoundError.status = 404;
+      throw notFoundError;
+    } else {
+      throw new Error('An error occurred while fetching the style information.', 500);
+    }
+  }
+};
 
-    res.sendResponse({ styleId, brand: brand.name, title: productTitle });
+const getStyleCopy = async (styleId) => {
+  try {
+    const response = await axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
+      httpsAgent
+    });
+    return response.data;
+  } catch (error) {
+    if (error.response && error.response.status === 404) {
+      const notFoundError = new Error('Style not found.');
+      notFoundError.status = 404;
+      throw notFoundError;
+    } else {
+      throw new Error('An error occurred while fetching the style information.', 500);
+    }
+  }
+};
+
+const updateStyleAttributes = async (styleId, payload) => {
+  try {
+    const response = await axios.put(
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+      payload,
+      { httpsAgent }
+    );
+
+    return { success: true, data: response.data };
+  } catch (error) {
+    const errorMessage =
+      error.response?.data || 'An error occurred while updating product attributes';
+    return { success: false, error: errorMessage };
+  }
+};
+
+const updateStyleCopy = async (payload) => {
+  const { style: styleId } = payload;
+
+  try {
+    const response = await axios.put(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, payload, {
+      httpsAgent
+    });
+
+    return { success: true, data: response.data };
+  } catch (error) {
+    const errorMessage = error.response?.data || 'An error occurred while updating copy';
+    return { success: false, error: errorMessage };
+  }
+};
+
+// TODO: Move this to styles route
+router.get('/styles/:styleId/attributes', async (req, res) => {
+  try {
+    const { styleId } = req.params;
+    const response = await getStyleAttributes(styleId);
+    return res.sendResponse(response);
   } catch (error) {
     console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
-router.get('/styles/:styleId/techSpecs', async (req, res) => {
-  const { styleId } = req.params;
-  const url = `${process.env.backContryAPI}/dataNormalization/rest/products/${styleId}`;
-  console.log(url);
+// TODO: Move this to styles route
+router.put('/styles/:styleId/attributes', async (req, res) => {
   try {
-    const {
-      data: {
-        item: { techSpecs }
-      }
-    } = await axios.get(url, getConfig(req));
+    const { styleId } = req.params;
+    const payload = req.body;
 
-    res.sendResponse(techSpecs);
+    const { success, data, error } = await updateStyleAttributes(styleId, payload);
+
+    if (success) {
+      return res.sendResponse(data);
+    }
+    return res.sendResponse(error, error.status || 500);
   } catch (error) {
     console.error(error.message);
-    res.sendResponse('Internal Server Error', 500);
+    return res.sendResponse('Internal Server Error', 500);
+  }
+});
+
+// TODO: Move this to styles route
+router.get('/styles/:styleId/copy', async (req, res) => {
+  try {
+    const { styleId } = req.params;
+    const response = await getStyleCopy(styleId);
+    return res.sendResponse(response);
+  } catch (error) {
+    console.error(error.message);
+    return res.sendResponse('Internal Server Error', 500);
+  }
+});
+
+// TODO: Move this to styles route
+router.put('/styles/:styleId/copy', async (req, res) => {
+  try {
+    const { styleId } = req.params;
+    const payload = req.body;
+
+    const { success, data, error } = await updateStyleCopy(styleId, payload);
+
+    if (success) {
+      return res.sendResponse(data);
+    }
+    return res.sendResponse(error, error.status || 500);
+  } catch (error) {
+    console.error(error.message);
+    return res.sendResponse('Internal Server Error', 500);
   }
 });
 
@@ -179,7 +265,10 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
     const groupedHAttributes = groupBy(labelFilter, (e) => e.name);
 
     const { data } = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+      {
+        httpsAgent
+      }
     );
 
     const labels = data.harmonizingAttributeLabels
@@ -260,7 +349,10 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
         GROUP BY da.id`;
 
     const { data } = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`
+      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+      {
+        httpsAgent
+      }
     );
 
     const labels = data.harmonizingAttributeLabels
@@ -295,7 +387,9 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
 router.get('/merchProduct/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
-    const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`);
+    const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
+      httpsAgent
+    });
     return res.sendResponse({ data });
   } catch (error) {
     console.error(error.message);
@@ -318,7 +412,10 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
         if (!count) {
           try {
             const { data } = await axios.get(
-              `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`
+              `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`,
+              {
+                httpsAgent
+              }
             );
             const { style, title, brandName, lastModified, lastModifiedUsername } = data;
             success.push({ style, title, brandName, lastModified, lastModifiedUsername });
@@ -342,10 +439,18 @@ router.get('/productInfo/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
     const results = await Promise.allSettled([
-      axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/published-copy/${styleId}`),
-      axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`),
-      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`),
-      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/size-charts?shouldSkipChart=true`)
+      axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/published-copy/${styleId}`, {
+        httpsAgent
+      }),
+      axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`, {
+        httpsAgent
+      }),
+      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
+        httpsAgent
+      }),
+      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/size-charts?shouldSkipChart=true`, {
+        httpsAgent
+      })
     ]);
     const [copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart] = results.map(
       (result) => result.value
@@ -364,5 +469,9 @@ router.get('/productInfo/:styleId', async (req, res) => {
 
 module.exports = {
   router,
-  getStyle
+  getStyle,
+  getStyleAttributes,
+  updateStyleAttributes,
+  getStyleCopy,
+  updateStyleCopy
 };

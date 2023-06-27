@@ -47,12 +47,9 @@ model workbenchAudit {
   competitiveCyclistDescription String?
   competitiveCyclistTopline     String?
   detailedDescription           String?
-  genus                         String?
   isPublished                   Boolean?
   listDescription               String?
   productTitle                  String?
-  sizingChart                   String?
-  species                       String?
   status                        String?
   topLine                       String?
   versionReason                 String?
@@ -65,9 +62,16 @@ model workbenchAudit {
   lastWriteCompleteTs           DateTime? @db.Date
   editor                        String?
   writer                        String?
-  harmonizingData               Json?
-  techSpecs                     Json?
-  changeLog                     Json?
+  version                       Int?
+  competitiveCyclistBottomLine  String?
+  bottomLine                    String?
+
+  genus                      Json?
+  species                    Json?
+  harmonizingAttributeLabels Json?
+  techSpecs                  Json?
+  sizingChart                Json?
+  changeLog                  Json?
 }
 
 /// This collection uses a JSON Schema defined in the database, which requires additional setup for migrations. Visit https://pris.ly/d/mongodb-json-schema for more info.
@@ -89,4 +93,5 @@ model workflow {
   writer              String?
   assignee            String?
   workbenchAudits     workbenchAudit[]
+  isPublished         Boolean?
 }
