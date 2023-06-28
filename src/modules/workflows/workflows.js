@@ -20,8 +20,13 @@ const {
   searchWorkflowQueryDto,
   workflowDetailsDto
 } = require('./dtos');
-
-const { getStyle } = require('../dataNormalization');
+const {
+  getStyle,
+  getStyleAttributes,
+  updateStyleAttributes,
+  getStyleCopy,
+  updateStyleCopy
+} = require('../dataNormalization');
 
 const router = express.Router();
 
@@ -324,11 +329,11 @@ router.get('/:id', async (req, res) => {
       }
     });
 
-    res.sendResponse({ workflow, workflowDeatils });
+    return res.sendResponse({ workflow, workflowDeatils });
   } catch (error) {
     console.error(error);
 
-    res.sendResponse(error.message, error.status || 500);
+    return res.sendResponse(error.message, error.status || 500);
   }
 });
 
@@ -518,7 +523,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
       return res.sendResponse(
         {
           message: `${updateCount} workflow${updateCount !== 1 ? 's' : ''} updated successfully`,
-          errors: errors.length ? errors : undefined
+          errors: errors.length ? errors : null
         },
         errors.length ? 207 : 200
       );
@@ -548,22 +553,149 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
   }
 });
 
+const convertToAttributesModel = (styleId, newProductAttributes, previousProductAttributes) => {
+  const { genus, species, techSpecs, harmonizingAttributeLabels, staleTechSpecs } =
+    newProductAttributes;
+
+  const { productGroupId, productGroupName, ageCategory, genderCategory, tags, lastModified } =
+    previousProductAttributes;
+
+  const productAttributes = {
+    style: styleId,
+    genusId: genus && genus.id !== 0 ? Number(genus.id) : null,
+    genusName: genus && genus.name ? genus.name : null,
+    speciesId: species && species.id !== 0 ? Number(species.id) : null,
+    speciesName: species && species.name ? species.name : null,
+    productGroupId,
+    productGroupName,
+    ageCategory,
+    genderCategory,
+    lastModified,
+    tags: tags || null,
+    harmonizingAttributeLabels:
+      harmonizingAttributeLabels && harmonizingAttributeLabels.length
+        ? harmonizingAttributeLabels
+        : [],
+    techSpecs: techSpecs ?? [],
+    staleTechSpecs: staleTechSpecs ?? []
+  };
+
+  return productAttributes;
+};
+
+const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
+  const {
+    isPublished,
+    listDescription,
+    detailedDescription,
+    bulletPoints,
+    copyLastModified,
+    sizingChart,
+    competitiveCyclistDescription,
+    competitiveCyclistBottomLine,
+    bottomLine
+  } = currentCopy;
+
+  const { __v, brandId, productGroupId, writer, productTitle, editor, keywords } = previousCopy;
+
+  const copyModel = {
+    __v,
+    style: styleId,
+    status: isPublished === true ? 'Published' : 'InProgress',
+    title: productTitle,
+    listDescription,
+    detailDescription: detailedDescription,
+    competitiveCyclistDescription,
+    bottomLine,
+    competitiveCyclistBottomLine,
+    writer,
+    editor,
+    bulletPoints,
+    brandId,
+    keywords,
+    sizingChartId: sizingChart?.id ?? null,
+    productGroupId,
+    lastModified: copyLastModified
+  };
+
+  return copyModel;
+};
+
+const updateBC = async (styleId, currentSnapshot) => {
+  let previousAttributes;
+  let attributesResult;
+  let copyResult;
+
+  try {
+    previousAttributes = await getStyleAttributes(styleId);
+    const newAttributes = convertToAttributesModel(styleId, currentSnapshot, previousAttributes);
+    attributesResult = await updateStyleAttributes(styleId, newAttributes);
+
+    if (!attributesResult.success) {
+      return {
+        attributesApi: attributesResult
+      };
+    }
+
+    const previousCopy = await getStyleCopy(styleId);
+    const newCopy = convertToCopyModel(styleId, currentSnapshot, previousCopy);
+    copyResult = await updateStyleCopy(newCopy);
+
+    if (!copyResult.success) {
+      throw new Error('Error occurred while saving copy to the DB.');
+    }
+
+    return {
+      attributesApi: attributesResult,
+      copyApi: copyResult
+    };
+  } catch (error) {
+    console.log(`Failed while updating BC about the changes: ${error.message}`);
+    if (attributesResult) {
+      console.log(`Rolling back attributes for style ${styleId}`);
+      previousAttributes.lastModified = attributesResult.data.lastModified;
+      await updateStyleAttributes(styleId, previousAttributes);
+      console.log(`Rolled back attributes for style ${styleId}`);
+    }
+    throw new Error(`Failed while updating BC about the changes: ${error.message}`);
+  }
+};
+
 // Endpoint to save a snapshot of a workflow for later audit log
 router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), async (req, res) => {
   try {
     const { workflowId } = req.params;
-    const { email = 'pc.editor@backcountry.com' } = req.query;
-    const workflow = await findWorkflowById(workflowId);
-
     const currentSnapshot = req.body;
 
-    const { isPublished } = currentSnapshot;
+    const workflow = await findWorkflowById(workflowId);
 
-    let changeLog = workflowEngine(workflow, { isPublished });
+    const { styleId } = workflow;
+
+    const { email = 'pc.editor@backcountry.com' } = req.query;
+
+    const { isPublished, isQuickFix } = currentSnapshot;
+
+    let changeLog =
+      isQuickFix === true ? { isPublished: true } : workflowEngine(workflow, { isPublished });
 
     if (Object.keys(currentSnapshot).length === 0 && Object.keys(changeLog).length === 0) {
-      res.sendResponse('No changes detected. Nothing to save.', 400);
-      return;
+      return res.sendResponse('No changes detected. Nothing to save.', 400);
+    }
+
+    const { attributesApi, copyApi } = await updateBC(styleId, currentSnapshot);
+
+    const failedToUpdateBC =
+      !attributesApi || !copyApi || !attributesApi.success || !copyApi.success;
+
+    if (failedToUpdateBC) {
+      return res.sendResponse(
+        {
+          message: 'An error occurred while saving workflow deatils to BC.',
+          attributesApi,
+          copyApi
+        },
+        400
+      );
     }
 
     if (Object.keys(changeLog).length) {
@@ -588,6 +720,8 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
       });
     }
 
+    let hasDiff = false;
+
     if (Object.keys(currentSnapshot).length) {
       const previousSnapshot = await mongoPrisma.workbenchAudit.findFirst({
         where: {
@@ -605,28 +739,43 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
         'createTs',
         'createdBy',
         'workflowId',
-        'auditType'
+        'auditType',
+        'attributeLastModified',
+        'copyLastModified',
+        'isQuickFix'
       ]);
 
-      changeLog = { ...changeLog, ...diff };
+      hasDiff = Object.keys(diff).length > 0;
+
+      changeLog = {
+        ...changeLog,
+        ...diff,
+        isQuickFix: isQuickFix === true ? isQuickFix : undefined
+      };
     }
 
-    if (Object.keys(changeLog).length === 0) {
-      res.sendResponse('No changes detected. Nothing to save.', 400);
-      return;
+    if (Object.keys(changeLog).length === 0 || !hasDiff) {
+      return res.sendResponse('No changes detected. Nothing to save.', 400);
     }
+
+    const {
+      copyLastModified,
+      attributeLastModified,
+      isQuickFix: _,
+      ...restOfCurrentSnapshot
+    } = currentSnapshot;
 
     await mongoPrisma.workbenchAudit.create({
       data: {
         workflowId,
         createdBy: email,
-        ...currentSnapshot,
+        ...restOfCurrentSnapshot,
         auditType: WorkflowAuditType.DATA_NORMALIZATION,
         changeLog
       }
     });
 
-    res.sendResponse({
+    return res.sendResponse({
       workflowId,
       createdBy: email,
       ...currentSnapshot,
@@ -635,7 +784,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
   } catch (error) {
     console.error(error);
 
-    res.sendResponse(
+    return res.sendResponse(
       error.message || 'An error occurred while saving workflow for later',
       error.status || 500
     );

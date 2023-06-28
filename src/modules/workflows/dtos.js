@@ -97,23 +97,53 @@ const searchWorkflowBodyDto = Joi.object({
   orderBy: Joi.alternatives().try(sortSchema, Joi.array().items(sortSchema).min(1))
 }).unknown(false);
 
+const techSpecSchema = Joi.object({
+  labelId: Joi.number().required(),
+  order: Joi.number().required(),
+  label: Joi.string().required(),
+  value: Joi.string().required()
+});
+
+const harmonizingAttributeValueSchema = Joi.object({
+  id: Joi.number().required(),
+  text: Joi.string().required()
+});
+
+const harmonizingAttributeSchema = Joi.object({
+  id: Joi.number().required(),
+  text: Joi.string().required(),
+  harmonizingAttributeValues: Joi.array().items(harmonizingAttributeValueSchema).required()
+});
+
 const workflowDetailsDto = Joi.object({
-  genus: Joi.string().optional(),
-  species: Joi.string().optional(),
-  harmonizingData: Joi.object().allow(null).optional(),
-  techSpecs: Joi.object().allow(null).optional(),
-  productTitle: Joi.string().optional(),
-  topLine: Joi.string().optional(),
-  detailedDescription: Joi.string().optional(),
-  listDescription: Joi.string().optional(),
-  bulletPoints: Joi.array().items(Joi.string()).optional(),
-  sizingChart: Joi.string().optional(),
-  competitiveCyclistTopline: Joi.string().optional(),
-  competitiveCyclistDescription: Joi.string().optional(),
-  versionReason: Joi.string().optional(),
+  genus: Joi.object({
+    id: Joi.number().optional(),
+    name: Joi.string().optional()
+  }).optional(),
+  species: Joi.object({
+    id: Joi.number().optional(),
+    name: Joi.string().optional()
+  }).optional(),
+  sizingChart: Joi.object({
+    id: Joi.number().optional(),
+    name: Joi.string().optional()
+  }).optional(),
+  harmonizingAttributeLabels: Joi.array().items(harmonizingAttributeSchema).allow(null).optional(),
+  techSpecs: Joi.array().items(techSpecSchema).optional(),
+  productTitle: Joi.string().empty('').optional(),
+  bottomLine: Joi.string().empty('').optional(),
+  detailedDescription: Joi.string().empty('').optional(),
+  listDescription: Joi.string().empty('').optional(),
+  bulletPoints: Joi.array().items(Joi.string().empty('')).optional(),
+  competitiveCyclistBottomLine: Joi.string().empty('').optional(),
+  competitiveCyclistDescription: Joi.string().empty('').optional(),
+  versionReason: Joi.string().empty('').optional(),
   isPublished: Joi.boolean().optional(),
-  auditType: Joi.string().optional(),
-  workflowId: Joi.string().optional()
+  isQuickFix: Joi.boolean().optional(),
+  auditType: Joi.string().empty('').optional(),
+  version: Joi.number().required(),
+  attributeLastModified: Joi.string().required(),
+  copyLastModified: Joi.string().required()
 });
 
 const UniqueKeysEnum = {
