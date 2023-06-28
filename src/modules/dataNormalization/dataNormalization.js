@@ -293,7 +293,7 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
     const updatedTechSpecLabels = techSpecLabels.map(({ id, label, labelid, order }) => ({
       id,
       label,
-      labelId: labelid,
+      labelId: id,
       value: data.techSpecs.find((e) => e.label === label)?.value,
       order
     }));
@@ -358,6 +358,7 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     const labels = data.harmonizingAttributeLabels
       .map((e) => e.harmonizingAttributeValues.map((l) => l.id))
       .flat(Infinity);
+
     const hattributes = {};
     Object.keys(groupedHAttributes).forEach((el) => {
       hattributes[el] = groupedHAttributes[el].map((e) => ({
@@ -369,7 +370,7 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     const updatedTechSpecLabels = techSpecLabels.map(({ id, label, labelid, order }) => ({
       id,
       label,
-      labelId: labelid,
+      labelId: id,
       value: data.techSpecs.find((e) => e.label === label)?.value,
       order
     }));
