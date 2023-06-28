@@ -440,7 +440,7 @@ router.get('/productInfo/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
     const results = await Promise.allSettled([
-      axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/published-copy/${styleId}`, {
+      axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
         httpsAgent
       }),
       axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`, {
