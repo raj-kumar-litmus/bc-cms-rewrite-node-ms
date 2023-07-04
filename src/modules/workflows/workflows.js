@@ -473,6 +473,17 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
       const workflows = await mongoPrisma.workflow.findMany({ where, take: 1 });
 
       try {
+        const { assignee } = workflows[0];
+
+        if (assignee === writer || assignee === editor) {
+          return res.sendResponse(
+            {
+              message: 'Same user cannot be reassigned.'
+            },
+            400
+          );
+        }
+
         const changeLog = workflowEngine(workflows[0], { writer, editor });
 
         if (Object.keys(changeLog).length > 0) {
@@ -596,13 +607,13 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
     bottomLine
   } = currentCopy;
 
-  const { __v, brandId, productGroupId, writer, productTitle, editor, keywords } = previousCopy;
+  const { __v, brandId, productGroupId, writer, title, editor, keywords } = previousCopy;
 
   const copyModel = {
     __v,
     style: styleId,
     status: isPublished === true ? 'Published' : 'InProgress',
-    title: productTitle,
+    title,
     listDescription,
     detailDescription: detailedDescription,
     competitiveCyclistDescription,
