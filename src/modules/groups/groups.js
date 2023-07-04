@@ -5,6 +5,7 @@ const { groupsDto } = require('./dtos');
 const { properties } = require('../../properties');
 const { deDuplicate } = require('../../utils');
 const { fetchGroupMembers } = require('./utils');
+const { logger } = require('../../lib/logger');
 
 const router = express.Router();
 
@@ -21,6 +22,15 @@ const {
 
 const getAccessToken = async () => {
   const URL = `${MS_LOGIN_HOST_NAME}/${TENANT_ID}/oauth2/v2.0/token`;
+  logger.info(
+    {
+      URL,
+      client_secret: CLIENT_SECRET,
+      client_id: CLIENT_ID,
+      scope: DEFAULT_MS_GRAPH_SCOPE
+    },
+    'Fetching access token'
+  );
   const {
     data: { access_token: accessToken }
   } = await axios.post(
@@ -51,18 +61,19 @@ router.get('/token', async (req, res) => {
       200
     );
   } catch (error) {
+    logger.error({ error }, 'Error while fetching token');
     return res.sendResponse('Error while fetching token', 401);
   }
 });
 
 router.get('/:type/members', validateMiddleware({ params: groupsDto }), async (req, res) => {
   const { type } = req.params;
-
+  logger.info({ params: req.params }, 'Fetching Azure AD group members');
   let accessToken;
   try {
     accessToken = await getAccessToken();
   } catch (error) {
-    console.error(error);
+    logger.error({ error }, 'Failed to fetch access token');
     return res.sendResponse('Failed to fetch access token', 500);
   }
 
@@ -95,7 +106,7 @@ router.get('/:type/members', validateMiddleware({ params: groupsDto }), async (r
 
     return res.sendResponse(members, 200);
   } catch (error) {
-    console.error(error);
+    logger.error({ error }, 'Error while fetching Azure AD group members');
     return res.sendResponse('Failed to fetch members', 500);
   }
 });

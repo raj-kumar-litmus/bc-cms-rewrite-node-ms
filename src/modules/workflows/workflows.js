@@ -27,6 +27,7 @@ const {
   getStyleCopy,
   updateStyleCopy
 } = require('../dataNormalization');
+const { logger } = require('../../lib/logger');
 
 const router = express.Router();
 
@@ -82,13 +83,15 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
       }
     );
 
+    logger.info({ data: { ...transformedData, brand: brandName, title } }, 'Creating work flow');
+
     const workflow = await mongoPrisma.workflow.create({
       data: { ...transformedData, brand: brandName, title }
     });
-
+    logger.info({ workflow }, 'Work flow created');
     return res.sendResponse({ success: workflow }, 201);
   } catch (error) {
-    console.error(error);
+    logger.error({ error, styleId: req?.body?.styleId }, 'Error occured while creating workflow');
 
     if (error.code === 'P2002') {
       return res.sendResponse('Workflow with the styleId already exists', 400);
@@ -134,14 +137,14 @@ router.post('/bulk', validateMiddleware({ body: createWorkflowsDto }), async (re
               lastUpdatedBy: 'lowerCase'
             }
           );
-
+          logger.info({ data: transformedData }, 'Creating work flow [Multiple]');
           const workflow = await mongoPrisma.workflow.create({
             data: transformedData
           });
-
+          logger.info({ workflow }, 'Work flow created [Multiple]');
           createdWorkflows.push({ workflow });
         } catch (error) {
-          console.log(error);
+          logger.error({ error, styleId, brand, title }, 'Error occured while creating workflows');
           failedWorkflows.push({ styleId, brand, title });
         }
       })
@@ -160,7 +163,10 @@ router.post('/bulk', validateMiddleware({ body: createWorkflowsDto }), async (re
 
     return res.sendResponse({ success: createdWorkflows }, 201);
   } catch (error) {
-    console.error(error);
+    logger.error(
+      { error, styles: req?.body?.styles },
+      'Error occured while creating multiple workflows'
+    );
     return res.sendResponse('An error occurred while creating the workflows.', 500);
   } finally {
     await mongoPrisma.$disconnect();
@@ -192,6 +198,8 @@ router.post(
       let workflows;
       let total = 0;
       let uniqueValues;
+
+      logger.info({ body: req?.body, query: req?.query }, 'Searching for workflows');
 
       if (unique) {
         [uniqueValues, total] = await Promise.all([
@@ -244,7 +252,10 @@ router.post(
         }
       });
     } catch (error) {
-      console.error(error);
+      logger.error(
+        { error, body: req?.body, query: req?.query },
+        'Error occured while searching for workflows'
+      );
       return res.sendResponse('An error occurred while searching workflows.', 500);
     } finally {
       await mongoPrisma.$disconnect();
@@ -265,7 +276,7 @@ router.get('/constants', async (req, res) => {
 
     return res.sendResponse(constants, 200);
   } catch (error) {
-    console.error(error);
+    logger.error({ error }, 'Error occured while fetching constants');
     return res.sendResponse('An error occurred while fetching constants.', 500);
   }
 });
@@ -307,7 +318,7 @@ router.get('/counts', async (req, res) => {
 
     return res.sendResponse(counts);
   } catch (error) {
-    console.error(error);
+    logger.error({ error, query: req?.query }, 'Error occured while fetching workflow counts');
     return res.sendResponse('An error occurred while fetching workflow counts.', 500);
   } finally {
     await mongoPrisma.$disconnect();
@@ -318,6 +329,7 @@ router.get('/counts', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     const { id } = req.params;
+    logger.error({ id: req?.params?.id }, 'Retrieving a workflow');
     const workflow = await findWorkflowById(id);
     const workflowDeatils = await mongoPrisma.workbenchAudit.findFirst({
       where: {
@@ -331,8 +343,7 @@ router.get('/:id', async (req, res) => {
 
     return res.sendResponse({ workflow, workflowDeatils });
   } catch (error) {
-    console.error(error);
-
+    logger.error({ error, id: req?.params?.id }, 'Error occured while retrieving a workflow');
     return res.sendResponse(error.message, error.status || 500);
   }
 });
@@ -375,7 +386,10 @@ router.get('/:workflowId/history', async (req, res) => {
         }
       })
     ]);
-
+    logger.info(
+      { auditLogs, workflowId, query: req?.query },
+      'Audit logs retrieved for a workflow'
+    );
     const filteredData = auditLogs.map((log) => {
       const filteredLog = {};
       Object.entries(log).forEach(([key, value]) => {
@@ -401,7 +415,10 @@ router.get('/:workflowId/history', async (req, res) => {
 
     return res.sendResponse(response);
   } catch (error) {
-    console.error(error);
+    logger.error(
+      { error, workflowId, query: req?.query },
+      'Error occurred while retrieving audit logs of a workflow'
+    );
     return res.sendResponse("An error occurred while getting workflow's history.", 500);
   } finally {
     await mongoPrisma.$disconnect();
@@ -412,7 +429,7 @@ router.get('/:workflowId/history', async (req, res) => {
 router.get('/:workflowId/history/:historyId', async (req, res) => {
   try {
     const { workflowId, historyId } = req.params;
-
+    logger.info({ params: req.params }, 'Fetching AuditLog');
     const auditLog = await mongoPrisma.workbenchAudit.findFirstOrThrow({
       where: {
         id: historyId,
@@ -420,7 +437,10 @@ router.get('/:workflowId/history/:historyId', async (req, res) => {
       }
     });
 
-    if (!auditLog) return res.sendResponse('AuditLog not found.', 404);
+    if (!auditLog) {
+      logger.error({ params: req?.params }, 'AuditLog not found');
+      return res.sendResponse('AuditLog not found.', 404);
+    }
 
     const filteredLog = {};
     Object.entries(auditLog).forEach(([key, value]) => {
@@ -431,7 +451,10 @@ router.get('/:workflowId/history/:historyId', async (req, res) => {
 
     return res.sendResponse(filteredLog);
   } catch (error) {
-    console.error(error);
+    logger.error(
+      { error, params: req.params, query: req.query },
+      'Error occurred while retrieving specific audit log of a workflow'
+    );
     if (error.code === 'P2025') {
       return res.sendResponse('The requested history does not exist', 400);
     }
@@ -451,7 +474,7 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
     } = req.body;
 
     const { email = 'pc.admin@backcountry.com' } = req.query;
-
+    logger.info({ body: req.body, query: req.query }, 'Assigning workflow');
     let where = whereBuilder(filters);
 
     const distinctStatuses = (
@@ -541,6 +564,10 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
     }
 
     if (errors.length > 0) {
+      logger.error(
+        { errors, body: req.body, query: req.query },
+        'Error occured while Assigning workflows'
+      );
       return res.sendResponse(
         {
           message: 'Errors occurred while updating workflows',
@@ -557,7 +584,10 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
       404
     );
   } catch (error) {
-    console.error(error);
+    logger.error(
+      { error, body: req.body, query: req.query },
+      'Error occured while Assigning workflows'
+    );
     return res.sendResponse('An error occurred while updating the workflows.', 500);
   } finally {
     await mongoPrisma.$disconnect();
@@ -638,6 +668,7 @@ const updateBC = async (styleId, currentSnapshot) => {
   let copyResult;
 
   try {
+    logger.info({ styleId, currentSnapshot }, 'Updating workflow details in backcountry apis');
     previousAttributes = await getStyleAttributes(styleId);
     const newAttributes = convertToAttributesModel(styleId, currentSnapshot, previousAttributes);
     attributesResult = await updateStyleAttributes(styleId, newAttributes);
@@ -661,12 +692,11 @@ const updateBC = async (styleId, currentSnapshot) => {
       copyApi: copyResult
     };
   } catch (error) {
-    console.log(`Failed while updating BC about the changes: ${error.message}`);
     if (attributesResult) {
-      console.log(`Rolling back attributes for style ${styleId}`);
+      logger.info({ styleId }, 'Rolling back atttribute updates');
       previousAttributes.lastModified = attributesResult.data.lastModified;
       await updateStyleAttributes(styleId, previousAttributes);
-      console.log(`Rolled back attributes for style ${styleId}`);
+      logger.info({ styleId }, 'Atttribute updates rolled back');
     }
     throw new Error(`Failed while updating BC about the changes: ${error.message}`);
   }
@@ -677,6 +707,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
   try {
     const { workflowId } = req.params;
     const currentSnapshot = req.body;
+    logger.info({ params: req.params, body: req.body }, '[save for later] Updating workflow');
 
     const workflow = await findWorkflowById(workflowId);
 
@@ -699,6 +730,10 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
       !attributesApi || !copyApi || !attributesApi.success || !copyApi.success;
 
     if (failedToUpdateBC) {
+      logger.error(
+        { params: req.params, body: req.body, attributesApi, copyApi },
+        'Error occurred while saving workflow details to BC'
+      );
       return res.sendResponse(
         {
           message: 'An error occurred while saving workflow deatils to BC.',
@@ -722,6 +757,8 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
           lastUpdatedBy: 'lowerCase'
         }
       );
+
+      logger.info({ data: changeLog, id: workflow.id }, 'Updating workflow');
 
       await mongoPrisma.workflow.update({
         data: changeLog,
@@ -766,6 +803,7 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
     }
 
     if (Object.keys(changeLog).length === 0 || !hasDiff) {
+      logger.info({ changeLog, hasDiff }, 'No changes detected. Nothing to save');
       return res.sendResponse('No changes detected. Nothing to save.', 400);
     }
 
@@ -775,6 +813,19 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
       isQuickFix: _,
       ...restOfCurrentSnapshot
     } = currentSnapshot;
+
+    logger.info(
+      {
+        data: {
+          workflowId,
+          createdBy: email,
+          ...restOfCurrentSnapshot,
+          auditType: WorkflowAuditType.DATA_NORMALIZATION,
+          changeLog
+        }
+      },
+      'Creating audit log for the workflow update'
+    );
 
     await mongoPrisma.workbenchAudit.create({
       data: {
@@ -793,7 +844,10 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
       changeLog
     });
   } catch (error) {
-    console.error(error);
+    logger.error(
+      { error, params: req.params, body: req.body },
+      'An error occurred while saving workflow for later'
+    );
 
     return res.sendResponse(
       error.message || 'An error occurred while saving workflow for later',

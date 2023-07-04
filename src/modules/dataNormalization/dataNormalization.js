@@ -6,6 +6,7 @@ const { postgresPrisma, mongoPrisma } = require('../prisma');
 const { groupBy } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { getStylesDto } = require('./dtos');
+const { logger } = require('../../lib/logger');
 
 const { ATTRIBUTE_API_DOMAIN_NAME, COPY_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME } = process.env;
 const router = express.Router();
@@ -92,6 +93,7 @@ const updateStyleCopy = async (payload) => {
 
     return { success: true, data: response.data };
   } catch (error) {
+    logger.error({ error, payload }, 'Error occured while updating style details in the copy api');
     const errorMessage = error.response?.data || 'An error occurred while updating copy';
     return { success: false, error: errorMessage };
   }
@@ -101,10 +103,15 @@ const updateStyleCopy = async (payload) => {
 router.get('/styles/:styleId/attributes', async (req, res) => {
   try {
     const { styleId } = req.params;
+    logger.info({ styleId }, 'Fetching style details from the Attribute api');
     const response = await getStyleAttributes(styleId);
+    logger.info({ response, styleId }, 'Received response from the Attribute api');
     return res.sendResponse(response);
   } catch (error) {
-    console.error(error.message);
+    logger.error(
+      { error, styleId: req?.params?.styleId },
+      'Error occured while Fetching style details from the Attribute api'
+    );
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -114,15 +121,25 @@ router.put('/styles/:styleId/attributes', async (req, res) => {
   try {
     const { styleId } = req.params;
     const payload = req.body;
-
+    logger.info({ styleId, payload }, 'Updating style details in the Attribute api');
     const { success, data, error } = await updateStyleAttributes(styleId, payload);
-
+    logger.info(
+      { success, data, error, styleId, payload },
+      'Updated style details from the Attribute api'
+    );
     if (success) {
       return res.sendResponse(data);
     }
+    logger.error(
+      { success, data, error, styleId, payload },
+      'Something went wrong while updating style details in the Attribute api'
+    );
     return res.sendResponse(error, error.status || 500);
   } catch (error) {
-    console.error(error.message);
+    logger.error(
+      { error, styleId: req?.params?.styleId, payload: req?.body },
+      'Error occured while updating style details in the Attribute api'
+    );
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -131,10 +148,15 @@ router.put('/styles/:styleId/attributes', async (req, res) => {
 router.get('/styles/:styleId/copy', async (req, res) => {
   try {
     const { styleId } = req.params;
+    logger.info({ styleId }, 'Fetching style details from the COPY api');
     const response = await getStyleCopy(styleId);
+    logger.info({ response, styleId }, 'Received response from the COPY api');
     return res.sendResponse(response);
   } catch (error) {
-    console.error(error.message);
+    logger.error(
+      { error, styleId: req?.params?.styleId },
+      'Error occured while Fetching style details from the COPY api'
+    );
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -144,15 +166,25 @@ router.put('/styles/:styleId/copy', async (req, res) => {
   try {
     const { styleId } = req.params;
     const payload = req.body;
-
+    logger.info({ styleId, payload }, 'Updating style details in the COPY api');
     const { success, data, error } = await updateStyleCopy(styleId, payload);
-
+    logger.info(
+      { success, data, error, styleId, payload },
+      'Updated style details from the COPY api'
+    );
     if (success) {
       return res.sendResponse(data);
     }
+    logger.error(
+      { success, data, error, styleId, payload },
+      'Something went wrong while updating style details in the COPY api'
+    );
     return res.sendResponse(error, error.status || 500);
   } catch (error) {
-    console.error(error.message);
+    logger.error(
+      { error, styleId: req?.params?.styleId, payload: req?.body },
+      'Error occured while updating style details in the COPY api'
+    );
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -201,7 +233,7 @@ router.get('/genus', async (req, res) => {
       }
     });
   } catch (error) {
-    console.error(error);
+    logger.error({ error }, 'Error occured while fetching genus');
     return res.sendResponse(
       'An error occurred while retrieving the genus data. Please try again later.',
       500
@@ -242,7 +274,7 @@ router.get('/genus/:genusId/species', async (req, res) => {
       result
     });
   } catch (error) {
-    console.log(error);
+    logger.error({ error, genusId: req?.params?.genusId }, 'Error occured while fetching species');
     return res.sendResponse('Error while fetching species details', 500);
   }
 });
@@ -263,6 +295,15 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       group by s.hattributevid, hattr.text, hattr.hattributelid, label.name`;
 
     const groupedHAttributes = groupBy(labelFilter, (e) => e.name);
+
+    logger.info(
+      {
+        genusId,
+        styleId,
+        ATTRIBUTE_API_DOMAIN_NAME
+      },
+      'Fetching hAttributes from attribute api'
+    );
 
     const { data } = await axios.get(
       `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
@@ -289,7 +330,7 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
         ...(labels.includes(e.hattributevid) && { selected: true })
       }));
     });
-
+    /* eslint-disable-next-line */
     const updatedTechSpecLabels = techSpecLabels.map(({ id, label, labelid, order }) => ({
       id,
       label,
@@ -298,12 +339,32 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       order
     }));
 
+    logger.info(
+      {
+        data,
+        hattributes,
+        updatedTechSpecLabels,
+        genusId,
+        styleId,
+        ATTRIBUTE_API_DOMAIN_NAME
+      },
+      'Response from hAttribute endpoint'
+    );
+
     return res.sendResponse({
       hattributes,
       techSpecs: [...updatedTechSpecLabels]
     });
   } catch (error) {
-    console.error(error.message);
+    logger.error(
+      {
+        error,
+        genusId: req?.params?.genusId,
+        styleId: req?.params?.styleId,
+        ATTRIBUTE_API_DOMAIN_NAME
+      },
+      'Error occured while fetching hAttributes'
+    );
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -348,6 +409,16 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
         where gal.genusid =${parseInt(genusId)} and dao.dattributevid =${parseInt(speciesId)}
         GROUP BY da.id`;
 
+    logger.info(
+      {
+        genusId,
+        speciesId,
+        styleId,
+        ATTRIBUTE_API_DOMAIN_NAME
+      },
+      'Fetching hAttributes from attribute api'
+    );
+
     const { data } = await axios.get(
       `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
       {
@@ -366,7 +437,7 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
         ...(labels.includes(e.hattributevid) && { selected: true })
       }));
     });
-
+    /* eslint-disable-next-line */
     const updatedTechSpecLabels = techSpecLabels.map(({ id, label, labelid, order }) => ({
       id,
       label,
@@ -375,12 +446,34 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       order
     }));
 
+    logger.info(
+      {
+        data,
+        hattributes,
+        updatedTechSpecLabels,
+        genusId,
+        speciesId,
+        styleId,
+        ATTRIBUTE_API_DOMAIN_NAME
+      },
+      'Response from hAttribute endpoint'
+    );
+
     return res.sendResponse({
       hattributes,
       techSpecs: [...updatedTechSpecLabels]
     });
   } catch (error) {
-    console.error(error.message);
+    logger.error(
+      {
+        error,
+        genusId: req?.params?.genusId,
+        speciesId: req?.params?.speciesId,
+        styleId: req?.params?.styleId,
+        ATTRIBUTE_API_DOMAIN_NAME
+      },
+      'Error occured while fetching hAttributes'
+    );
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -388,12 +481,21 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
 router.get('/merchProduct/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
+    logger.info({ styleId, MERCH_API_DOMAIN_NAME }, 'Fetching Merch api');
     const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
       httpsAgent
     });
+    logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
     return res.sendResponse({ data });
   } catch (error) {
-    console.error(error.message);
+    logger.error(
+      {
+        error,
+        styleId: req.params.styleId,
+        MERCH_API_DOMAIN_NAME
+      },
+      'Error occured while fetching style details from merch api'
+    );
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -412,6 +514,7 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
         const count = await mongoPrisma.workflow.count({ where: { styleId } });
         if (!count) {
           try {
+            logger.info({ styleId, MERCH_API_DOMAIN_NAME }, '[Style search] Fetching Merch api');
             const { data } = await axios.get(
               `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`,
               {
@@ -419,19 +522,38 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
               }
             );
             const { style, title, brandName, lastModified, lastModifiedUsername } = data;
+            logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
             success.push({ style, title, brandName, lastModified, lastModifiedUsername });
           } catch (err) {
+            logger.error(
+              { err, styleId, MERCH_API_DOMAIN_NAME },
+              'Could not find styleId in Merch api'
+            );
             failures.push(styleId);
           }
         } else {
+          logger.info(
+            { styleId, MERCH_API_DOMAIN_NAME },
+            'Workflow already exists for this styleId'
+          );
           workflowExists.push(styleId);
         }
       })
     );
-
+    logger.info(
+      { success, failures, workflowExists, body: req.body },
+      'Response from styleSearch api'
+    );
     return res.sendResponse({ success, failures, workflowExists });
   } catch (error) {
-    console.error(error.message);
+    logger.error(
+      {
+        error,
+        styleId: req.params.styleId,
+        MERCH_API_DOMAIN_NAME
+      },
+      'Error occured while searching for styles'
+    );
     return res.sendResponse('Error occured while searching for styles', 500);
   }
 });
@@ -439,6 +561,10 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
 router.get('/productInfo/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
+    logger.info(
+      { styleId, COPY_API_DOMAIN_NAME, ATTRIBUTE_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME },
+      'Fetching product Info'
+    );
     const results = await Promise.allSettled([
       axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
         httpsAgent
@@ -456,6 +582,10 @@ router.get('/productInfo/:styleId', async (req, res) => {
     const [copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart] = results.map(
       (result) => result.value
     );
+    logger.info(
+      { styleId, copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart },
+      'Retrieved product Info from Backcountry apis'
+    );
     return res.sendResponse({
       copyApiResponse: copyApiResponse?.data,
       merchApiResponse: merchApiResponse?.data,
@@ -463,7 +593,16 @@ router.get('/productInfo/:styleId', async (req, res) => {
       sizingChart: sizingChart?.data
     });
   } catch (err) {
-    console.error(err.message);
+    logger.error(
+      {
+        err,
+        styleId: req.params.styleId,
+        COPY_API_DOMAIN_NAME,
+        ATTRIBUTE_API_DOMAIN_NAME,
+        MERCH_API_DOMAIN_NAME
+      },
+      'Error occured while trying to fetch product info details'
+    );
     return res.sendResponse('Internal Server Error', 500);
   }
 });

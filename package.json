@@ -34,7 +34,8 @@
     "express": "^4.18.2",
     "helmet": "^6.0.1",
     "joi": "^17.9.2",
-    "morgan": "^1.10.0"
+    "morgan": "^1.10.0",
+    "pino": "^8.14.1"
   },
   "devDependencies": {
     "eslint": "^8.40.0",
