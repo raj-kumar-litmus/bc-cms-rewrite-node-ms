@@ -1,4 +1,6 @@
 const { PubSub } = require('@google-cloud/pubsub');
+const { mongoPrisma } = require('../modules/prisma');
+const { logger } = require('../lib/logger');
 const { createWorkflow } = require('../modules/workflows/utils');
 
 const listenForMessages = (subscriptionNameOrId) => {
@@ -6,10 +8,16 @@ const listenForMessages = (subscriptionNameOrId) => {
   const subscription = pubSubClient.subscription(subscriptionNameOrId);
 
   const messageHandler = async (message) => {
-    console.log('message received from pubsub');
-    console.log(message);
     const { style: styleId } = JSON.parse(message.data.toString()) || {};
+    logger.info({ styleId }, 'Create workflow message received from pubsub topic');
     try {
+      const workflow = await mongoPrisma.workflow.findFirst({
+        where: { styleId }
+      });
+      if (workflow) {
+        logger.warn({ styleId }, 'Workflow already exists');
+        return;
+      }
       await createWorkflow({ styleId });
     } catch (error) {
       console.log(error);

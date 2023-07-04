@@ -12,13 +12,14 @@ const PinoLevelToSeverityLookup = {
 const defaultPinoConf = {
   messageKey: 'message',
   formatters: {
-    level(label, number) {
+    bindings: () => ({}),
+    level: (label) => {
       return {
-        severity: PinoLevelToSeverityLookup[label] || PinoLevelToSeverityLookup.info,
-        level: number
+        severity: PinoLevelToSeverityLookup[label] || PinoLevelToSeverityLookup.info
       };
     }
-  }
+  },
+  timestamp: pino.stdTimeFunctions.isoTime
 };
 
 const logger = pino(defaultPinoConf);

@@ -2,6 +2,7 @@ const { WorkflowKeysEnum, CreateProcess } = require('./enums');
 const { transformObject } = require('../../utils');
 const { getStyle } = require('../dataNormalization');
 const { mongoPrisma } = require('../prisma');
+const { logger } = require('../../lib/logger');
 
 const whereBuilder = (filters) => {
   const where = {};
@@ -181,7 +182,7 @@ const deepCompare = (obj1, obj2, ignoreFields = []) => {
 
 const createWorkflow = async ({ styleId, email = 'pc.admin@backcountry.com' }) => {
   const { brandName, title } = await getStyle(styleId);
-
+  logger.info({ brandName, title }, 'Creating new workflow');
   const transformedData = transformObject(
     {
       styleId,
