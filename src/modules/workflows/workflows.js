@@ -595,10 +595,16 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
 });
 
 const convertToAttributesModel = (styleId, newProductAttributes, previousProductAttributes) => {
-  const { genus, species, techSpecs, harmonizingAttributeLabels, staleTechSpecs } =
-    newProductAttributes;
+  const {
+    genus,
+    species,
+    techSpecs,
+    harmonizingAttributeLabels,
+    staleTechSpecs,
+    attributeLastModified
+  } = newProductAttributes;
 
-  const { productGroupId, productGroupName, ageCategory, genderCategory, tags, lastModified } =
+  const { productGroupId, productGroupName, ageCategory, genderCategory, tags } =
     previousProductAttributes;
 
   const productAttributes = {
@@ -611,7 +617,7 @@ const convertToAttributesModel = (styleId, newProductAttributes, previousProduct
     productGroupName,
     ageCategory,
     genderCategory,
-    lastModified,
+    lastModified: attributeLastModified,
     tags: tags || null,
     harmonizingAttributeLabels:
       harmonizingAttributeLabels && harmonizingAttributeLabels.length
@@ -626,6 +632,7 @@ const convertToAttributesModel = (styleId, newProductAttributes, previousProduct
 
 const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
   const {
+    version,
     isPublished,
     listDescription,
     detailedDescription,
@@ -637,10 +644,10 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
     bottomLine
   } = currentCopy;
 
-  const { __v, brandId, productGroupId, writer, title, editor, keywords } = previousCopy;
+  const { brandId, productGroupId, writer, title, editor, keywords } = previousCopy;
 
   const copyModel = {
-    __v,
+    __v: version,
     style: styleId,
     status: isPublished === true ? 'Published' : 'InProgress',
     title,
@@ -760,12 +767,23 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
 
       logger.info({ data: changeLog, id: workflow.id }, 'Updating workflow');
 
-      await mongoPrisma.workflow.update({
-        data: changeLog,
-        where: {
-          id: workflow.id
-        }
-      });
+      try {
+        await mongoPrisma.workflow.update({
+          data: changeLog,
+          where: {
+            id: workflow.id
+          }
+        });
+
+        logger.info({ data: changeLog, id: workflow.id }, 'Workflow updated successfully!');
+      } catch (error) {
+        logger.error(
+          { error, data: changeLog, id: workflow.id },
+          'An error occurred while updating the workflow:'
+        );
+
+        throw new Error('An error occurred while updating the workflow:');
+      }
     }
 
     let hasDiff = false;

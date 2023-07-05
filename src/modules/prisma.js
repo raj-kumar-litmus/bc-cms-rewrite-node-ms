@@ -5,12 +5,8 @@ const {
   PrismaClient: PostgresPrismaClient
 } = require('../../prisma/node_modules/.prisma/client/postgres');
 
-const mongoPrisma = new MongoPrismaClient({
-  log: ['query', 'info', 'warn', 'error']
-});
-const postgresPrisma = new PostgresPrismaClient({
-  log: ['query', 'info', 'warn', 'error']
-});
+const mongoPrisma = new MongoPrismaClient({});
+const postgresPrisma = new PostgresPrismaClient({});
 
 module.exports = {
   mongoPrisma,
