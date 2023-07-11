@@ -8,6 +8,11 @@ const WorkflowAuditType = Object.freeze({
   DATA_NORMALIZATION: 'DATA_NORMALIZATION'
 });
 
+const CopyStatus = Object.freeze({
+  PUBLISHED: 'Published',
+  INPROGRESS: 'InProgress'
+});
+
 const WorkflowKeysEnum = {
   id: 'id',
   admin: 'admin',
@@ -67,6 +72,7 @@ const Status = Object.freeze({
 
 module.exports = {
   CreateProcess,
+  CopyStatus,
   Status,
   WorkflowKeysEnum,
   WorkflowAuditType,

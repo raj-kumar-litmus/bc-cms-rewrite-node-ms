@@ -7,6 +7,7 @@ const workflowEngine = require('./workflowEngine');
 const { whereBuilder, deepCompare } = require('./utils');
 const {
   CreateProcess,
+  CopyStatus,
   Status,
   WorkflowAuditLogKeysEnum,
   WorkflowKeysEnum,
@@ -633,7 +634,6 @@ const convertToAttributesModel = (styleId, newProductAttributes, previousProduct
 const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
   const {
     version,
-    isPublished,
     listDescription,
     detailedDescription,
     bulletPoints,
@@ -649,7 +649,6 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
   const copyModel = {
     __v: version,
     style: styleId,
-    status: isPublished === true ? 'Published' : 'InProgress',
     title,
     listDescription,
     detailDescription: detailedDescription,
@@ -669,7 +668,7 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
   return copyModel;
 };
 
-const updateBC = async (styleId, currentSnapshot) => {
+const updateBC = async (styleId, currentSnapshot, copyStatus) => {
   let previousAttributes;
   let attributesResult;
   let copyResult;
@@ -688,6 +687,7 @@ const updateBC = async (styleId, currentSnapshot) => {
 
     const previousCopy = await getStyleCopy(styleId);
     const newCopy = convertToCopyModel(styleId, currentSnapshot, previousCopy);
+    newCopy.status = copyStatus;
     copyResult = await updateStyleCopy(newCopy);
 
     if (!copyResult.success) {
@@ -724,14 +724,30 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
 
     const { isPublished, isQuickFix } = currentSnapshot;
 
+    const { status } = await getStyleCopy(styleId);
+
+    const getCopyStatus = () => {
+      if (isQuickFix === true) {
+        return status;
+      }
+      if (isPublished === true) {
+        return CopyStatus.PUBLISHED;
+      }
+      return status;
+    };
+
+    const copyStatus = getCopyStatus();
+
     let changeLog =
-      isQuickFix === true ? { isPublished: true } : workflowEngine(workflow, { isPublished });
+      isQuickFix === true
+        ? { isPublished: status === CopyStatus.PUBLISHED }
+        : workflowEngine(workflow, { isPublished });
 
     if (Object.keys(currentSnapshot).length === 0 && Object.keys(changeLog).length === 0) {
       return res.sendResponse('No changes detected. Nothing to save.', 400);
     }
 
-    const { attributesApi, copyApi } = await updateBC(styleId, currentSnapshot);
+    const { attributesApi, copyApi } = await updateBC(styleId, currentSnapshot, copyStatus);
 
     const failedToUpdateBC =
       !attributesApi || !copyApi || !attributesApi.success || !copyApi.success;
