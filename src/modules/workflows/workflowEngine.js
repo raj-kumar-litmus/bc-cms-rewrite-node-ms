@@ -25,6 +25,7 @@ module.exports = (workflow, { writer, editor, isPublished }) => {
       } else if (isPublished) {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastWriteCompleteTs] = new Date();
+        changeLog[WorkflowKeysEnum.isPublished] = true;
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_IN_PROGRESS;
       }
@@ -38,6 +39,7 @@ module.exports = (workflow, { writer, editor, isPublished }) => {
       } else if (isPublished) {
         changeLog[WorkflowKeysEnum.status] = Status.WRITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastWriteCompleteTs] = new Date();
+        changeLog[WorkflowKeysEnum.isPublished] = true;
       }
       break;
 
@@ -65,6 +67,7 @@ module.exports = (workflow, { writer, editor, isPublished }) => {
       } else if (isPublished) {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastEditCompleteTs] = new Date();
+        changeLog[WorkflowKeysEnum.isPublished] = true;
       } else {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_IN_PROGRESS;
       }
@@ -78,6 +81,7 @@ module.exports = (workflow, { writer, editor, isPublished }) => {
       } else if (isPublished) {
         changeLog[WorkflowKeysEnum.status] = Status.EDITING_COMPLETE;
         changeLog[WorkflowKeysEnum.lastEditCompleteTs] = new Date();
+        changeLog[WorkflowKeysEnum.isPublished] = true;
       }
       break;
 

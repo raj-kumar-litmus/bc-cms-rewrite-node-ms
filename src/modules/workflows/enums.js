@@ -29,7 +29,8 @@ const WorkflowKeysEnum = {
   styleId: 'styleId',
   title: 'title',
   writer: 'writer',
-  assignee: 'assignee'
+  assignee: 'assignee',
+  isPublished: 'isPublished'
 };
 
 const WorkflowAuditLogKeysEnum = {
