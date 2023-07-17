@@ -19,10 +19,10 @@ const listenForMessages = (subscriptionNameOrId) => {
         return;
       }
       await createWorkflow({ styleId });
+      message.ack();
     } catch (error) {
       console.log(error);
     }
-    message.ack();
   };
   subscription.on('message', messageHandler);
   console.log(`Waiting for messages from subscription ::: ${subscriptionNameOrId}`);
