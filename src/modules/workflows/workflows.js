@@ -478,15 +478,25 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
     logger.info({ body: req.body, query: req.query }, 'Assigning workflow');
     let where = whereBuilder(filters);
 
-    const distinctStatuses = (
-      await mongoPrisma.workflow.findMany({
-        distinct: ['status'],
-        select: {
-          status: true
+    const data = await mongoPrisma.workflow.findMany({
+      select: {
+        status: true,
+        assignee: true
+      },
+      where
+    });
+
+    const distinctStatuses = [...new Set(data.map(({ status }) => status))];
+    const distinctAssignees = [...new Set(data.map(({ assignee }) => assignee))];
+
+    if (distinctAssignees.includes(writer) || distinctAssignees.includes(editor)) {
+      return res.sendResponse(
+        {
+          message: 'Same user cannot be reassigned.'
         },
-        where
-      })
-    )?.map(({ status }) => status);
+        400
+      );
+    }
 
     let updateCount = 0;
     const errors = [];
@@ -497,17 +507,6 @@ router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (
       const workflows = await mongoPrisma.workflow.findMany({ where, take: 1 });
 
       try {
-        const { assignee } = workflows[0];
-
-        if (assignee === writer || assignee === editor) {
-          return res.sendResponse(
-            {
-              message: 'Same user cannot be reassigned.'
-            },
-            400
-          );
-        }
-
         const changeLog = workflowEngine(workflows[0], { writer, editor });
 
         if (Object.keys(changeLog).length > 0) {
