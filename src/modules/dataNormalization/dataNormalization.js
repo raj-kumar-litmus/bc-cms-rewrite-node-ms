@@ -67,7 +67,7 @@ const getStyleCopy = async (styleId) => {
   }
 };
 
-const updateStyleAttributes = async (styleId, payload) => {
+const upsertStyleAttributes = async (styleId, payload) => {
   try {
     const response = await axios.put(
       `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
@@ -79,6 +79,24 @@ const updateStyleAttributes = async (styleId, payload) => {
   } catch (error) {
     const errorMessage =
       error.response?.data || 'An error occurred while updating product attributes';
+    return { success: false, error: errorMessage };
+  }
+};
+
+const createStyleCopy = async (payload) => {
+  try {
+    const response = await axios.post(`${COPY_API_DOMAIN_NAME}/copy-api/copy`, payload, {
+      httpsAgent
+    });
+
+    logger.info(
+      { data: response?.data, payload },
+      'Style copy created successfully in the COPY API'
+    );
+    return { success: true, data: response.data };
+  } catch (error) {
+    logger.error({ error, payload }, 'An error occurred while creating style copy in the COPY API');
+    const errorMessage = error.response?.data || 'Failed to create style copy';
     return { success: false, error: errorMessage };
   }
 };
@@ -122,7 +140,7 @@ router.put('/styles/:styleId/attributes', async (req, res) => {
     const { styleId } = req.params;
     const payload = req.body;
     logger.info({ styleId, payload }, 'Updating style details in the Attribute api');
-    const { success, data, error } = await updateStyleAttributes(styleId, payload);
+    const { success, data, error } = await upsertStyleAttributes(styleId, payload);
     logger.info(
       { success, data, error, styleId, payload },
       'Updated style details from the Attribute api'
@@ -153,9 +171,42 @@ router.get('/styles/:styleId/copy', async (req, res) => {
     logger.info({ response, styleId }, 'Received response from the COPY api');
     return res.sendResponse(response);
   } catch (error) {
+    if (error.status === 404) {
+      logger.error(
+        { error, styleId: req?.params?.styleId },
+        'Style not found while fetching style details from the COPY api'
+      );
+      return res.sendResponse('Style not found.', 404);
+    }
     logger.error(
       { error, styleId: req?.params?.styleId },
-      'Error occured while Fetching style details from the COPY api'
+      'Error occurred while fetching style details from the COPY api'
+    );
+    return res.sendResponse('Internal Server Error', 500);
+  }
+});
+
+// TODO: Move this to styles route
+router.post('/styles/:styleId/copy', async (req, res) => {
+  try {
+    const { styleId } = req.params;
+    const payload = req.body;
+    logger.info({ styleId, payload }, 'Creating style copy in the COPY API');
+    const result = await createStyleCopy(payload);
+
+    if (result.success) {
+      logger.info({ styleId, payload, result }, 'Style copy created successfully in the COPY API');
+      return res.sendResponse(result.data);
+    }
+    logger.error(
+      { styleId, payload, error: result.error },
+      'Failed to create style copy in the COPY API'
+    );
+    return res.sendResponse(result.error, 500);
+  } catch (error) {
+    logger.error(
+      { error, styleId: req?.params?.styleId, payload: req.body },
+      'Error occurred while creating style copy in the COPY API'
     );
     return res.sendResponse('Internal Server Error', 500);
   }
@@ -305,16 +356,35 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       'Fetching hAttributes from attribute api'
     );
 
-    const { data } = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
-      {
-        httpsAgent
-      }
-    );
+    let data;
+    let labels;
 
-    const labels = data.harmonizingAttributeLabels
-      .map((e) => e.harmonizingAttributeValues.map((l) => l.id))
-      .flat(Infinity);
+    try {
+      const response = await axios.get(
+        `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+        {
+          httpsAgent
+        }
+      );
+      data = response?.data;
+    } catch (error) {
+      logger.error(
+        {
+          error,
+          genusId: req?.params?.genusId,
+          speciesId: req?.params?.speciesId,
+          styleId: req?.params?.styleId,
+          ATTRIBUTE_API_DOMAIN_NAME
+        },
+        'Error occured while fetching attributes'
+      );
+    }
+
+    if (data) {
+      labels = data.harmonizingAttributeLabels
+        .map((e) => e.harmonizingAttributeValues.map((l) => l.id))
+        .flat(Infinity);
+    }
 
     const techSpecLabels = await postgresPrisma.$queryRaw`
       SELECT da.id, da.name as label, MAX(dao.id) as labelId, MIN(dao.position)as order from dn_attributeorder dao 
@@ -327,7 +397,7 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
     Object.keys(groupedHAttributes).forEach((el) => {
       hattributes[el] = groupedHAttributes[el].map((e) => ({
         ...e,
-        ...(labels.includes(e.hattributevid) && { selected: true })
+        ...(labels && labels.includes(e.hattributevid) && { selected: true })
       }));
     });
     /* eslint-disable-next-line */
@@ -335,7 +405,7 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       id,
       label,
       labelId: id,
-      value: data.techSpecs.find((e) => e.label === label)?.value,
+      value: data?.techSpecs?.find((e) => e.label === label)?.value,
       order
     }));
 
@@ -419,22 +489,41 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       'Fetching hAttributes from attribute api'
     );
 
-    const { data } = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
-      {
-        httpsAgent
-      }
-    );
+    let data;
+    let labels;
 
-    const labels = data.harmonizingAttributeLabels
-      .map((e) => e.harmonizingAttributeValues.map((l) => l.id))
-      .flat(Infinity);
+    try {
+      const response = await axios.get(
+        `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+        {
+          httpsAgent
+        }
+      );
+      data = response?.data;
+    } catch (error) {
+      logger.error(
+        {
+          error,
+          genusId: req?.params?.genusId,
+          speciesId: req?.params?.speciesId,
+          styleId: req?.params?.styleId,
+          ATTRIBUTE_API_DOMAIN_NAME
+        },
+        'Error occured while fetching attributes'
+      );
+    }
+
+    if (data) {
+      labels = data.harmonizingAttributeLabels
+        .map((e) => e.harmonizingAttributeValues.map((l) => l.id))
+        .flat(Infinity);
+    }
 
     const hattributes = {};
     Object.keys(groupedHAttributes).forEach((el) => {
       hattributes[el] = groupedHAttributes[el].map((e) => ({
         ...e,
-        ...(labels.includes(e.hattributevid) && { selected: true })
+        ...(labels && labels.includes(e.hattributevid) && { selected: true })
       }));
     });
     /* eslint-disable-next-line */
@@ -442,7 +531,7 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       id,
       label,
       labelId: id,
-      value: data.techSpecs.find((e) => e.label === label)?.value,
+      value: data?.techSpecs?.find((e) => e.label === label)?.value,
       order
     }));
 
@@ -611,7 +700,8 @@ module.exports = {
   router,
   getStyle,
   getStyleAttributes,
-  updateStyleAttributes,
+  upsertStyleAttributes,
   getStyleCopy,
+  createStyleCopy,
   updateStyleCopy
 };

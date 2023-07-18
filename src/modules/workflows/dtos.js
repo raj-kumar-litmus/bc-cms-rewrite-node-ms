@@ -141,9 +141,9 @@ const workflowDetailsDto = Joi.object({
   isPublished: Joi.boolean().optional(),
   isQuickFix: Joi.boolean().optional(),
   auditType: Joi.string().empty('').optional(),
-  version: Joi.number().required(),
-  attributeLastModified: Joi.string().required(),
-  copyLastModified: Joi.string().required()
+  version: Joi.number(),
+  attributeLastModified: Joi.string(),
+  copyLastModified: Joi.string()
 });
 
 const UniqueKeysEnum = {

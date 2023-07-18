@@ -24,8 +24,9 @@ const {
 const {
   getStyle,
   getStyleAttributes,
-  updateStyleAttributes,
+  upsertStyleAttributes,
   getStyleCopy,
+  createStyleCopy,
   updateStyleCopy
 } = require('../dataNormalization');
 const { logger } = require('../../lib/logger');
@@ -604,7 +605,7 @@ const convertToAttributesModel = (styleId, newProductAttributes, previousProduct
     attributeLastModified
   } = newProductAttributes;
 
-  const { productGroupId, productGroupName, ageCategory, genderCategory, tags } =
+  const { productGroupId, productGroupName, ageCategory, genderCategory, tags, lastModified } =
     previousProductAttributes;
 
   const productAttributes = {
@@ -617,7 +618,7 @@ const convertToAttributesModel = (styleId, newProductAttributes, previousProduct
     productGroupName,
     ageCategory,
     genderCategory,
-    lastModified: attributeLastModified,
+    lastModified: attributeLastModified ?? lastModified,
     tags: tags || null,
     harmonizingAttributeLabels:
       harmonizingAttributeLabels && harmonizingAttributeLabels.length
@@ -643,10 +644,11 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
     bottomLine
   } = currentCopy;
 
-  const { brandId, productGroupId, writer, title, editor, keywords } = previousCopy;
+  const { __v, brandId, productGroupId, writer, title, editor, keywords, lastModified } =
+    previousCopy;
 
   const copyModel = {
-    __v: version,
+    __v: version ?? __v,
     style: styleId,
     title,
     listDescription,
@@ -661,7 +663,7 @@ const convertToCopyModel = (styleId, currentCopy, previousCopy) => {
     keywords,
     sizingChartId: sizingChart?.id ?? null,
     productGroupId,
-    lastModified: copyLastModified
+    lastModified: copyLastModified ?? lastModified
   };
 
   return copyModel;
@@ -674,9 +676,50 @@ const updateBC = async (styleId, currentSnapshot, copyStatus) => {
 
   try {
     logger.info({ styleId, currentSnapshot }, 'Updating workflow details in backcountry apis');
-    previousAttributes = await getStyleAttributes(styleId);
+
+    const getAttributesElseCreate = async () => {
+      try {
+        const attributes = await getStyleAttributes(styleId);
+        return attributes;
+      } catch (error) {
+        if (error.status === 404) {
+          logger.error(
+            { error, styleId },
+            'Style not found while fetching style details from the attributes api, Hence creating a new attributes'
+          );
+          try {
+            const {
+              success,
+              data,
+              error: createError
+            } = await upsertStyleAttributes(styleId, {
+              style: styleId
+            });
+
+            if (success) {
+              return data;
+            }
+
+            logger.error({ error: createError, styleId }, createError);
+            throw new Error(createError);
+          } catch (createError) {
+            logger.error({ error: createError, styleId }, createError);
+            throw new Error(createError);
+          }
+        } else {
+          logger.error(
+            { error, styleId },
+            'Error occurred while fetching style details from the attributes api'
+          );
+          throw new Error('Error occurred while fetching style details from the attributes api');
+        }
+      }
+    };
+
+    previousAttributes = await getAttributesElseCreate(styleId);
+
     const newAttributes = convertToAttributesModel(styleId, currentSnapshot, previousAttributes);
-    attributesResult = await updateStyleAttributes(styleId, newAttributes);
+    attributesResult = await upsertStyleAttributes(styleId, newAttributes);
 
     if (!attributesResult.success) {
       return {
@@ -701,7 +744,7 @@ const updateBC = async (styleId, currentSnapshot, copyStatus) => {
     if (attributesResult) {
       logger.info({ styleId }, 'Rolling back atttribute updates');
       previousAttributes.lastModified = attributesResult.data.lastModified;
-      await updateStyleAttributes(styleId, previousAttributes);
+      await upsertStyleAttributes(styleId, previousAttributes);
       logger.info({ styleId }, 'Atttribute updates rolled back');
     }
     throw new Error(`Failed while updating BC about the changes: ${error.message}`);
@@ -723,7 +766,50 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
 
     const { isPublished, isQuickFix } = currentSnapshot;
 
-    const { status } = await getStyleCopy(styleId);
+    // By default, evaluate the workflow unless it follows the quick fix flow.
+    let changeLog = !isQuickFix ? workflowEngine(workflow, { isPublished }) : {};
+
+    const getCopyElseCreate = async () => {
+      try {
+        const copy = await getStyleCopy(styleId);
+        return copy;
+      } catch (error) {
+        if (error.status === 404) {
+          logger.error(
+            { error, styleId },
+            'Style not found while fetching style details from the COPY api, Hence creating a new copy'
+          );
+          try {
+            const {
+              success,
+              data,
+              error: createError
+            } = await createStyleCopy({
+              style: styleId,
+              status: 'InProgress'
+            });
+
+            if (success) {
+              return data;
+            }
+
+            logger.error({ error: createError, styleId }, createError);
+            throw new Error(createError);
+          } catch (createError) {
+            logger.error({ error: createError, styleId }, createError);
+            throw new Error(createError);
+          }
+        } else {
+          logger.error(
+            { error, styleId },
+            'Error occurred while fetching style details from the COPY api'
+          );
+          throw new Error('Error occurred while fetching style details from the COPY api');
+        }
+      }
+    };
+
+    const { status } = await getCopyElseCreate();
 
     const getCopyStatus = () => {
       if (isQuickFix === true) {
@@ -737,10 +823,9 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
 
     const copyStatus = getCopyStatus();
 
-    let changeLog =
-      isQuickFix === true
-        ? { isPublished: status === CopyStatus.PUBLISHED }
-        : workflowEngine(workflow, { isPublished });
+    if (isQuickFix === true) {
+      changeLog = { isPublished: copyStatus === CopyStatus.PUBLISHED };
+    }
 
     if (Object.keys(currentSnapshot).length === 0 && Object.keys(changeLog).length === 0) {
       return res.sendResponse('No changes detected. Nothing to save.', 400);
