@@ -11,7 +11,7 @@ app.listen(port, () => {
   console.log(`Listening: http://localhost:${port}`);
   console.log(properties);
   try {
-    // listenForMessages(NETSUITE_PUBSUB_TOPIC);
+    listenForMessages(NETSUITE_PUBSUB_TOPIC);
   } catch (err) {
     logger.error({ err }, 'Error occuring while listening to pubsub calls');
   }
