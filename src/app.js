@@ -5,7 +5,7 @@ const cors = require('cors');
 
 require('dotenv').config();
 
-const middlewares = require('./middlewares');
+const { responseInterceptor, authenticationMiddleware, notFound } = require('./middlewares');
 const modules = require('./modules');
 const { getHealth } = require('./modules/health');
 
@@ -18,11 +18,11 @@ app.use(express.json());
 
 app.get('/health', getHealth);
 
-app.use(middlewares.responseInterceptor);
+app.use(responseInterceptor);
 // app.use(middlewares.errorHandler);
 
-app.use('/api/v1', modules);
+app.use('/api/v1', authenticationMiddleware, modules);
 
-app.use(middlewares.notFound);
+app.use(notFound);
 
 module.exports = app;
