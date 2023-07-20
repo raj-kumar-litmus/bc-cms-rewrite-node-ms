@@ -16,13 +16,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}dataNormalization/styles/HYFZ02E/attributes",
+							"raw": "{{url}}styles/PATZAI0/attributes",
 							"host": [
-								"{{url}}dataNormalization"
+								"{{url}}styles"
 							],
 							"path": [
-								"styles",
-								"HYFZ02E",
+								"PATZAI0",
 								"attributes"
 							]
 						}
@@ -36,7 +35,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"style\": \"PAT029Y\",\r\n\"genusId\": 22,\r\n\"genusName\": \"Jackets\",\r\n\"speciesId\": 1072,\r\n\"speciesName\": \"Synthetic - Technical\",\r\n\"productGroupId\": 100000115,\r\n\"productGroupName\": \"Men's Synthetic Insulation Jackets\",\r\n\"ageCategory\": \"Adult\",\r\n\"genderCategory\": \"Male\",\r\n\"lastModified\": \"2021-05-11T22:05:08.724Z\",\r\n\"tags\": [],\r\n\"harmonizingAttributeLabels\": [\r\n    {\r\n        \"id\": 99,\r\n        \"text\": \"Activity\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 2830,\r\n                \"text\": \"Hike & Camp\"\r\n            },\r\n            {\r\n                \"id\": 2831,\r\n                \"text\": \"Lifestyle\"\r\n            },\r\n            {\r\n                \"id\": 2833,\r\n                \"text\": \"Ski\"\r\n            },\r\n            {\r\n                \"id\": 2834,\r\n                \"text\": \"Snowboard\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 422,\r\n        \"text\": \"Content Treatment\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 2978,\r\n                \"text\": \"Tier 2\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 259,\r\n        \"text\": \"Features\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 1084,\r\n                \"text\": \"Water Resistant\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 156,\r\n        \"text\": \"Fit\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 2099,\r\n                \"text\": \"Regular/Relaxed\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 113,\r\n        \"text\": \"Hood\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 518,\r\n                \"text\": \"Yes\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 131,\r\n        \"text\": \"Insulation\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 2040,\r\n                \"text\": \"Synthetic Fill\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 299,\r\n        \"text\": \"Insulation Weight\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 1412,\r\n                \"text\": \"Lightweight\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 150,\r\n        \"text\": \"Length\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 1005,\r\n                \"text\": \"Short\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 120,\r\n        \"text\": \"Recommended Use\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 616,\r\n                \"text\": \"Ice Climbing\"\r\n            },\r\n            {\r\n                \"id\": 634,\r\n                \"text\": \"Mountaineering\"\r\n            },\r\n            {\r\n                \"id\": 749,\r\n                \"text\": \"Casual\"\r\n            },\r\n            {\r\n                \"id\": 1004,\r\n                \"text\": \"Hiking\"\r\n            },\r\n            {\r\n                \"id\": 2839,\r\n                \"text\": \"All-Mountain Skiing\"\r\n            },\r\n            {\r\n                \"id\": 2840,\r\n                \"text\": \"Freeride/Powder Skiing\"\r\n            },\r\n            {\r\n                \"id\": 2845,\r\n                \"text\": \"Backcountry Skiing\"\r\n            },\r\n            {\r\n                \"id\": 2897,\r\n                \"text\": \"All-Mountain Snowboarding\"\r\n            },\r\n            {\r\n                \"id\": 2899,\r\n                \"text\": \"Backcountry Snowboarding\"\r\n            },\r\n            {\r\n                \"id\": 2900,\r\n                \"text\": \"Freeride/Powder Snowboarding\"\r\n            }\r\n        ]\r\n    },\r\n    {\r\n        \"id\": 243,\r\n        \"text\": \"Shirt Style\",\r\n        \"harmonizingAttributeValues\": [\r\n            {\r\n                \"id\": 1329,\r\n                \"text\": \"Full-Zip\"\r\n            }\r\n        ]\r\n    }\r\n],\r\n\"staleTechSpecs\": [],\r\n\"techSpecs\": [\r\n    {\r\n        \"id\": 11789854,\r\n        \"labelId\": 88,\r\n        \"order\": 1,\r\n        \"label\": \"Material\",\r\n        \"value\": \"Pertex Quantum (10D nylon ripstop)\"\r\n    },\r\n    {\r\n        \"id\": 11789855,\r\n        \"labelId\": 109,\r\n        \"order\": 2,\r\n        \"label\": \"Insulation\",\r\n        \"value\": \"65g PlumaFill (100% polyester)\"\r\n    },\r\n    {\r\n        \"id\": 11789856,\r\n        \"labelId\": 272,\r\n        \"order\": 3,\r\n        \"label\": \"Fit\",\r\n        \"value\": \"regular\"\r\n    },\r\n    {\r\n        \"id\": 11789857,\r\n        \"labelId\": 106,\r\n        \"order\": 4,\r\n        \"label\": \"Length\",\r\n        \"value\": \"hip\"\r\n    },\r\n    {\r\n        \"id\": 11789858,\r\n        \"labelId\": 599,\r\n        \"order\": 5,\r\n        \"label\": \"Center Back Length\",\r\n        \"value\": \"[x-large] 30.5in\"\r\n    },\r\n    {\r\n        \"id\": 11789859,\r\n        \"labelId\": 517,\r\n        \"order\": 6,\r\n        \"label\": \"Hood\",\r\n        \"value\": \"yes\"\r\n    },\r\n    {\r\n        \"id\": 11789860,\r\n        \"labelId\": 28,\r\n        \"order\": 7,\r\n        \"label\": \"Pockets\",\r\n        \"value\": \"2 handwarmer zip\"\r\n    },\r\n    {\r\n        \"id\": 11789861,\r\n        \"labelId\": 113,\r\n        \"order\": 12,\r\n        \"label\": \"Claimed Weight\",\r\n        \"value\": \"9.3oz\"\r\n    },\r\n    {\r\n        \"id\": 11789862,\r\n        \"labelId\": 283,\r\n        \"order\": 13,\r\n        \"label\": \"Recommended Use\",\r\n        \"value\": \"all-mountain skiing, all-mountain snowboarding, casual, hiking\"\r\n    },\r\n    {\r\n        \"id\": 11789863,\r\n        \"labelId\": 336,\r\n        \"order\": 14,\r\n        \"label\": \"Manufacturer Warranty\",\r\n        \"value\": \"lifetime\"\r\n    }\r\n]",
+							"raw": "{\r\n    \"style\": \"PATZAI0\",\r\n    \"genusId\": null,\r\n    \"genusName\": null,\r\n    \"speciesId\": null,\r\n    \"speciesName\": null,\r\n    \"productGroupId\": 10,\r\n    \"productGroupName\": \"Men's Casual Pants\",\r\n    \"ageCategory\": \"Adult\",\r\n    \"genderCategory\": \"Male\",\r\n    \"lastModified\": \"2023-07-18T10:25:50.600Z\",\r\n    \"tags\": [],\r\n    \"harmonizingAttributeLabels\": [],\r\n    \"staleTechSpecs\": [],\r\n    \"techSpecs\": []\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -44,13 +43,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}dataNormalization/styles/PAT029Y/attributes",
+							"raw": "{{url}}styles/PATZAI0/attributes",
 							"host": [
-								"{{url}}dataNormalization"
+								"{{url}}styles"
 							],
 							"path": [
-								"styles",
-								"PAT029Y",
+								"PATZAI0",
 								"attributes"
 							]
 						}
@@ -70,13 +68,12 @@
 							"raw": ""
 						},
 						"url": {
-							"raw": "{{url}}dataNormalization/styles/PAT029Y/copy",
+							"raw": "{{url}}styles/PATZAHW/copy",
 							"host": [
-								"{{url}}dataNormalization"
+								"{{url}}styles"
 							],
 							"path": [
-								"styles",
-								"PAT029Y",
+								"PATZAHW",
 								"copy"
 							]
 						}
@@ -90,7 +87,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n        \"_id\": \"5a32baae39f785000dce62a9\",\r\n        \"created\": \"2017-12-14T17:53:50.868Z\",\r\n        \"lastModified\": \"2022-10-01T04:31:37.105Z\",\r\n        \"style\": \"PAT029Y\",\r\n        \"title\": \"Micro Puff Hooded Insulated Jacket - Men's\",\r\n        \"listDescription\": \"\",\r\n        \"detailDescription\": \"<p>Before anything else, we slide the Patagonia Micro Puff Hooded Insulated Jacket over our baselayer at the snowshoeing trailhead. So when the storm clouds roll in and snow starts to dump, we can just zip up a waterproof shell over it and comfortably watch the world turn snowy white. <br></p>\",\r\n        \"bottomLine\": \"Why We Like The Micro Puff Hooded Insulated Jacket\",\r\n        \"sizingChartId\": 11,\r\n        \"writer\": \"bbaisley\",\r\n        \"editor\": \"bbaisley\",\r\n        \"status\": \"Published\",\r\n        \"competitiveCyclistDescription\": \"\",\r\n        \"competitiveCyclistBottomLine\": \"\",\r\n        \"productGroupId\": 100000115,\r\n        \"brandId\": 54,\r\n        \"__v\": 20,\r\n        \"keywords\": [\r\n            \"mountaineering outerwear\",\r\n            \"           technical jackets\",\r\n            \"           insulated jackets\",\r\n            \"           alpine jackets\",\r\n            \"           patagonia micro puff jacket\"\r\n        ],\r\n        \"bulletPoints\": [\r\n            \"Warm, windproof jacket for chilly climbing or backcountry days\",\r\n            \"Water-repellent Pertex Quantum sheds light precipitation\",\r\n            \"PlumaFill insulation mimics down for lightweight warmth\",\r\n            \"Regular fit offers room for baselayers\",\r\n            \"Elasticized cuffs and hem seal in warmth\",\r\n            \"Multiple pockets stash snacks, maps, and your phone\"\r\n        ],\r\n        \"skuCopy\": []\r\n    \r\n}",
+							"raw": "{\r\n    \"_id\": \"64b63b1abc921ec1e41cfa64\",\r\n    \"style\": \"PATZAHW\",\r\n    \"bulletPoints\": [\r\n        \"Temple loops for attaching strap\"\r\n    ],\r\n    \"keywords\": [],\r\n    \"status\": \"InProgress\",\r\n    \"lastModified\": \"2023-07-18T07:11:45.957Z\",\r\n    \"created\": \"2023-07-18T07:11:22.482Z\",\r\n    \"__v\": 1,\r\n    \"detailDescription\": \"<p>The Orucase Saddle Bag HC uses strong rubber gear straps to keep our new saddle bag with our tubes, tools, and other essentials secure and free of loud rattling. It features a clamshell design to allow for easy access to all of our gear, while the internal organization is super clean thanks to the shockcord loops and a slim pocket.</p>\",\r\n    \"listDescription\": \"\",\r\n    \"sizingChartId\": null,\r\n    \"skuCopy\": []\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -98,13 +95,39 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}dataNormalization/styles/PAT029Y/copy",
+							"raw": "{{url}}styles/PATZAHW/copy",
 							"host": [
-								"{{url}}dataNormalization"
+								"{{url}}styles"
 							],
 							"path": [
-								"styles",
-								"PAT029Y",
+								"PATZAHW",
+								"copy"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "copy",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"style\": \"PATZAHS\",\r\n    \"status\": \"InProgress\"\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}styles/PATZAHS/copy",
+							"host": [
+								"{{url}}styles"
+							],
+							"path": [
+								"PATZAHS",
 								"copy"
 							]
 						}
@@ -119,11 +142,21 @@
 				{
 					"name": "workflow",
 					"request": {
+						"auth": {
+							"type": "bearer",
+							"bearer": [
+								{
+									"key": "token",
+									"value": "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiIzMWYyY2Q2NS1mZTE2LTRiNjQtOGNiZi1jYjMwNTVmNTQxNWMiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vZDMyYjdjM2EtYzVlMS00ZGQzLWI5NzMtM2Q2YTM2YjA1OGIyL3YyLjAiLCJpYXQiOjE2ODkwNjA5MDksIm5iZiI6MTY4OTA2MDkwOSwiZXhwIjoxNjg5MDY0ODA5LCJncm91cHMiOlsicHJvZHVjdC1jb250ZW50LWFkbWluIiwicHJvZHVjdC1jb250ZW50LWVkaXRvciIsInByb2R1Y3QtY29udGVudC13cml0ZXIiLCJQcm9kdWN0LUNvbnRlbnQtU2l6aW5nIl0sIm5hbWUiOiJOaWtoaWwgQ2hhbmRyYSIsIm5vbmNlIjoiZmE5Yzk0MjktNWQyYi00NTM1LWJiMjktN2Y0OTkyYjRiNmNkIiwib2lkIjoiNGJhMzAwZTgtYmE2MS00ZjdhLWFlODItZTZmNTU2MmJiODEyIiwicHJlZmVycmVkX3VzZXJuYW1lIjoibmlraGlsLmNoYW5kcmFAYmFja2NvdW50cnkuY29tIiwicmgiOiIwLkFSZ0FPbndyMC1IRjAwMjVjejFxTnJCWXNtWE44akVXX21STGpMX0xNRlgxUVZ3WUFENC4iLCJzdWIiOiJkMXdoRnNjTGs1c3JaOG1MbkxYbzF4bU9kLXFFUGZOQXRLbHdNNGtESkNnIiwidGlkIjoiZDMyYjdjM2EtYzVlMS00ZGQzLWI5NzMtM2Q2YTM2YjA1OGIyIiwidXRpIjoickNwVDNVU0NyMDY4MXBxc2JZQWRBUSIsInZlciI6IjIuMCJ9.VjXrt2_-Ejyk4npM5kz9akMpF596S5WFVcQMyrHcXE1SjB3cnZRAZjhRNSouLGAAPwOKmX5DAx0PuTkQ74afcIh4uFmkDcwkj2xa2mkgdIwKVnL36aJlOSzHny7S-zptRaFbdAZQp_SgcZ9c-O-I-iAZ9LZ95K9E899-PWPoU_K3aFCaY4e5QSkllBm-oNdTua008ywyHkIStAC1qIobya4UZKpgtRVgIqF6pdxAHCqZPWSDkzf-FMWur7Fdf2Y8_jOM45ywmwLexm5Q85MrXQFN4kJLXN6D_Fs9K4jaY6F02xp4YLVj35gb-dOmjuFrbtj1oVF5SyXvKqdV92dY6w",
+									"type": "string"
+								}
+							]
+						},
 						"method": "POST",
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"styleId\": \"ORA000J\"\r\n}",
+							"raw": "{\r\n    \"styleId\": \"PATZAHW\"\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -131,15 +164,9 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows?email=pc.admin@backcountry.com",
+							"raw": "{{url}}workflows",
 							"host": [
 								"{{url}}workflows"
-							],
-							"query": [
-								{
-									"key": "email",
-									"value": "pc.admin@backcountry.com"
-								}
 							]
 						}
 					},
@@ -160,18 +187,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows/bulk?email=pc.admin@backcountry.com",
+							"raw": "{{url}}workflows/bulk",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"bulk"
-							],
-							"query": [
-								{
-									"key": "email",
-									"value": "pc.admin@backcountry.com"
-								}
 							]
 						}
 					},
@@ -201,7 +222,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        \"id\": \"{{workflowId}}\"\r\n        // \"id\": [\"64817792f6cd8d0bd7c0cce3\",\"6481782bf6cd8d0bd7c0cd40\"]\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"nike\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"FWT622\"]\r\n        // \"status\": \"WRITING_IN_PROGRESS\"\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        // \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        \"editor\": \"editor1@backcountry.com\"\r\n        // \"writer\": \"pc.writer@backcountry.com\"\r\n    }\r\n}\r\n",
+							"raw": "{\r\n    \"filters\": {\r\n        // \"id\": \"{{workflowId}}\"\r\n        \"id\": \"64b638b03104c597d97da0b0\"\r\n        // \"id\": [\"64817792f6cd8d0bd7c0cce3\",\"6481782bf6cd8d0bd7c0cd40\"]\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"nike\"\r\n        // \"assiee\": \"writer 3\"\r\n        // \"styleId\": [\"FWT622\"]\r\n        // \"status\": \"WRITING_IN_PROGRESS\"\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],\r\n        // \"excludeId\": [\"647746bcc58fe1cfe9356ac6\"]\r\n    },\r\n    \"assignments\": {\r\n        // \"editor\": \"editor1@backcountry.com\"\r\n          \"writer\": \"nikhil.chandra@backcountry.com\"\r\n    }\r\n}\r\n",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -209,18 +230,12 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows/assign?email=pc.admin@backcountry.com",
+							"raw": "{{url}}workflows/assign",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"assign"
-							],
-							"query": [
-								{
-									"key": "email",
-									"value": "pc.admin@backcountry.com"
-								}
 							]
 						}
 					},
@@ -233,7 +248,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    // \"isQuickFix\": true,\r\n    // \"isPublished\": true,\r\n    \"version\": 12,\r\n    \"attributeLastModified\": \"2023-06-20T13:55:19.000Z\",\r\n    \"copyLastModified\": \"2023-06-20T13:55:26.118Z\",\r\n    \"bulletPoints\": [\r\n        \"Warm, windproof jacket for chilly climbing or backcountry days\",\r\n        \"Water-repellent Pertex Quantum sheds light precipitation\",\r\n        \"PlumaFill insulation mimics down for lightweight warmth\",\r\n        \"Regular fit offers room for baselayers\",\r\n        \"Elasticized cuffs and hem seal in warmth\",\r\n        \"Multiple pockets stash snacks, maps, and your phone\"\r\n    ],\r\n    \"detailedDescription\": \"<p>Before anything else, we slide the Patagonia Micro Puff Hooded Insulated Jacket over our baselayer at the snowshoeing trailhead. So when the storm clouds roll in and snow starts to dump, we can just zip up a waterproof shell over it and comfortably watch the world turn snowy white. --- Nikhil updates nikhil's update <br></p>\",\r\n    \"genus\": {\r\n        \"id\": 22,\r\n        \"name\": \"Jackets\"\r\n    },\r\n    \"species\": {\r\n        \"id\": 1072,\r\n        \"name\": \"Synthetic - Technical\"\r\n    },\r\n    \"sizingChart\": {\r\n        \"id\": 11\r\n    },\r\n    \"harmonizingAttributeLabels\": [\r\n        {\r\n            \"id\": 99,\r\n            \"text\": \"Activity\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 2830,\r\n                    \"text\": \"Hike & Camp\"\r\n                },\r\n                {\r\n                    \"id\": 2831,\r\n                    \"text\": \"Lifestyle\"\r\n                },\r\n                {\r\n                    \"id\": 2833,\r\n                    \"text\": \"Ski\"\r\n                },\r\n                {\r\n                    \"id\": 2834,\r\n                    \"text\": \"Snowboard\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 422,\r\n            \"text\": \"Content Treatment\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 2978,\r\n                    \"text\": \"Tier 2\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 259,\r\n            \"text\": \"Features\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 1084,\r\n                    \"text\": \"Water Resistant\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 156,\r\n            \"text\": \"Fit\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 2099,\r\n                    \"text\": \"Regular/Relaxed\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 113,\r\n            \"text\": \"Hood\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 518,\r\n                    \"text\": \"Yes\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 131,\r\n            \"text\": \"Insulation\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 2040,\r\n                    \"text\": \"Synthetic Fill\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 299,\r\n            \"text\": \"Insulation Weight\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 1412,\r\n                    \"text\": \"Lightweight\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 150,\r\n            \"text\": \"Length\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 1005,\r\n                    \"text\": \"Short\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 120,\r\n            \"text\": \"Recommended Use\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 616,\r\n                    \"text\": \"Ice Climbing\"\r\n                },\r\n                {\r\n                    \"id\": 634,\r\n                    \"text\": \"Mountaineering\"\r\n                },\r\n                {\r\n                    \"id\": 749,\r\n                    \"text\": \"Casual\"\r\n                },\r\n                {\r\n                    \"id\": 1004,\r\n                    \"text\": \"Hiking\"\r\n                },\r\n                {\r\n                    \"id\": 2839,\r\n                    \"text\": \"All-Mountain Skiing\"\r\n                },\r\n                {\r\n                    \"id\": 2840,\r\n                    \"text\": \"Freeride/Powder Skiing\"\r\n                },\r\n                {\r\n                    \"id\": 2845,\r\n                    \"text\": \"Backcountry Skiing\"\r\n                },\r\n                {\r\n                    \"id\": 2897,\r\n                    \"text\": \"All-Mountain Snowboarding\"\r\n                },\r\n                {\r\n                    \"id\": 2899,\r\n                    \"text\": \"Backcountry Snowboarding\"\r\n                },\r\n                {\r\n                    \"id\": 2900,\r\n                    \"text\": \"Freeride/Powder Snowboarding\"\r\n                }\r\n            ]\r\n        },\r\n        {\r\n            \"id\": 243,\r\n            \"text\": \"Shirt Style\",\r\n            \"harmonizingAttributeValues\": [\r\n                {\r\n                    \"id\": 1329,\r\n                    \"text\": \"Full-Zip\"\r\n                }\r\n            ]\r\n        }\r\n    ],\r\n    \"bottomLine\": \"Why We Like The 32oz Wide Mouth Flex Straw Water Bottle--nikhil updates\",\r\n    \"competitiveCyclistBottomLine\": \"\",\r\n    \"listDescription\": \"nikhil's update again\",\r\n    \"techSpecs\": [\r\n        {\r\n            \"labelId\": 88,\r\n            \"order\": 1,\r\n            \"label\": \"Material\",\r\n            \"value\": \"Pertex Quantum (10D nylon ripstop)\"\r\n        },\r\n        {\r\n            \"labelId\": 109,\r\n            \"order\": 2,\r\n            \"label\": \"Insulation\",\r\n            \"value\": \"65g PlumaFill (100% polyester)\"\r\n        },\r\n        {\r\n            \"labelId\": 272,\r\n            \"order\": 3,\r\n            \"label\": \"Fit\",\r\n            \"value\": \"regular\"\r\n        },\r\n        {\r\n            \"labelId\": 106,\r\n            \"order\": 4,\r\n            \"label\": \"Length\",\r\n            \"value\": \"hip\"\r\n        },\r\n        {\r\n            \"labelId\": 599,\r\n            \"order\": 5,\r\n            \"label\": \"Center Back Length\",\r\n            \"value\": \"[x-large] 30.5in\"\r\n        },\r\n        {\r\n            \"labelId\": 517,\r\n            \"order\": 6,\r\n            \"label\": \"Hood\",\r\n            \"value\": \"yes\"\r\n        },\r\n        {\r\n            \"labelId\": 28,\r\n            \"order\": 7,\r\n            \"label\": \"Pockets\",\r\n            \"value\": \"2 handwarmer zip\"\r\n        },\r\n        {\r\n            \"labelId\": 113,\r\n            \"order\": 12,\r\n            \"label\": \"Claimed Weight\",\r\n            \"value\": \"9.3oz\"\r\n        },\r\n        {\r\n            \"labelId\": 283,\r\n            \"order\": 13,\r\n            \"label\": \"Recommended Use\",\r\n            \"value\": \"all-mountain skiing, all-mountain snowboarding, casual, hiking\"\r\n        },\r\n        {\r\n            \"labelId\": 336,\r\n            \"order\": 14,\r\n            \"label\": \"Manufacturer Warranty\",\r\n            \"value\": \"lifetime\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"bulletPoints\": [\r\n        \"Temple loops for attaching strap\"\r\n    ],\r\n    \"detailedDescription\": \"<p>The Orucase Saddle Bag HC uses strong rubber gear straps to keep our new saddle bag with our tubes, tools, and other essentials secure and free of loud rattling. It features a clamshell design to allow for easy access to all of our gear, while the internal organization is super clean thanks to the shockcord loops and a slim pocket.</p>\",\r\n    \"species\": {\r\n        \"id\": 1150,\r\n        \"name\": \"Bike\"\r\n    },\r\n    \"harmonizingAttributeLabels\": [],\r\n    \"listDescription\": \"\",\r\n    \"productTitle\": \"Saddle Bag\",\r\n    \"techSpecs\": [\r\n        {\r\n            \"labelId\": 336,\r\n            \"order\": 9,\r\n            \"label\": \"Manufacturer Warranty\",\r\n            \"value\": \"lifetime\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -241,53 +256,37 @@
 							}
 						},
 						"url": {
-							"raw": "{{url}}workflows/{{workflowId}}?email=nikhil.s@backcountry.com",
+							"raw": "{{url}}workflows/64b638b03104c597d97da0b0",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
-								"{{workflowId}}"
-							],
-							"query": [
-								{
-									"key": "email",
-									"value": "nikhil.s@backcountry.com"
-								}
+								"64b638b03104c597d97da0b0"
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "history",
+					"name": "workflow/workflowId/history",
 					"request": {
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/{{workflowId}}/history?page=1&limit=2",
+							"raw": "{{url}}workflows/{{workflowId}}/history",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"{{workflowId}}",
 								"history"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "limit",
-									"value": "2"
-								}
 							]
 						}
 					},
 					"response": []
 				},
 				{
-					"name": "historyId",
+					"name": "workflow/workflowId/history/historyId",
 					"request": {
 						"method": "GET",
 						"header": [],
@@ -312,7 +311,7 @@
 						"header": [],
 						"body": {
 							"mode": "raw",
-							"raw": "{\r\n    \"filters\": {\r\n        // \"id\":{{workflowId}}\r\n        \"globalSearch\": \"HYFZ02E\"\r\n        // \"brand\": \"Rolex\"\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assiee\": \"writer 3\",\r\n        // \"styleId\": [\r\n        //     \"ORA000J\"\r\n        // ]\r\n        // \"styleId\": \"$\"\r\n        // \"status\": [\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],  \r\n    },\r\n    \"orderBy\": [\r\n        {\r\n            \"lastUpdateTs\": \"desc\"\r\n        },\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}",
+							"raw": "{\r\n    \"filters\": {\r\n        \"globalSearch\": \"PATZAHU\"\r\n        // \"brand\": \"Rolex\",\r\n        // \"brand\": [\r\n        //     \"puma\"\r\n        // ]\r\n        // \"brand\": \"Rolex\"\r\n        // \"assignee\": \"writer 3\",\r\n        // \"styleId\": [\r\n        //     \"ORA000J\"\r\n        // ]\r\n        // \"styleId\": \"$\"\r\n        // \"status\": [\r\n        //     \"WRITING_IN_PROGRESS\"\r\n        // ]\r\n        // \"lastUpdateTs\": \"2023-MAY-12\"\r\n        // \"lastUpdatedBy\": \"deepthi\"\r\n        // \"assignee\": [\"nikhil\"],  \r\n    },\r\n    \"orderBy\": [\r\n        {\r\n            \"lastUpdateTs\": \"desc\"\r\n        },\r\n        {\r\n            \"styleId\": \"asc\"\r\n        }\r\n    ]\r\n}",
 							"options": {
 								"raw": {
 									"language": "json"
@@ -392,18 +391,12 @@
 						"method": "GET",
 						"header": [],
 						"url": {
-							"raw": "{{url}}workflows/counts?email=raj.kumar@backcountry.com",
+							"raw": "{{url}}workflows/counts",
 							"host": [
 								"{{url}}workflows"
 							],
 							"path": [
 								"counts"
-							],
-							"query": [
-								{
-									"key": "email",
-									"value": "raj.kumar@backcountry.com"
-								}
 							]
 						}
 					},
