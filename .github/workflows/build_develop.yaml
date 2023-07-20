@@ -2,7 +2,7 @@ name: product-content-api
 
 on:
   push:
-    branches: [develop]
+    branches: [develop, feat/pubsub-msg]
 env:
   app: product-content-api
   major_version: '1.0'

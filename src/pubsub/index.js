@@ -10,6 +10,8 @@ const listenForMessages = (subscriptionNameOrId) => {
   const messageHandler = async (message) => {
     const { style: styleId } = JSON.parse(message.data.toString()) || {};
     logger.info({ styleId }, 'Create workflow message received from pubsub topic');
+    const response = JSON.parse(message.data.toString()) || {};
+    logger.info({ message: response }, 'Complete message received from pubsub topic');
     try {
       const workflow = await mongoPrisma.workflow.findFirst({
         where: { styleId }
