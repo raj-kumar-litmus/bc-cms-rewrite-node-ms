@@ -28,7 +28,9 @@ const {
   getStyleCopy,
   createStyleCopy,
   updateStyleCopy
-} = require('../dataNormalization');
+} = require('../styles');
+const { authorize } = require('../../middlewares');
+const { groups } = require('../../properties');
 const { logger } = require('../../lib/logger');
 
 const router = express.Router();
@@ -62,122 +64,136 @@ const findWorkflowById = async (id) => {
 };
 
 // Endpoint to create a workflow
-router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, res) => {
-  try {
-    const {
-      body: { styleId },
-      query: { email = 'pc.admin@backCountry.com' }
-    } = req;
+router.post(
+  '/',
+  authorize([groups.ADMIN_GROUP_NAME]),
+  validateMiddleware({ body: createWorkflowDto }),
+  async (req, res) => {
+    try {
+      const {
+        body: { styleId },
+        user: { email }
+      } = req;
 
-    const { brandName, title } = await getStyle(styleId);
+      const { brandName, title } = await getStyle(styleId);
 
-    const transformedData = transformObject(
-      {
-        styleId,
-        createProcess: CreateProcess.WRITER_INTERFACE,
-        admin: email,
-        lastUpdatedBy: email
-      },
-      {
-        styleId: 'upperCase',
-        admin: 'lowerCase',
-        lastUpdatedBy: 'lowerCase'
+      const transformedData = transformObject(
+        {
+          styleId,
+          createProcess: CreateProcess.WRITER_INTERFACE,
+          admin: email,
+          lastUpdatedBy: email
+        },
+        {
+          styleId: 'upperCase',
+          admin: 'lowerCase',
+          lastUpdatedBy: 'lowerCase'
+        }
+      );
+
+      logger.info({ data: { ...transformedData, brand: brandName, title } }, 'Creating work flow');
+
+      const workflow = await mongoPrisma.workflow.create({
+        data: { ...transformedData, brand: brandName, title }
+      });
+      logger.info({ workflow }, 'Workflow created');
+      return res.sendResponse({ success: workflow }, 201);
+    } catch (error) {
+      logger.error({ error, styleId: req?.body?.styleId }, 'Error occured while creating workflow');
+
+      if (error.code === 'P2002') {
+        return res.sendResponse('Workflow with the styleId already exists', 400);
       }
-    );
 
-    logger.info({ data: { ...transformedData, brand: brandName, title } }, 'Creating work flow');
-
-    const workflow = await mongoPrisma.workflow.create({
-      data: { ...transformedData, brand: brandName, title }
-    });
-    logger.info({ workflow }, 'Work flow created');
-    return res.sendResponse({ success: workflow }, 201);
-  } catch (error) {
-    logger.error({ error, styleId: req?.body?.styleId }, 'Error occured while creating workflow');
-
-    if (error.code === 'P2002') {
-      return res.sendResponse('Workflow with the styleId already exists', 400);
+      return res.sendResponse(
+        error.message || 'An error occurred while creating the workflow.',
+        error.status || 500
+      );
+    } finally {
+      await mongoPrisma.$disconnect();
     }
-
-    return res.sendResponse(
-      error.message || 'An error occurred while creating the workflow.',
-      error.status || 500
-    );
-  } finally {
-    await mongoPrisma.$disconnect();
   }
-});
+);
 
 // Endpoint to create a mutliple workflows
-router.post('/bulk', validateMiddleware({ body: createWorkflowsDto }), async (req, res) => {
-  try {
-    const {
-      body: { styles },
-      query: { email = 'pc.admin@backCountry.com' }
-    } = req;
+router.post(
+  '/bulk',
+  authorize([groups.ADMIN_GROUP_NAME]),
+  validateMiddleware({ body: createWorkflowsDto }),
+  async (req, res) => {
+    try {
+      const {
+        body: { styles },
+        user: { email }
+      } = req;
 
-    const createdWorkflows = [];
-    const failedWorkflows = [];
+      const createdWorkflows = [];
+      const failedWorkflows = [];
 
-    await Promise.all(
-      styles.map(async ({ styleId, brand, title }) => {
-        try {
-          const transformedData = transformObject(
-            {
-              styleId,
-              brand,
-              title,
-              createProcess: CreateProcess.WRITER_INTERFACE,
-              admin: email,
-              lastUpdatedBy: email
-            },
-            {
-              styleId: 'upperCase',
-              brand: 'lowerCase',
-              title: 'lowerCase',
-              admin: 'lowerCase',
-              lastUpdatedBy: 'lowerCase'
-            }
-          );
-          logger.info({ data: transformedData }, 'Creating work flow [Multiple]');
-          const workflow = await mongoPrisma.workflow.create({
-            data: transformedData
-          });
-          logger.info({ workflow }, 'Work flow created [Multiple]');
-          createdWorkflows.push({ workflow });
-        } catch (error) {
-          logger.error({ error, styleId, brand, title }, 'Error occured while creating workflows');
-          failedWorkflows.push({ styleId, brand, title });
-        }
-      })
-    );
-
-    if (failedWorkflows.length > 0) {
-      return res.sendResponse(
-        {
-          success: createdWorkflows,
-          failed: failedWorkflows
-        },
-        // revisit this
-        207
+      await Promise.all(
+        styles.map(async ({ styleId, brand, title }) => {
+          try {
+            const transformedData = transformObject(
+              {
+                styleId,
+                brand,
+                title,
+                createProcess: CreateProcess.WRITER_INTERFACE,
+                admin: email,
+                lastUpdatedBy: email
+              },
+              {
+                styleId: 'upperCase',
+                brand: 'lowerCase',
+                title: 'lowerCase',
+                admin: 'lowerCase',
+                lastUpdatedBy: 'lowerCase'
+              }
+            );
+            logger.info({ data: transformedData }, 'Creating work flow [Multiple]');
+            const workflow = await mongoPrisma.workflow.create({
+              data: transformedData
+            });
+            logger.info({ workflow }, 'Work flow created [Multiple]');
+            createdWorkflows.push({ workflow });
+          } catch (error) {
+            logger.error(
+              { error, styleId, brand, title },
+              'Error occured while creating workflows'
+            );
+            failedWorkflows.push({ styleId, brand, title });
+          }
+        })
       );
-    }
 
-    return res.sendResponse({ success: createdWorkflows }, 201);
-  } catch (error) {
-    logger.error(
-      { error, styles: req?.body?.styles },
-      'Error occured while creating multiple workflows'
-    );
-    return res.sendResponse('An error occurred while creating the workflows.', 500);
-  } finally {
-    await mongoPrisma.$disconnect();
+      if (failedWorkflows.length > 0) {
+        return res.sendResponse(
+          {
+            success: createdWorkflows,
+            failed: failedWorkflows
+          },
+          // revisit this
+          207
+        );
+      }
+
+      return res.sendResponse({ success: createdWorkflows }, 201);
+    } catch (error) {
+      logger.error(
+        { error, styles: req?.body?.styles },
+        'Error occured while creating multiple workflows'
+      );
+      return res.sendResponse('An error occurred while creating the workflows.', 500);
+    } finally {
+      await mongoPrisma.$disconnect();
+    }
   }
-});
+);
 
 // Endpoint to search workflows
 router.post(
   '/search',
+  authorize([groups.ADMIN_GROUP_NAME, groups.WRITER_GROUP_NAME, groups.EDITOR_GROUP_NAME]),
   validateMiddleware({
     query: searchWorkflowQueryDto,
     body: searchWorkflowBodyDto
@@ -266,334 +282,359 @@ router.post(
 );
 
 // Endpoint to fetch constants
-router.get('/constants', async (req, res) => {
-  try {
-    const constants = {
-      CreateProcess,
-      Status,
-      WorkflowKeysEnum,
-      WorkflowAuditLogKeysEnum,
-      WorkflowAuditType
-    };
+router.get(
+  '/constants',
+  authorize([groups.ADMIN_GROUP_NAME, groups.WRITER_GROUP_NAME, groups.EDITOR_GROUP_NAME]),
+  async (req, res) => {
+    try {
+      const constants = {
+        CreateProcess,
+        Status,
+        WorkflowKeysEnum,
+        WorkflowAuditLogKeysEnum,
+        WorkflowAuditType
+      };
 
-    return res.sendResponse(constants, 200);
-  } catch (error) {
-    logger.error({ error }, 'Error occured while fetching constants');
-    return res.sendResponse('An error occurred while fetching constants.', 500);
+      return res.sendResponse(constants, 200);
+    } catch (error) {
+      logger.error({ error }, 'Error occured while fetching constants');
+      return res.sendResponse('An error occurred while fetching constants.', 500);
+    }
   }
-});
+);
 
 // Endpoint to retrieve workflow counts
-router.get('/counts', async (req, res) => {
-  try {
-    const { email } = req.query;
+router.get(
+  '/counts',
+  authorize([groups.ADMIN_GROUP_NAME, groups.WRITER_GROUP_NAME, groups.EDITOR_GROUP_NAME]),
+  async (req, res) => {
+    try {
+      const { email } = req.user;
 
-    const counts = {
-      unassigned: await mongoPrisma.workflow.count({
-        where: { status: Status.WAITING_FOR_WRITER }
-      }),
-      assigned: await mongoPrisma.workflow.count({
-        where: {
-          OR: [
-            { status: Status.ASSIGNED_TO_WRITER, assignee: email },
-            { status: Status.ASSIGNED_TO_EDITOR, assignee: email }
-          ]
-        }
-      }),
-      inProgress: await mongoPrisma.workflow.count({
-        where: {
-          OR: [
-            { status: Status.WRITING_IN_PROGRESS, assignee: email },
-            { status: Status.EDITING_IN_PROGRESS, assignee: email }
-          ]
-        }
-      }),
-      completed: await mongoPrisma.workflow.count({
-        where: {
-          OR: [
-            { status: Status.WRITING_COMPLETE, assignee: email },
-            { status: Status.EDITING_COMPLETE, assignee: email }
-          ]
-        }
-      })
-    };
+      const counts = {
+        unassigned: await mongoPrisma.workflow.count({
+          where: { status: Status.WAITING_FOR_WRITER }
+        }),
+        assigned: await mongoPrisma.workflow.count({
+          where: {
+            OR: [
+              { status: Status.ASSIGNED_TO_WRITER, assignee: email },
+              { status: Status.ASSIGNED_TO_EDITOR, assignee: email }
+            ]
+          }
+        }),
+        inProgress: await mongoPrisma.workflow.count({
+          where: {
+            OR: [
+              { status: Status.WRITING_IN_PROGRESS, assignee: email },
+              { status: Status.EDITING_IN_PROGRESS, assignee: email }
+            ]
+          }
+        }),
+        completed: await mongoPrisma.workflow.count({
+          where: {
+            OR: [
+              { status: Status.WRITING_COMPLETE, assignee: email },
+              { status: Status.EDITING_COMPLETE, assignee: email }
+            ]
+          }
+        })
+      };
 
-    return res.sendResponse(counts);
-  } catch (error) {
-    logger.error({ error, query: req?.query }, 'Error occured while fetching workflow counts');
-    return res.sendResponse('An error occurred while fetching workflow counts.', 500);
-  } finally {
-    await mongoPrisma.$disconnect();
+      return res.sendResponse(counts);
+    } catch (error) {
+      logger.error({ error, query: req?.query }, 'Error occured while fetching workflow counts');
+      return res.sendResponse('An error occurred while fetching workflow counts.', 500);
+    } finally {
+      await mongoPrisma.$disconnect();
+    }
   }
-});
+);
 
 // Endpoint to retrieve a specific workflow
-router.get('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
-    logger.error({ id: req?.params?.id }, 'Retrieving a workflow');
-    const workflow = await findWorkflowById(id);
-    const workflowDeatils = await mongoPrisma.workbenchAudit.findFirst({
-      where: {
-        workflowId: id,
-        auditType: WorkflowAuditType.DATA_NORMALIZATION
-      },
-      orderBy: {
-        createTs: 'desc'
-      }
-    });
-
-    return res.sendResponse({ workflow, workflowDeatils });
-  } catch (error) {
-    logger.error({ error, id: req?.params?.id }, 'Error occured while retrieving a workflow');
-    return res.sendResponse(error.message, error.status || 500);
-  }
-});
-
-// Endpoint to retrieve a specific workflow's history
-router.get('/:workflowId/history', async (req, res) => {
-  const { workflowId } = req.params;
-  const { page = 1, limit = 10 } = req.query;
-
-  const parsedLimit = parseInt(limit, 10);
-  const parsedPage = parseInt(page, 10);
-
-  if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
-    return res.sendResponse('Invalid page or limit value.', 400);
-  }
-
-  const skip = (parsedPage - 1) * parsedLimit;
-
-  try {
-    const [auditLogs, total] = await Promise.all([
-      mongoPrisma.workbenchAudit.findMany({
-        select: {
-          id: true,
-          createdBy: true,
-          createTs: true,
-          auditType: true
-        },
+router.get(
+  '/:id',
+  authorize([groups.ADMIN_GROUP_NAME, groups.WRITER_GROUP_NAME, groups.EDITOR_GROUP_NAME]),
+  async (req, res) => {
+    try {
+      const { id } = req.params;
+      logger.error({ id: req?.params?.id }, 'Retrieving a workflow');
+      const workflow = await findWorkflowById(id);
+      const workflowDeatils = await mongoPrisma.workbenchAudit.findFirst({
         where: {
-          workflowId
+          workflowId: id,
+          auditType: WorkflowAuditType.DATA_NORMALIZATION
         },
-        skip,
-        take: parsedLimit,
         orderBy: {
           createTs: 'desc'
         }
-      }),
-      mongoPrisma.workbenchAudit.count({
+      });
+
+      return res.sendResponse({ workflow, workflowDeatils });
+    } catch (error) {
+      logger.error({ error, id: req?.params?.id }, 'Error occured while retrieving a workflow');
+      return res.sendResponse(error.message, error.status || 500);
+    }
+  }
+);
+
+// Endpoint to retrieve a specific workflow's history
+router.get(
+  '/:workflowId/history',
+  authorize([groups.ADMIN_GROUP_NAME, groups.WRITER_GROUP_NAME, groups.EDITOR_GROUP_NAME]),
+  async (req, res) => {
+    const { workflowId } = req.params;
+    const { page = 1, limit = 10 } = req.query;
+
+    const parsedLimit = parseInt(limit, 10);
+    const parsedPage = parseInt(page, 10);
+
+    if (Number.isNaN(parsedLimit) || Number.isNaN(parsedPage)) {
+      return res.sendResponse('Invalid page or limit value.', 400);
+    }
+
+    const skip = (parsedPage - 1) * parsedLimit;
+
+    try {
+      const [auditLogs, total] = await Promise.all([
+        mongoPrisma.workbenchAudit.findMany({
+          select: {
+            id: true,
+            createdBy: true,
+            createTs: true,
+            auditType: true
+          },
+          where: {
+            workflowId
+          },
+          skip,
+          take: parsedLimit,
+          orderBy: {
+            createTs: 'desc'
+          }
+        }),
+        mongoPrisma.workbenchAudit.count({
+          where: {
+            workflowId
+          }
+        })
+      ]);
+      logger.info(
+        { auditLogs, workflowId, query: req?.query },
+        'Audit logs retrieved for a workflow'
+      );
+      const filteredData = auditLogs.map((log) => {
+        const filteredLog = {};
+        Object.entries(log).forEach(([key, value]) => {
+          if (key !== 'workflowId' && value !== null) {
+            filteredLog[key] = value;
+          }
+        });
+        return filteredLog;
+      });
+
+      const pageCount = Math.ceil(total / parsedLimit);
+      const currentPageCount = filteredData.length;
+
+      const response = {
+        data: filteredData,
+        pagination: {
+          total,
+          pageCount,
+          currentPage: parsedPage,
+          currentPageCount
+        }
+      };
+
+      return res.sendResponse(response);
+    } catch (error) {
+      logger.error(
+        { error, workflowId, query: req?.query },
+        'Error occurred while retrieving audit logs of a workflow'
+      );
+      return res.sendResponse("An error occurred while getting workflow's history.", 500);
+    } finally {
+      await mongoPrisma.$disconnect();
+    }
+  }
+);
+
+// Endpoint to retrieve a specific workflow history
+router.get(
+  '/:workflowId/history/:historyId',
+  authorize([groups.ADMIN_GROUP_NAME, groups.WRITER_GROUP_NAME, groups.EDITOR_GROUP_NAME]),
+  async (req, res) => {
+    try {
+      const { workflowId, historyId } = req.params;
+      logger.info({ params: req.params }, 'Fetching AuditLog');
+      const auditLog = await mongoPrisma.workbenchAudit.findFirstOrThrow({
         where: {
+          id: historyId,
           workflowId
         }
-      })
-    ]);
-    logger.info(
-      { auditLogs, workflowId, query: req?.query },
-      'Audit logs retrieved for a workflow'
-    );
-    const filteredData = auditLogs.map((log) => {
+      });
+
+      if (!auditLog) {
+        logger.error({ params: req?.params }, 'AuditLog not found');
+        return res.sendResponse('AuditLog not found.', 404);
+      }
+
       const filteredLog = {};
-      Object.entries(log).forEach(([key, value]) => {
+      Object.entries(auditLog).forEach(([key, value]) => {
         if (key !== 'workflowId' && value !== null) {
           filteredLog[key] = value;
         }
       });
-      return filteredLog;
-    });
 
-    const pageCount = Math.ceil(total / parsedLimit);
-    const currentPageCount = filteredData.length;
-
-    const response = {
-      data: filteredData,
-      pagination: {
-        total,
-        pageCount,
-        currentPage: parsedPage,
-        currentPageCount
+      return res.sendResponse(filteredLog);
+    } catch (error) {
+      logger.error(
+        { error, params: req.params, query: req.query },
+        'Error occurred while retrieving specific audit log of a workflow'
+      );
+      if (error.code === 'P2025') {
+        return res.sendResponse('The requested history does not exist', 400);
       }
-    };
 
-    return res.sendResponse(response);
-  } catch (error) {
-    logger.error(
-      { error, workflowId, query: req?.query },
-      'Error occurred while retrieving audit logs of a workflow'
-    );
-    return res.sendResponse("An error occurred while getting workflow's history.", 500);
-  } finally {
-    await mongoPrisma.$disconnect();
-  }
-});
-
-// Endpoint to retrieve a specific workflow history
-router.get('/:workflowId/history/:historyId', async (req, res) => {
-  try {
-    const { workflowId, historyId } = req.params;
-    logger.info({ params: req.params }, 'Fetching AuditLog');
-    const auditLog = await mongoPrisma.workbenchAudit.findFirstOrThrow({
-      where: {
-        id: historyId,
-        workflowId
-      }
-    });
-
-    if (!auditLog) {
-      logger.error({ params: req?.params }, 'AuditLog not found');
-      return res.sendResponse('AuditLog not found.', 404);
+      return res.sendResponse('An error occurred while getting workflow history.', 500);
+    } finally {
+      await mongoPrisma.$disconnect();
     }
-
-    const filteredLog = {};
-    Object.entries(auditLog).forEach(([key, value]) => {
-      if (key !== 'workflowId' && value !== null) {
-        filteredLog[key] = value;
-      }
-    });
-
-    return res.sendResponse(filteredLog);
-  } catch (error) {
-    logger.error(
-      { error, params: req.params, query: req.query },
-      'Error occurred while retrieving specific audit log of a workflow'
-    );
-    if (error.code === 'P2025') {
-      return res.sendResponse('The requested history does not exist', 400);
-    }
-
-    return res.sendResponse('An error occurred while getting workflow history.', 500);
-  } finally {
-    await mongoPrisma.$disconnect();
   }
-});
+);
 
 // Update workflows status and assign writer or editor
-router.patch('/assign', validateMiddleware({ body: assignWorkflowDto }), async (req, res) => {
-  try {
-    const {
-      filters: { excludeIds, ...filters },
-      assignments: { writer, editor }
-    } = req.body;
+router.patch(
+  '/assign',
+  authorize([groups.ADMIN_GROUP_NAME]),
+  validateMiddleware({ body: assignWorkflowDto }),
+  async (req, res) => {
+    try {
+      const {
+        filters: { excludeIds, ...filters },
+        assignments: { writer, editor }
+      } = req.body;
 
-    const { email = 'pc.admin@backcountry.com' } = req.query;
-    logger.info({ body: req.body, query: req.query }, 'Assigning workflow');
-    let where = whereBuilder(filters);
+      const { email } = req.user;
+      logger.info({ body: req.body, query: req.query }, 'Assigning workflow');
+      let where = whereBuilder(filters);
 
-    const data = await mongoPrisma.workflow.findMany({
-      select: {
-        status: true,
-        assignee: true
-      },
-      where
-    });
-
-    const distinctStatuses = [...new Set(data.map(({ status }) => status))];
-    const distinctAssignees = [...new Set(data.map(({ assignee }) => assignee))];
-
-    if (distinctAssignees.includes(writer) || distinctAssignees.includes(editor)) {
-      return res.sendResponse(
-        {
-          message: 'Same user cannot be reassigned.'
+      const data = await mongoPrisma.workflow.findMany({
+        select: {
+          status: true,
+          assignee: true
         },
-        400
-      );
-    }
+        where
+      });
 
-    let updateCount = 0;
-    const errors = [];
-    const auditLogs = [];
+      const distinctStatuses = [...new Set(data.map(({ status }) => status))];
+      const distinctAssignees = [...new Set(data.map(({ assignee }) => assignee))];
 
-    for await (const status of distinctStatuses) {
-      where = { ...where, status };
-      const workflows = await mongoPrisma.workflow.findMany({ where, take: 1 });
+      if (distinctAssignees.includes(writer) || distinctAssignees.includes(editor)) {
+        return res.sendResponse(
+          {
+            message: 'Same user cannot be reassigned.'
+          },
+          400
+        );
+      }
 
-      try {
-        const changeLog = workflowEngine(workflows[0], { writer, editor });
+      let updateCount = 0;
+      const errors = [];
+      const auditLogs = [];
 
-        if (Object.keys(changeLog).length > 0) {
-          const transformedData = transformObject(
-            {
-              ...changeLog,
-              lastUpdatedBy: email
-            },
-            {
-              writer: 'lowerCase',
-              editor: 'lowerCase',
-              assignee: 'lowerCase',
-              lastUpdatedBy: 'lowerCase'
-            }
-          );
+      for await (const status of distinctStatuses) {
+        where = { ...where, status };
+        const workflows = await mongoPrisma.workflow.findMany({ where, take: 1 });
 
-          const { count } = await mongoPrisma.workflow.updateMany({
-            data: transformedData,
-            where
+        try {
+          const changeLog = workflowEngine(workflows[0], { writer, editor });
+
+          if (Object.keys(changeLog).length > 0) {
+            const transformedData = transformObject(
+              {
+                ...changeLog,
+                lastUpdatedBy: email
+              },
+              {
+                writer: 'lowerCase',
+                editor: 'lowerCase',
+                assignee: 'lowerCase',
+                lastUpdatedBy: 'lowerCase'
+              }
+            );
+
+            const { count } = await mongoPrisma.workflow.updateMany({
+              data: transformedData,
+              where
+            });
+
+            updateCount += count;
+          }
+
+          const workflowAuditLogs = workflows.map((workflow) => ({
+            workflowId: workflow.id,
+            ...changeLog,
+            auditType: WorkflowAuditType.ASSIGNMENTS,
+            createdBy: email
+          }));
+
+          auditLogs.push(...workflowAuditLogs);
+        } catch (error) {
+          errors.push({
+            filters: { ...filters, status },
+            error: error.message
           });
+        }
+      }
 
-          updateCount += count;
+      if (updateCount > 0) {
+        if (auditLogs.length > 0) {
+          await mongoPrisma.workbenchAudit.createMany({
+            data: auditLogs
+          });
         }
 
-        const workflowAuditLogs = workflows.map((workflow) => ({
-          workflowId: workflow.id,
-          ...changeLog,
-          auditType: WorkflowAuditType.ASSIGNMENTS,
-          createdBy: email
-        }));
-
-        auditLogs.push(...workflowAuditLogs);
-      } catch (error) {
-        errors.push({
-          filters: { ...filters, status },
-          error: error.message
-        });
+        return res.sendResponse(
+          {
+            message: `${updateCount} workflow${updateCount !== 1 ? 's' : ''} updated successfully`,
+            errors: errors.length ? errors : null
+          },
+          errors.length ? 207 : 200
+        );
       }
-    }
 
-    if (updateCount > 0) {
-      if (auditLogs.length > 0) {
-        await mongoPrisma.workbenchAudit.createMany({
-          data: auditLogs
-        });
+      if (errors.length > 0) {
+        logger.error(
+          { errors, body: req.body, query: req.query },
+          'Error occured while Assigning workflows'
+        );
+        return res.sendResponse(
+          {
+            message: 'Errors occurred while updating workflows',
+            errors
+          },
+          400
+        );
       }
 
       return res.sendResponse(
         {
-          message: `${updateCount} workflow${updateCount !== 1 ? 's' : ''} updated successfully`,
-          errors: errors.length ? errors : null
+          message: 'No workflows found for updating.'
         },
-        errors.length ? 207 : 200
+        404
       );
-    }
-
-    if (errors.length > 0) {
+    } catch (error) {
       logger.error(
-        { errors, body: req.body, query: req.query },
+        { error, body: req.body, query: req.query },
         'Error occured while Assigning workflows'
       );
-      return res.sendResponse(
-        {
-          message: 'Errors occurred while updating workflows',
-          errors
-        },
-        400
-      );
+      return res.sendResponse('An error occurred while updating the workflows.', 500);
+    } finally {
+      await mongoPrisma.$disconnect();
     }
-
-    return res.sendResponse(
-      {
-        message: 'No workflows found for updating.'
-      },
-      404
-    );
-  } catch (error) {
-    logger.error(
-      { error, body: req.body, query: req.query },
-      'Error occured while Assigning workflows'
-    );
-    return res.sendResponse('An error occurred while updating the workflows.', 500);
-  } finally {
-    await mongoPrisma.$disconnect();
   }
-});
+);
 
 const convertToAttributesModel = (styleId, newProductAttributes, previousProductAttributes) => {
   const {
@@ -752,188 +793,204 @@ const updateBC = async (styleId, currentSnapshot, copyStatus) => {
 };
 
 // Endpoint to save a snapshot of a workflow for later audit log
-router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), async (req, res) => {
-  try {
-    const { workflowId } = req.params;
-    const currentSnapshot = req.body;
-    logger.info({ params: req.params, body: req.body }, '[save for later] Updating workflow');
+router.patch(
+  '/:workflowId',
+  authorize([groups.ADMIN_GROUP_NAME, groups.WRITER_GROUP_NAME, groups.EDITOR_GROUP_NAME]),
+  validateMiddleware({ body: workflowDetailsDto }),
+  async (req, res) => {
+    try {
+      const { workflowId } = req.params;
+      const currentSnapshot = req.body;
+      logger.info({ params: req.params, body: req.body }, '[save for later] Updating workflow');
 
-    const workflow = await findWorkflowById(workflowId);
+      const workflow = await findWorkflowById(workflowId);
 
-    const { styleId } = workflow;
+      const { styleId } = workflow;
 
-    const { email = 'pc.editor@backcountry.com' } = req.query;
+      const { email } = req.user;
 
-    const { isPublished, isQuickFix } = currentSnapshot;
+      const { isPublished, isQuickFix } = currentSnapshot;
 
-    // By default, evaluate the workflow unless it follows the quick fix flow.
-    let changeLog = !isQuickFix ? workflowEngine(workflow, { isPublished }) : {};
+      // By default, evaluate the workflow unless it follows the quick fix flow.
+      let changeLog = !isQuickFix ? workflowEngine(workflow, { isPublished }) : {};
 
-    const getCopyElseCreate = async () => {
-      try {
-        const copy = await getStyleCopy(styleId);
-        return copy;
-      } catch (error) {
-        if (error.status === 404) {
-          logger.error(
-            { error, styleId },
-            'Style not found while fetching style details from the COPY api, Hence creating a new copy'
-          );
-          try {
-            const {
-              success,
-              data,
-              error: createError
-            } = await createStyleCopy({
-              style: styleId,
-              status: 'InProgress'
-            });
+      const getCopyElseCreate = async () => {
+        try {
+          const copy = await getStyleCopy(styleId);
+          return copy;
+        } catch (error) {
+          if (error.status === 404) {
+            logger.error(
+              { error, styleId },
+              'Style not found while fetching style details from the COPY api, Hence creating a new copy'
+            );
+            try {
+              const {
+                success,
+                data,
+                error: createError
+              } = await createStyleCopy({
+                style: styleId,
+                status: 'InProgress'
+              });
 
-            if (success) {
-              return data;
+              if (success) {
+                return data;
+              }
+
+              logger.error({ error: createError, styleId }, createError);
+              throw new Error(createError);
+            } catch (createError) {
+              logger.error({ error: createError, styleId }, createError);
+              throw new Error(createError);
             }
-
-            logger.error({ error: createError, styleId }, createError);
-            throw new Error(createError);
-          } catch (createError) {
-            logger.error({ error: createError, styleId }, createError);
-            throw new Error(createError);
+          } else {
+            logger.error(
+              { error, styleId },
+              'Error occurred while fetching style details from the COPY api'
+            );
+            throw new Error('Error occurred while fetching style details from the COPY api');
           }
-        } else {
-          logger.error(
-            { error, styleId },
-            'Error occurred while fetching style details from the COPY api'
-          );
-          throw new Error('Error occurred while fetching style details from the COPY api');
         }
-      }
-    };
+      };
 
-    const { status } = await getCopyElseCreate();
+      const { status } = await getCopyElseCreate();
 
-    const getCopyStatus = () => {
-      if (isQuickFix === true) {
+      const getCopyStatus = () => {
+        if (isQuickFix === true) {
+          return status;
+        }
+        if (isPublished === true) {
+          return CopyStatus.PUBLISHED;
+        }
         return status;
+      };
+
+      const copyStatus = getCopyStatus();
+
+      if (isQuickFix === true) {
+        changeLog = { isPublished: copyStatus === CopyStatus.PUBLISHED };
       }
-      if (isPublished === true) {
-        return CopyStatus.PUBLISHED;
+
+      if (Object.keys(currentSnapshot).length === 0 && Object.keys(changeLog).length === 0) {
+        return res.sendResponse('No changes detected. Nothing to save.', 400);
       }
-      return status;
-    };
 
-    const copyStatus = getCopyStatus();
+      const { attributesApi, copyApi } = await updateBC(styleId, currentSnapshot, copyStatus);
 
-    if (isQuickFix === true) {
-      changeLog = { isPublished: copyStatus === CopyStatus.PUBLISHED };
-    }
+      const failedToUpdateBC =
+        !attributesApi || !copyApi || !attributesApi.success || !copyApi.success;
 
-    if (Object.keys(currentSnapshot).length === 0 && Object.keys(changeLog).length === 0) {
-      return res.sendResponse('No changes detected. Nothing to save.', 400);
-    }
+      if (failedToUpdateBC) {
+        logger.error(
+          { params: req.params, body: req.body, attributesApi, copyApi },
+          'Error occurred while saving workflow details to BC'
+        );
+        return res.sendResponse(
+          {
+            message: 'An error occurred while saving workflow deatils to BC.',
+            attributesApi,
+            copyApi
+          },
+          400
+        );
+      }
 
-    const { attributesApi, copyApi } = await updateBC(styleId, currentSnapshot, copyStatus);
+      if (Object.keys(changeLog).length) {
+        changeLog = transformObject(
+          {
+            ...changeLog,
+            lastUpdatedBy: email
+          },
+          {
+            writer: 'lowerCase',
+            editor: 'lowerCase',
+            assignee: 'lowerCase',
+            lastUpdatedBy: 'lowerCase'
+          }
+        );
 
-    const failedToUpdateBC =
-      !attributesApi || !copyApi || !attributesApi.success || !copyApi.success;
+        logger.info({ data: changeLog, id: workflow.id }, 'Updating workflow');
 
-    if (failedToUpdateBC) {
-      logger.error(
-        { params: req.params, body: req.body, attributesApi, copyApi },
-        'Error occurred while saving workflow details to BC'
-      );
-      return res.sendResponse(
-        {
-          message: 'An error occurred while saving workflow deatils to BC.',
-          attributesApi,
-          copyApi
-        },
-        400
-      );
-    }
+        try {
+          await mongoPrisma.workflow.update({
+            data: changeLog,
+            where: {
+              id: workflow.id
+            }
+          });
 
-    if (Object.keys(changeLog).length) {
-      changeLog = transformObject(
-        {
-          ...changeLog,
-          lastUpdatedBy: email
-        },
-        {
-          writer: 'lowerCase',
-          editor: 'lowerCase',
-          assignee: 'lowerCase',
-          lastUpdatedBy: 'lowerCase'
+          logger.info({ data: changeLog, id: workflow.id }, 'Workflow updated successfully!');
+        } catch (error) {
+          logger.error(
+            { error, data: changeLog, id: workflow.id },
+            'An error occurred while updating the workflow:'
+          );
+
+          throw new Error('An error occurred while updating the workflow:');
         }
-      );
+      }
 
-      logger.info({ data: changeLog, id: workflow.id }, 'Updating workflow');
+      let hasDiff = false;
 
-      try {
-        await mongoPrisma.workflow.update({
-          data: changeLog,
+      if (Object.keys(currentSnapshot).length) {
+        const previousSnapshot = await mongoPrisma.workbenchAudit.findFirst({
           where: {
-            id: workflow.id
+            workflowId,
+            auditType: WorkflowAuditType.DATA_NORMALIZATION
+          },
+          orderBy: {
+            createTs: 'desc'
           }
         });
 
-        logger.info({ data: changeLog, id: workflow.id }, 'Workflow updated successfully!');
-      } catch (error) {
-        logger.error(
-          { error, data: changeLog, id: workflow.id },
-          'An error occurred while updating the workflow:'
-        );
+        const diff = deepCompare(previousSnapshot, currentSnapshot, [
+          'changeLog',
+          'id',
+          'createTs',
+          'createdBy',
+          'workflowId',
+          'auditType',
+          'attributeLastModified',
+          'copyLastModified',
+          'isQuickFix'
+        ]);
 
-        throw new Error('An error occurred while updating the workflow:');
+        hasDiff = Object.keys(diff).length > 0;
+
+        changeLog = {
+          ...changeLog,
+          ...diff,
+          isQuickFix: isQuickFix === true ? isQuickFix : undefined
+        };
       }
-    }
 
-    let hasDiff = false;
+      if (Object.keys(changeLog).length === 0 || !hasDiff) {
+        logger.info({ changeLog, hasDiff }, 'No changes detected. Nothing to save');
+        return res.sendResponse('No changes detected. Nothing to save.', 400);
+      }
 
-    if (Object.keys(currentSnapshot).length) {
-      const previousSnapshot = await mongoPrisma.workbenchAudit.findFirst({
-        where: {
-          workflowId,
-          auditType: WorkflowAuditType.DATA_NORMALIZATION
+      const {
+        copyLastModified,
+        attributeLastModified,
+        isQuickFix: _,
+        ...restOfCurrentSnapshot
+      } = currentSnapshot;
+
+      logger.info(
+        {
+          data: {
+            workflowId,
+            createdBy: email,
+            ...restOfCurrentSnapshot,
+            auditType: WorkflowAuditType.DATA_NORMALIZATION,
+            changeLog
+          }
         },
-        orderBy: {
-          createTs: 'desc'
-        }
-      });
+        'Creating audit log for the workflow update'
+      );
 
-      const diff = deepCompare(previousSnapshot, currentSnapshot, [
-        'changeLog',
-        'id',
-        'createTs',
-        'createdBy',
-        'workflowId',
-        'auditType',
-        'attributeLastModified',
-        'copyLastModified',
-        'isQuickFix'
-      ]);
-
-      hasDiff = Object.keys(diff).length > 0;
-
-      changeLog = {
-        ...changeLog,
-        ...diff,
-        isQuickFix: isQuickFix === true ? isQuickFix : undefined
-      };
-    }
-
-    if (Object.keys(changeLog).length === 0 || !hasDiff) {
-      logger.info({ changeLog, hasDiff }, 'No changes detected. Nothing to save');
-      return res.sendResponse('No changes detected. Nothing to save.', 400);
-    }
-
-    const {
-      copyLastModified,
-      attributeLastModified,
-      isQuickFix: _,
-      ...restOfCurrentSnapshot
-    } = currentSnapshot;
-
-    logger.info(
-      {
+      await mongoPrisma.workbenchAudit.create({
         data: {
           workflowId,
           createdBy: email,
@@ -941,64 +998,55 @@ router.patch('/:workflowId', validateMiddleware({ body: workflowDetailsDto }), a
           auditType: WorkflowAuditType.DATA_NORMALIZATION,
           changeLog
         }
-      },
-      'Creating audit log for the workflow update'
-    );
+      });
 
-    await mongoPrisma.workbenchAudit.create({
-      data: {
+      return res.sendResponse({
         workflowId,
         createdBy: email,
-        ...restOfCurrentSnapshot,
-        auditType: WorkflowAuditType.DATA_NORMALIZATION,
+        ...currentSnapshot,
         changeLog
-      }
-    });
+      });
+    } catch (error) {
+      logger.error(
+        { error, params: req.params, body: req.body },
+        'An error occurred while saving workflow for later'
+      );
 
-    return res.sendResponse({
-      workflowId,
-      createdBy: email,
-      ...currentSnapshot,
-      changeLog
-    });
-  } catch (error) {
-    logger.error(
-      { error, params: req.params, body: req.body },
-      'An error occurred while saving workflow for later'
-    );
-
-    return res.sendResponse(
-      error.message || 'An error occurred while saving workflow for later',
-      error.status || 500
-    );
-  } finally {
-    await mongoPrisma.$disconnect();
+      return res.sendResponse(
+        error.message || 'An error occurred while saving workflow for later',
+        error.status || 500
+      );
+    } finally {
+      await mongoPrisma.$disconnect();
+    }
   }
-});
+);
 
-// Endpoint to delete a workflow
-router.delete('/:id', async (req, res) => {
-  try {
-    const { id } = req.params;
+// Endpoint to delete a workflow after unit tests
+if (process.env.NODE_ENV === 'local') {
+  router.delete('/:id', async (req, res) => {
+    try {
+      const { id } = req.params;
 
-    await mongoPrisma.workflow.delete({
-      where: {
-        styleId: id
-      }
-    });
+      await mongoPrisma.workflow.delete({
+        where: {
+          styleId: id
+        }
+      });
 
-    return res.sendResponse(
-      {
-        message: 'Workflow deleted successfully.'
-      },
-      200
-    );
-  } catch (error) {
-    console.error(error);
-    return res.sendResponse('An error occurred while deleting the workflow.', 500);
-  } finally {
-    await mongoPrisma.$disconnect();
-  }
-});
+      return res.sendResponse(
+        {
+          message: 'Workflow deleted successfully.'
+        },
+        200
+      );
+    } catch (error) {
+      console.error(error);
+      return res.sendResponse('An error occurred while deleting the workflow.', 500);
+    } finally {
+      await mongoPrisma.$disconnect();
+    }
+  });
+}
 
 module.exports = router;
