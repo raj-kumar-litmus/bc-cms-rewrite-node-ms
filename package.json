@@ -10,6 +10,7 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "test": "jest",
+    "test:single" : "jest src/modules/sizing/__test__/sizing.test.js",
     "prisma:generate:mongo": "npx prisma generate --schema=./prisma/mongoSchema.prisma --generator=mongoClient",
     "prisma:generate:postgres": "npx prisma generate --schema=./prisma/postgresSchema.prisma --generator=postgresClient",
     "prisma:generate": "npm run prisma:generate:mongo && npm run prisma:generate:postgres",
@@ -39,6 +40,8 @@
     "pino": "^8.14.1"
   },
   "devDependencies": {
+    "babel-cli": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
     "eslint": "^8.40.0",
     "eslint-config-airbnb-base": "^15.0.0",
     "eslint-config-prettier": "^8.8.0",
@@ -47,11 +50,12 @@
     "eslint-plugin-prettier": "^4.2.1",
     "eslint-plugin-unused-imports": "^2.0.0",
     "husky": "^8.0.3",
-    "jest": "^29.5.0",
+    "jest": "^29.6.1",
     "lint-staged": "^13.2.2",
     "nodemon": "^2.0.21",
     "prettier": "^2.8.8",
     "prisma": "^4.14.0",
+    "superagent": "^8.0.9",
     "supertest": "^6.3.3"
   },
   "bugs": {
