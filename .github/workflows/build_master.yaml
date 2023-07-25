@@ -2,7 +2,7 @@ name: product-content-api
 
 on:
   push:
-    branches: [main,master]
+    branches: [main, master, feat/log-props]
 env:
   app: product-content-api-release-candidate
   major_version: '1.0'
