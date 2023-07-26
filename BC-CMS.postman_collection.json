@@ -1,8 +1,10 @@
 {
 	"info": {
-		"_postman_id": "62a848d6-24f0-4352-babc-33ad7c1a7876",
+		"_postman_id": "b6e2d300-6167-4e5e-86e7-ddeb57517e47",
 		"name": "BC-CMS",
-		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2899344",
+		"_collection_link": "https://gold-zodiac-17057.postman.co/workspace/fecf8ea8-12b0-48ce-bc2d-a0d894e95c6b/collection/2899344-b6e2d300-6167-4e5e-86e7-ddeb57517e47?action=share&creator=2899344&source=collection_link"
 	},
 	"item": [
 		{
@@ -748,6 +750,149 @@
 							"path": [
 								"editors",
 								"members"
+							]
+						}
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "sizing",
+			"item": [
+				{
+					"name": "scales",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"nikh\",\r\n    \"description\": \"nikh\",\r\n    \"sizes\": [\r\n        {\r\n            \"description\": \"XL-10\",\r\n            \"name\": \"XL-10\"\r\n        },\r\n        {\r\n            \"description\": \"XL 100mm\",\r\n            \"name\": \"XL 100mm\"\r\n        },\r\n        {\r\n            \"description\": \"XL-12\",\r\n            \"name\": \"XL-12\"\r\n        },\r\n        {\r\n            \"description\": \"Infant\",\r\n            \"name\": \"Infant\",\r\n            \"position\": 0\r\n        },\r\n        {\r\n            \"description\": \"Toddler\",\r\n            \"name\": \"Toddler\",\r\n            \"position\": 1\r\n        },\r\n        {\r\n            \"description\": \"Youth\",\r\n            \"name\": \"Youth\",\r\n            \"position\": 2\r\n        },\r\n        {\r\n            \"description\": \"Child\",\r\n            \"name\": \"Child\",\r\n            \"position\": 3\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}sizing/scales",
+							"host": [
+								"{{url}}sizing"
+							],
+							"path": [
+								"scales"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "scales",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "{\r\n    \"name\": \"nikh\",\r\n    \"description\": \"nikh\",\r\n    \"sizes\": [\r\n        {\r\n            \"id\": 8154,\r\n            \"name\": \"XL-10\",\r\n            \"description\": \"XL-10\",\r\n            \"position\": 0\r\n        },\r\n        {\r\n            \"id\": 8155,\r\n            \"name\": \"XL 100mm\",\r\n            \"description\": \"XL 100mm\",\r\n            \"position\": 0\r\n        },\r\n        {\r\n            \"id\": 8156,\r\n            \"name\": \"XL-12\",\r\n            \"description\": \"XL-12\",\r\n            \"position\": 0\r\n        },\r\n        {\r\n            \"description\": \"XL\",\r\n            \"name\": \"XL\",\r\n            \"position\": 4\r\n        },\r\n        {\r\n            \"id\": 8158,\r\n            \"name\": \"XL\",\r\n            \"description\": \"XL\",\r\n            \"position\": 4\r\n        }\r\n    ]\r\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}sizing/scales/161",
+							"host": [
+								"{{url}}sizing"
+							],
+							"path": [
+								"scales",
+								"161"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "preferredScale",
+					"request": {
+						"method": "PUT",
+						"header": [],
+						"url": {
+							"raw": "{{url}}sizing/productgroups/:productgroupId/preferredScale/:scaleId",
+							"host": [
+								"{{url}}sizing"
+							],
+							"path": [
+								"productgroups",
+								":productgroupId",
+								"preferredScale",
+								":scaleId"
+							],
+							"variable": [
+								{
+									"key": "productgroupId",
+									"value": "100001011"
+								},
+								{
+									"key": "scaleId",
+									"value": "17"
+								}
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/sizeMapping/:preferredScaleId/:scaleId",
+					"request": {
+						"method": "POST",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    {\r\n        \"sizeId\": \"799\",\r\n        \"preferredSizeId\": \"4680\"\r\n    },\r\n    {\r\n        \"sizeId\": \"799\",\r\n        \"preferredSizeId\": \"4681\"\r\n    },\r\n    {\r\n        \"sizeId\": \"799\",\r\n        \"preferredSizeId\": \"4682\"\r\n    },\r\n    {\r\n        \"sizeId\": \"799\",\r\n        \"preferredSizeId\": \"4682\"\r\n    },\r\n    {\r\n        \"sizeId\": \"800\",\r\n        \"preferredSizeId\": \"4683\"\r\n    },\r\n    {\r\n        \"sizeId\": \"800\",\r\n        \"preferredSizeId\": \"4683\"\r\n    },\r\n    {\r\n        \"sizeId\": \"802\",\r\n        \"preferredSizeId\": \"4684\"\r\n    },\r\n    {\r\n        \"sizeId\": \"802\",\r\n        \"preferredSizeId\": \"4686\"\r\n    }\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}sizing/sizeMapping/1/57",
+							"host": [
+								"{{url}}sizing"
+							],
+							"path": [
+								"sizeMapping",
+								"1",
+								"57"
+							]
+						}
+					},
+					"response": []
+				},
+				{
+					"name": "/sizeMapping/:preferredScaleId/:scaleId",
+					"request": {
+						"method": "DELETE",
+						"header": [],
+						"body": {
+							"mode": "raw",
+							"raw": "[\r\n    57\r\n]",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{url}}sizing/sizeMapping/1",
+							"host": [
+								"{{url}}sizing"
+							],
+							"path": [
+								"sizeMapping",
+								"1"
 							]
 						}
 					},
