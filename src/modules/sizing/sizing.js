@@ -310,6 +310,30 @@ router.post(
   }
 );
 
+router.get(
+  '/sizemapping/preferredscale/:prefferedscale/standardscale/:standardscale',
+  validateMiddleware({ params: getSizeMappingDto }),
+  async (req, res) => {
+    try {
+      const { prefferedscale, standardscale } = req.params;
+      const sizeMapping =
+        await postgresPrisma.$queryRaw`select sz.description as standardScaleDescription, psz.description as prefferedScaleDescription from dn_sizemappings smp
+      join dn_sizes sz on smp.size = sz.id
+      join dn_scales sc on sz.scaleid = sc.id 
+      join dn_sizes psz on smp.preferredsize = psz.id
+      join dn_scales psc on psz.scaleid = psc.id
+      where sc.id = ${parseInt(standardscale)} and psc.id =  ${parseInt(prefferedscale)}
+      order by psz.description;`;
+      return res.sendResponse({
+        sizeMapping
+      });
+    } catch (err) {
+      logger.error({ err }, 'Error occured while fetching size mapping');
+      return res.sendResponse('Internal Server Error', 500);
+    }
+  }
+);
+
 router.delete(
   '/sizeMapping/:preferredScaleId',
   authorize([
@@ -336,5 +360,42 @@ router.delete(
     }
   }
 );
+
+router.get(
+  '/standardscale/:prefferedscaleid',
+  validateMiddleware({ params: getStandardScaleDto }),
+  async (req, res) => {
+    try {
+      const { prefferedscaleid } = req.params;
+      const standardScales =
+        await postgresPrisma.$queryRaw`SELECT DISTINCT sc.id, sc.name FROM dn_sizemappings AS smp JOIN dn_sizes AS sz ON smp.size = sz.id
+        JOIN dn_scales AS sc ON sz.scaleid = sc.id JOIN dn_sizes AS psz ON smp.preferredsize = psz.id
+        JOIN dn_scales AS psc ON psz.scaleid = psc.id
+        WHERE psc.id = ${parseInt(prefferedscaleid)}
+        AND psc.id = psz.scaleid AND psz.id = smp.preferredsize
+        AND sc.id = sz.scaleid AND sz.id = smp.size;`;
+      return res.sendResponse({
+        standardScales
+      });
+    } catch (err) {
+      logger.error({ err }, 'Error occured while fetching standard scales');
+      return res.sendResponse('Internal Server Error', 500);
+    }
+  }
+);
+
+router.get('/prefferedscale', async (req, res) => {
+  try {
+    const prefferedscale =
+      await postgresPrisma.$queryRaw`select ps.id, ps.scaleid, ps.productgroup, ps.brand, ds.name from DN_PreferredScales ps
+      join dn_scales ds on ps.scaleid = ds.id order by ds.name;`;
+    return res.sendResponse({
+      prefferedscale
+    });
+  } catch (err) {
+    logger.error({ err }, 'Error occured while fetching preffered scales');
+    return res.sendResponse('Internal Server Error', 500);
+  }
+});
 
 module.exports = router;
