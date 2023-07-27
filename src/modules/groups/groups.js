@@ -58,16 +58,17 @@ router.get(
     try {
       const accessToken = await getAccessToken();
 
-    return res.sendResponse(
-      {
-        accessToken
-      },
-      200
-    );
-  } catch (error) {
-    const { stack, message } = error;
-    logger.error({ stack, message, error }, 'Error while fetching token');
-    return res.sendResponse('Error while fetching token', 401);
+      return res.sendResponse(
+        {
+          accessToken
+        },
+        200
+      );
+    } catch (error) {
+      const { stack, message } = error;
+      logger.error({ stack, message, error }, 'Error while fetching token');
+      return res.sendResponse('Error while fetching token', 401);
+    }
   }
 );
 
