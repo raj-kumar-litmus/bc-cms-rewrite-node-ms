@@ -2,7 +2,7 @@ name: product-content-api
 
 on:
   push:
-    branches: [develop]
+    branches: [Integration/sizing-backend]
 env:
   app: product-content-api
   major_version: '1.0'
