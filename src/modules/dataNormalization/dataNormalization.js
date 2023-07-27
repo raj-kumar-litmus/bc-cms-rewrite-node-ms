@@ -57,7 +57,8 @@ router.get('/genus', async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error({ error }, 'Error occured while fetching genus');
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error occured while fetching genus');
     return res.sendResponse(
       'An error occurred while retrieving the genus data. Please try again later.',
       500
@@ -98,7 +99,11 @@ router.get('/genus/:genusId/species', async (req, res) => {
       result
     });
   } catch (error) {
-    logger.error({ error, genusId: req?.params?.genusId }, 'Error occured while fetching species');
+    const { stack, message } = error;
+    logger.error(
+      { stack, message, error, genusId: req?.params?.genusId },
+      'Error occured while fetching species'
+    );
     return res.sendResponse('Error while fetching species details', 500);
   }
 });
@@ -143,9 +148,12 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       const duration = response?.duration;
       logger.info({ duration }, '[GET] Attribute api response time');
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
         {
           error,
+          stack,
+          message,
           genusId: req?.params?.genusId,
           speciesId: req?.params?.speciesId,
           styleId: req?.params?.styleId,
@@ -201,9 +209,12 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       techSpecs: [...updatedTechSpecLabels]
     });
   } catch (error) {
+    const { stack, message } = error;
     logger.error(
       {
         error,
+        stack,
+        message,
         genusId: req?.params?.genusId,
         styleId: req?.params?.styleId,
         ATTRIBUTE_API_DOMAIN_NAME
@@ -278,9 +289,12 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       const duration = response?.duration;
       logger.info({ duration }, '[GET] Attribute api response time');
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
         {
           error,
+          stack,
+          message,
           genusId: req?.params?.genusId,
           speciesId: req?.params?.speciesId,
           styleId: req?.params?.styleId,
@@ -330,9 +344,12 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       techSpecs: [...updatedTechSpecLabels]
     });
   } catch (error) {
+    const { stack, message } = error;
     logger.error(
       {
         error,
+        stack,
+        message,
         genusId: req?.params?.genusId,
         speciesId: req?.params?.speciesId,
         styleId: req?.params?.styleId,
@@ -356,9 +373,12 @@ router.get('/merchProduct/:styleId', async (req, res) => {
     logger.info({ styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
     return res.sendResponse({ data });
   } catch (error) {
+    const { stack, message } = error;
     logger.error(
       {
         error,
+        stack,
+        message,
         styleId: req.params.styleId,
         MERCH_API_DOMAIN_NAME
       },
@@ -394,8 +414,9 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
             logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
             success.push({ style, title, brandName, lastModified, lastModifiedUsername });
           } catch (err) {
+            const { stack, message } = err;
             logger.error(
-              { err, styleId, MERCH_API_DOMAIN_NAME },
+              { err, stack, message, styleId, MERCH_API_DOMAIN_NAME },
               'Could not find styleId in Merch api'
             );
             failures.push(styleId);
@@ -415,9 +436,12 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
     );
     return res.sendResponse({ success, failures, workflowExists });
   } catch (error) {
+    const { stack, message } = error;
     logger.error(
       {
         error,
+        stack,
+        message,
         styleId: req.params.styleId,
         MERCH_API_DOMAIN_NAME
       },
@@ -471,10 +495,13 @@ router.get('/productInfo/:styleId', async (req, res) => {
       attributeApiResponse: attributeApiResponse?.data,
       sizingChart: sizingChart?.data
     });
-  } catch (err) {
+  } catch (error) {
+    const { stack, message } = error;
     logger.error(
       {
-        err,
+        error,
+        stack,
+        message,
         styleId: req.params.styleId,
         COPY_API_DOMAIN_NAME,
         ATTRIBUTE_API_DOMAIN_NAME,

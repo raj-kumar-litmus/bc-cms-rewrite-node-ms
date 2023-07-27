@@ -99,7 +99,11 @@ router.post(
       logger.info({ workflow }, 'Workflow created');
       return res.sendResponse({ success: workflow }, 201);
     } catch (error) {
-      logger.error({ error, styleId: req?.body?.styleId }, 'Error occured while creating workflow');
+      const { stack, message } = error;
+      logger.error(
+        { stack, message, error, styleId: req?.body?.styleId },
+        'Error occured while creating workflow'
+      );
 
       if (error.code === 'P2002') {
         return res.sendResponse('Workflow with the styleId already exists', 400);
@@ -157,8 +161,9 @@ router.post(
             logger.info({ workflow }, 'Work flow created [Multiple]');
             createdWorkflows.push({ workflow });
           } catch (error) {
+            const { stack, message } = error;
             logger.error(
-              { error, styleId, brand, title },
+              { error, stack, message, styleId, brand, title },
               'Error occured while creating workflows'
             );
             failedWorkflows.push({ styleId, brand, title });
@@ -179,8 +184,9 @@ router.post(
 
       return res.sendResponse({ success: createdWorkflows }, 201);
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, styles: req?.body?.styles },
+        { error, stack, message, styles: req?.body?.styles },
         'Error occured while creating multiple workflows'
       );
       return res.sendResponse('An error occurred while creating the workflows.', 500);
@@ -270,8 +276,9 @@ router.post(
         }
       });
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, body: req?.body, query: req?.query },
+        { error, stack, message, body: req?.body, query: req?.query },
         'Error occured while searching for workflows'
       );
       return res.sendResponse('An error occurred while searching workflows.', 500);
@@ -297,7 +304,8 @@ router.get(
 
       return res.sendResponse(constants, 200);
     } catch (error) {
-      logger.error({ error }, 'Error occured while fetching constants');
+      const { stack, message } = error;
+      logger.error({ stack, message, error }, 'Error occured while fetching constants');
       return res.sendResponse('An error occurred while fetching constants.', 500);
     }
   }
@@ -344,7 +352,11 @@ router.get(
 
       return res.sendResponse(counts);
     } catch (error) {
-      logger.error({ error, query: req?.query }, 'Error occured while fetching workflow counts');
+      const { stack, message } = error;
+      logger.error(
+        { stack, message, error, query: req?.query },
+        'Error occured while fetching workflow counts'
+      );
       return res.sendResponse('An error occurred while fetching workflow counts.', 500);
     } finally {
       await mongoPrisma.$disconnect();
@@ -359,7 +371,7 @@ router.get(
   async (req, res) => {
     try {
       const { id } = req.params;
-      logger.error({ id: req?.params?.id }, 'Retrieving a workflow');
+      logger.info({ id: req?.params?.id }, 'Retrieving a workflow');
       const workflow = await findWorkflowById(id);
       const workflowDeatils = await mongoPrisma.workbenchAudit.findFirst({
         where: {
@@ -373,7 +385,11 @@ router.get(
 
       return res.sendResponse({ workflow, workflowDeatils });
     } catch (error) {
-      logger.error({ error, id: req?.params?.id }, 'Error occured while retrieving a workflow');
+      const { stack, message } = error;
+      logger.error(
+        { stack, message, error, id: req?.params?.id },
+        'Error occured while retrieving a workflow'
+      );
       return res.sendResponse(error.message, error.status || 500);
     }
   }
@@ -449,8 +465,9 @@ router.get(
 
       return res.sendResponse(response);
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, workflowId, query: req?.query },
+        { error, stack, message, workflowId, query: req?.query },
         'Error occurred while retrieving audit logs of a workflow'
       );
       return res.sendResponse("An error occurred while getting workflow's history.", 500);
@@ -489,8 +506,9 @@ router.get(
 
       return res.sendResponse(filteredLog);
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, params: req.params, query: req.query },
+        { error, stack, message, params: req.params, query: req.query },
         'Error occurred while retrieving specific audit log of a workflow'
       );
       if (error.code === 'P2025') {
@@ -626,8 +644,9 @@ router.patch(
         404
       );
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, body: req.body, query: req.query },
+        { error, stack, message, body: req.body, query: req.query },
         'Error occured while Assigning workflows'
       );
       return res.sendResponse('An error occurred while updating the workflows.', 500);
@@ -724,6 +743,7 @@ const updateBC = async (styleId, currentSnapshot, copyStatus) => {
         const attributes = await getStyleAttributes(styleId);
         return attributes;
       } catch (error) {
+        const { stack, message } = error;
         if (error.status === 404) {
           logger.error(
             { error, styleId },
@@ -742,15 +762,15 @@ const updateBC = async (styleId, currentSnapshot, copyStatus) => {
               return data;
             }
 
-            logger.error({ error: createError, styleId }, createError);
+            logger.error({ stack, message, error: createError, styleId }, createError);
             throw new Error(createError);
           } catch (createError) {
-            logger.error({ error: createError, styleId }, createError);
+            logger.error({ stack, message, error: createError, styleId }, createError);
             throw new Error(createError);
           }
         } else {
           logger.error(
-            { error, styleId },
+            { stack, message, error, styleId },
             'Error occurred while fetching style details from the attributes api'
           );
           throw new Error('Error occurred while fetching style details from the attributes api');
@@ -820,9 +840,10 @@ router.patch(
           const copy = await getStyleCopy(styleId);
           return copy;
         } catch (error) {
+          const { stack, message } = error;
           if (error.status === 404) {
             logger.error(
-              { error, styleId },
+              { error, stack, message, styleId },
               'Style not found while fetching style details from the COPY api, Hence creating a new copy'
             );
             try {
@@ -839,15 +860,15 @@ router.patch(
                 return data;
               }
 
-              logger.error({ error: createError, styleId }, createError);
+              logger.error({ stack, message, error: createError, styleId }, createError);
               throw new Error(createError);
             } catch (createError) {
-              logger.error({ error: createError, styleId }, createError);
+              logger.error({ stack, message, error: createError, styleId }, createError);
               throw new Error(createError);
             }
           } else {
             logger.error(
-              { error, styleId },
+              { stack, message, error, styleId },
               'Error occurred while fetching style details from the COPY api'
             );
             throw new Error('Error occurred while fetching style details from the COPY api');
@@ -923,8 +944,9 @@ router.patch(
 
           logger.info({ data: changeLog, id: workflow.id }, 'Workflow updated successfully!');
         } catch (error) {
+          const { stack, message } = error;
           logger.error(
-            { error, data: changeLog, id: workflow.id },
+            { stack, message, error, data: changeLog, id: workflow.id },
             'An error occurred while updating the workflow:'
           );
 
@@ -1008,8 +1030,9 @@ router.patch(
         changeLog
       });
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, params: req.params, body: req.body },
+        { error, stack, message, params: req.params, body: req.body },
         'An error occurred while saving workflow for later'
       );
 
