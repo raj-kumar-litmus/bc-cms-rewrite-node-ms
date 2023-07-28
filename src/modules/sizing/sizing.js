@@ -55,7 +55,7 @@ router.get('/productgroups', async (req, res) => {
       'http://merch01.bcinfra.net:8080/merchv3/light-product-groups'
     );
     return res.sendResponse({
-      productgroups
+      productgroups: productgroups.sort((a, b) => a?.name.localeCompare(b?.name))
     });
   } catch (error) {
     logger.error({ error }, 'Error occured while fetching productgroups');
