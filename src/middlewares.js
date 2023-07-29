@@ -1,5 +1,6 @@
 const jwt = require('jsonwebtoken');
 const { groups: groupNames, dummyAuth } = require('./properties');
+const { logger } = require('./lib/logger');
 
 const notFound = (req, res, next) => {
   res.status(404);
@@ -110,6 +111,7 @@ const authenticationMiddleware = async (req, res, next) => {
   const token = req.headers.authorization;
 
   if (!token) {
+    logger.error({ user: req?.user }, 'Api access denied due to invalid token');
     return res.sendResponse('Unauthorized', 401);
   }
 
@@ -129,6 +131,7 @@ const authenticationMiddleware = async (req, res, next) => {
     };
     next();
   } catch (error) {
+    logger.error({ user: req?.user }, 'Api access denied due to invalid token');
     return res.sendResponse('Invalid token', 401);
   }
 };
@@ -145,6 +148,10 @@ const authorize = (allowedGroups) => (req, res, next) => {
   if (authorized) {
     next();
   } else {
+    logger.error(
+      { authorized, user: req?.user },
+      'Api access denied due to insufficient credentials'
+    );
     res.sendResponse('Unauthorized', 403);
   }
 };

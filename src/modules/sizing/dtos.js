@@ -25,7 +25,18 @@ const sizeMappingSchema = Joi.object({
 
 const arrayOfSizeMappingsSchema = Joi.array().items(sizeMappingSchema);
 
+const getSizeMappingDto = Joi.object({
+  prefferedscale: Joi.string().required(),
+  standardscale: Joi.string().required()
+});
+
+const getStandardScaleDto = Joi.object({
+  prefferedscaleid: Joi.string().required()
+});
+
 module.exports = {
+  getSizeMappingDto,
+  getStandardScaleDto,
   arrayOfSizeMappingsSchema,
   sizeSchema,
   scaleSchema,
