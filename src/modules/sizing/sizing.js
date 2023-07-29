@@ -8,7 +8,13 @@ const { postgresPrisma } = require('../prisma');
 const { logger } = require('../../lib/logger');
 const { authorize, validateMiddleware } = require('../../middlewares');
 const { groups } = require('../../properties');
-const { scaleSchema, createSizeValueDto, arrayOfSizeMappingsSchema } = require('./dtos');
+const {
+  getSizeMappingDto,
+  getStandardScaleDto,
+  scaleSchema,
+  createSizeValueDto,
+  arrayOfSizeMappingsSchema
+} = require('./dtos');
 
 router.get('/scales/all', async (req, res) => {
   try {
@@ -168,7 +174,7 @@ const setPreferredScaleForProductGroup = async (req, res) => {
 
     const upsertResult = await postgresPrisma.dn_preferredscales.upsert({
       where: {
-        id: mostRecentPreferredScale?.id || undefined
+        id: mostRecentPreferredScale?.id || -1
       },
       update: {
         scaleid: parseInt(scaleId)
@@ -182,7 +188,8 @@ const setPreferredScaleForProductGroup = async (req, res) => {
 
     return res.sendResponse(upsertResult, 201);
   } catch (error) {
-    logger.error({ error }, 'Error occurred while updating the preferred Scale');
+    const { stack, message } = error;
+    logger.error({ error, stack, message }, 'Error occurred while updating the preferred Scale');
     return res.sendResponse('Error occurred while updating the preferred Scale', 500);
   }
 };
