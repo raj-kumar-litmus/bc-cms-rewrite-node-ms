@@ -20,7 +20,7 @@ router.get('/scales/all', async (req, res) => {
   try {
     const scales = await postgresPrisma.$queryRaw`select * from dn_scales`;
     return res.sendResponse({
-      scales
+      scales: scales.sort((a, b) => a?.name.localeCompare(b?.name))
     });
   } catch (error) {
     logger.error({ error }, 'Error occured while fetching scales');
@@ -324,7 +324,7 @@ router.get(
     try {
       const { prefferedscale, standardscale } = req.params;
       const sizeMapping =
-        await postgresPrisma.$queryRaw`select sz.description as standardScaleDescription, psz.description as prefferedScaleDescription from dn_sizemappings smp
+        await postgresPrisma.$queryRaw`select sz.id as standardScaleId, psz.id as prefferedScaleId, sz.description as standardScaleDescription, psz.description as prefferedScaleDescription from dn_sizemappings smp
       join dn_sizes sz on smp.size = sz.id
       join dn_scales sc on sz.scaleid = sc.id 
       join dn_sizes psz on smp.preferredsize = psz.id
