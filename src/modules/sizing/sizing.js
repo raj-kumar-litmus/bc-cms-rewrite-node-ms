@@ -31,9 +31,10 @@ router.get('/scales/all', async (req, res) => {
 router.get('/scales/details/:scaleid', async (req, res) => {
   try {
     const { scaleid } = req.params;
-    const scales = await postgresPrisma.$queryRaw`select * from dn_sizes where scaleid=${parseInt(
-      scaleid
-    )}`;
+    const scales =
+      await postgresPrisma.$queryRaw`select * from dn_sizes ds where ds.scaleid=${parseInt(
+        scaleid
+      )} order by ds.name`;
     return res.sendResponse({
       scales
     });
