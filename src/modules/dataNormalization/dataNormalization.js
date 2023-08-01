@@ -1,5 +1,4 @@
 const express = require('express');
-const axios = require('axios');
 const https = require('https');
 
 const { postgresPrisma, mongoPrisma } = require('../prisma');
@@ -7,6 +6,7 @@ const { groupBy } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { getStylesDto } = require('./dtos');
 const { logger } = require('../../lib/logger');
+const { AxiosInterceptor } = require('../../lib/axios');
 
 const { ATTRIBUTE_API_DOMAIN_NAME, COPY_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME } = process.env;
 const router = express.Router();
@@ -133,13 +133,15 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
     let labels;
 
     try {
-      const response = await axios.get(
+      const response = await AxiosInterceptor.get(
         `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
         {
           httpsAgent
         }
       );
       data = response?.data;
+      const duration = response?.duration;
+      logger.info({ duration }, '[GET] Attribute api response time');
     } catch (error) {
       logger.error(
         {
@@ -266,13 +268,15 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     let labels;
 
     try {
-      const response = await axios.get(
+      const response = await AxiosInterceptor.get(
         `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
         {
           httpsAgent
         }
       );
       data = response?.data;
+      const duration = response?.duration;
+      logger.info({ duration }, '[GET] Attribute api response time');
     } catch (error) {
       logger.error(
         {
@@ -344,10 +348,12 @@ router.get('/merchProduct/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
     logger.info({ styleId, MERCH_API_DOMAIN_NAME }, 'Fetching Merch api');
-    const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
-      httpsAgent
-    });
-    logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
+    const { data, duration } = await AxiosInterceptor.get(
+      `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`,
+      { httpsAgent }
+    );
+    logger.info({ duration }, '[GET] Merch api response time');
+    logger.info({ styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
     return res.sendResponse({ data });
   } catch (error) {
     logger.error(
@@ -377,13 +383,14 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
         if (!count) {
           try {
             logger.info({ styleId, MERCH_API_DOMAIN_NAME }, '[Style search] Fetching Merch api');
-            const { data } = await axios.get(
+            const { data, duration } = await AxiosInterceptor.get(
               `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`,
               {
                 httpsAgent
               }
             );
             const { style, title, brandName, lastModified, lastModifiedUsername } = data;
+            logger.info({ duration }, '[GET] Merch api response time');
             logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
             success.push({ style, title, brandName, lastModified, lastModifiedUsername });
           } catch (err) {
@@ -428,24 +435,34 @@ router.get('/productInfo/:styleId', async (req, res) => {
       'Fetching product Info'
     );
     const results = await Promise.allSettled([
-      axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
+      AxiosInterceptor.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
         httpsAgent
       }),
-      axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`, {
+      AxiosInterceptor.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`, {
         httpsAgent
       }),
-      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
+      AxiosInterceptor.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
         httpsAgent
       }),
-      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/size-charts?shouldSkipChart=true`, {
+      AxiosInterceptor.get(`${MERCH_API_DOMAIN_NAME}/merchv3/size-charts?shouldSkipChart=true`, {
         httpsAgent
       })
     ]);
     const [copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart] = results.map(
       (result) => result.value
     );
+    logger.info({ duration: merchApiResponse?.duration }, '[GET] Merch api response time');
+    logger.info({ duration: copyApiResponse?.duration }, '[GET] Copy api response time');
+    logger.info({ duration: attributeApiResponse?.duration }, '[GET] Attribute api response time');
+    logger.info({ duration: sizingChart?.duration }, '[GET] Sizing chart api response time');
     logger.info(
-      { styleId, copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart },
+      {
+        styleId,
+        copyApiResponse,
+        attributeApiResponse,
+        merchApiResponse,
+        sizingChart
+      },
       'Retrieved product Info from Backcountry apis'
     );
     return res.sendResponse({
