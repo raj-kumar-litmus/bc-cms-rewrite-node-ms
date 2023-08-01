@@ -252,6 +252,7 @@ router.put(
 module.exports = {
   router,
   getStyle,
+  createStyleCopy,
   getStyleAttributes,
   upsertStyleAttributes,
   getStyleCopy,
