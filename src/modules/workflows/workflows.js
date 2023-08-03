@@ -69,11 +69,13 @@ router.post('/', validateMiddleware({ body: createWorkflowDto }), async (req, re
       query: { email = 'pc.admin@backCountry.com' }
     } = req;
 
-    const { brandName, title } = await getStyle(styleId);
+    const { brandName, title, style } = await getStyle(styleId);
+    if (style !== styleId)
+      logger.info({ styleId, style }, 'Mismatch between styles from UI and Merch api response');
 
     const transformedData = transformObject(
       {
-        styleId,
+        styleId: style,
         createProcess: CreateProcess.WRITER_INTERFACE,
         admin: email,
         lastUpdatedBy: email
