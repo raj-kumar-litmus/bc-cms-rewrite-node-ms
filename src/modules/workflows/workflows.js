@@ -310,6 +310,7 @@ router.get(
   async (req, res) => {
     try {
       const { email } = req.user;
+      const isAdmin = req.user.groups.includes(groups.ADMIN_GROUP_NAME);
 
       const counts = {
         unassigned: await mongoPrisma.workflow.count({
@@ -318,24 +319,24 @@ router.get(
         assigned: await mongoPrisma.workflow.count({
           where: {
             OR: [
-              { status: Status.ASSIGNED_TO_WRITER, assignee: email },
-              { status: Status.ASSIGNED_TO_EDITOR, assignee: email }
+              { status: Status.ASSIGNED_TO_WRITER, ...(!isAdmin && { assignee: email }) },
+              { status: Status.ASSIGNED_TO_EDITOR, ...(!isAdmin && { assignee: email }) }
             ]
           }
         }),
         inProgress: await mongoPrisma.workflow.count({
           where: {
             OR: [
-              { status: Status.WRITING_IN_PROGRESS, assignee: email },
-              { status: Status.EDITING_IN_PROGRESS, assignee: email }
+              { status: Status.WRITING_IN_PROGRESS, ...(!isAdmin && { assignee: email }) },
+              { status: Status.EDITING_IN_PROGRESS, ...(!isAdmin && { assignee: email }) }
             ]
           }
         }),
         completed: await mongoPrisma.workflow.count({
           where: {
             OR: [
-              { status: Status.WRITING_COMPLETE, assignee: email },
-              { status: Status.EDITING_COMPLETE, assignee: email }
+              { status: Status.WRITING_COMPLETE, ...(!isAdmin && { assignee: email }) },
+              { status: Status.EDITING_COMPLETE, ...(!isAdmin && { assignee: email }) }
             ]
           }
         })
