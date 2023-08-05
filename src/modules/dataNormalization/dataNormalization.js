@@ -2,7 +2,7 @@ const express = require('express');
 const https = require('https');
 
 const { postgresPrisma, mongoPrisma } = require('../prisma');
-const { groupBy } = require('../../utils');
+const { groupBy, chunkArray, constants } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { getStylesDto } = require('./dtos');
 const { logger } = require('../../lib/logger');
@@ -397,8 +397,9 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
     const failures = [];
     const workflowExists = [];
 
+    const chunkedStyleIds = chunkArray(styles, constants.CHUNK_SIZE_STYLE_SEARCH);
     await Promise.all(
-      styles.map(async (styleId) => {
+      chunkedStyleIds.map(async (styleId) => {
         const count = await mongoPrisma.workflow.count({ where: { styleId } });
         if (!count) {
           try {
