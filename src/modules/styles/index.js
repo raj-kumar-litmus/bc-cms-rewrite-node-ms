@@ -2,6 +2,7 @@ const {
   router: styles,
   getStyle,
   getStyleAttributes,
+  createStyleCopy,
   upsertStyleAttributes,
   createStyleCopy,
   getStyleCopy,
@@ -11,6 +12,7 @@ const {
 module.exports = {
   styles,
   getStyle,
+  createStyleCopy,
   getStyleAttributes,
   createStyleCopy,
   upsertStyleAttributes,

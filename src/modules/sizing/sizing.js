@@ -23,7 +23,8 @@ router.get('/scales/all', async (req, res) => {
       scales: scales.sort((a, b) => a?.name.localeCompare(b?.name))
     });
   } catch (error) {
-    logger.error({ error }, 'Error occured while fetching scales');
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error occured while fetching scales');
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -39,7 +40,8 @@ router.get('/scales/details/:scaleid', async (req, res) => {
       scales
     });
   } catch (error) {
-    logger.error({ error }, 'Error occured while fetching scale details');
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error occured while fetching scale details');
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -51,7 +53,8 @@ router.get('/sizevalues', async (req, res) => {
       scales
     });
   } catch (error) {
-    logger.error({ error }, 'Error occured while fetching size values');
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error occured while fetching size values');
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -65,7 +68,8 @@ router.get('/productgroups', async (req, res) => {
       productgroups: productgroups.sort((a, b) => a?.name.localeCompare(b?.name))
     });
   } catch (error) {
-    logger.error({ error }, 'Error occured while fetching productgroups');
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error occured while fetching productgroups');
     return res.sendResponse('Internal Server Error', 500);
   }
 });
@@ -133,14 +137,15 @@ const updateScale = async (req, res) => {
 
     return res.sendResponse(updatedScale, 200);
   } catch (error) {
+    const { stack, message } = error;
     if (error.code === 'P2025') {
       logger.error(
-        { error },
+        { error, stack, message },
         'Error occurred while updating the scale: dn_scales record not found'
       );
       return res.sendResponse('Scale not found', 404);
     }
-    logger.error({ error }, 'Error occurred while updating the scale');
+    logger.error({ stack, message, error }, 'Error occurred while updating the scale');
     return res.sendResponse('Error occurred while updating the scale', 500);
   }
 };
@@ -190,7 +195,7 @@ const setPreferredScaleForProductGroup = async (req, res) => {
     return res.sendResponse(upsertResult, 201);
   } catch (error) {
     const { stack, message } = error;
-    logger.error({ error, stack, message }, 'Error occurred while updating the preferred Scale');
+    logger.error({ stack, message, error }, 'Error occurred while updating the preferred Scale');
     return res.sendResponse('Error occurred while updating the preferred Scale', 500);
   }
 };
@@ -221,7 +226,8 @@ router.post(
       await postgresPrisma.$queryRaw`INSERT INTO dn_sizevalues(name,description) VALUES (${name},${description});`;
       return res.sendResponse({});
     } catch (error) {
-      logger.error({ error }, 'Error occured while inserting size values');
+      const { stack, message } = error;
+      logger.error({ stack, message, error }, 'Error occured while inserting size values');
       return res.sendResponse('Internal Server Error', 500);
     }
   }
@@ -240,7 +246,8 @@ const getSizeMappings = async (scaleId, preferredScaleId) => {
     `;
     return result;
   } catch (error) {
-    logger.error({ error }, 'Error occurred while fetching size mappings');
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error occurred while fetching size mappings');
     throw error;
   }
 };
@@ -266,7 +273,8 @@ const insertSizeMappings = async (sizeMappingsData) => {
 
     logger.info({ createdMappings }, 'Successfully inserted size mappings');
   } catch (error) {
-    logger.error({ error }, 'Error occurred while inserting size mappings');
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error occurred while inserting size mappings');
   } finally {
     await postgresPrisma.$disconnect();
   }
@@ -284,7 +292,8 @@ const deleteSizeMappings = async (mappingIds) => {
 
     logger.info({ mappingIds }, 'Successfully deleted size mappings');
   } catch (error) {
-    logger.error({ error }, 'Error occurred while deleting size mappings');
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error occurred while deleting size mappings');
   } finally {
     await postgresPrisma.$disconnect();
   }
@@ -312,7 +321,8 @@ router.post(
 
       return res.sendResponse();
     } catch (error) {
-      logger.error({ error }, 'Error occurred while creating size mappings');
+      const { stack, message } = error;
+      logger.error({ stack, message, error }, 'Error occurred while creating size mappings');
       return res.sendResponse('Error occurred while creating size mappings', 500);
     }
   }
@@ -363,7 +373,8 @@ router.delete(
 
       return res.sendResponse('Size mappings deleted successfully');
     } catch (error) {
-      logger.error({ error }, 'Error occurred while deleting size mappings:');
+      const { stack, message } = error;
+      logger.error({ stack, message, error }, 'Error occurred while deleting size mappings:');
       return res.sendResponse('Error occurred while deleting size mappings', 500);
     }
   }

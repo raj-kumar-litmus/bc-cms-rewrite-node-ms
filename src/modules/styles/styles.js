@@ -93,7 +93,11 @@ const createStyleCopy = async (payload) => {
     );
     return { success: true, data: response.data };
   } catch (error) {
-    logger.error({ error, payload }, 'An error occurred while creating style copy in the COPY API');
+    const { stack, message } = error;
+    logger.error(
+      { stack, message, error, payload },
+      'An error occurred while creating style copy in the COPY API'
+    );
     const errorMessage = error.response?.data || 'Failed to create style copy';
     return { success: false, error: errorMessage };
   }
@@ -109,7 +113,11 @@ const updateStyleCopy = async (payload) => {
 
     return { success: true, data: response.data };
   } catch (error) {
-    logger.error({ error, payload }, 'Error occured while updating style details in the copy api');
+    const { stack, message } = error;
+    logger.error(
+      { stack, message, error, payload },
+      'Error occured while updating style details in the copy api'
+    );
     const errorMessage = error.response?.data || 'An error occurred while updating copy';
     return { success: false, error: errorMessage };
   }
@@ -126,8 +134,9 @@ router.get(
       logger.info({ response, styleId }, 'Received response from the Attribute api');
       return res.sendResponse(response);
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, styleId: req?.params?.styleId },
+        { error, stack, message, styleId: req?.params?.styleId },
         'Error occured while Fetching style details from the Attribute api'
       );
       return res.sendResponse('Internal Server Error', 500);
@@ -151,14 +160,16 @@ router.put(
       if (success) {
         return res.sendResponse(data);
       }
+      const { stack, message } = error;
       logger.error(
-        { success, data, error, styleId, payload },
+        { success, data, stack, message, error, styleId, payload },
         'Something went wrong while updating style details in the Attribute api'
       );
       return res.sendResponse(error, error.status || 500);
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, styleId: req?.params?.styleId, payload: req?.body },
+        { error, stack, message, styleId: req?.params?.styleId, payload: req?.body },
         'Error occured while updating style details in the Attribute api'
       );
       return res.sendResponse('Internal Server Error', 500);
@@ -177,8 +188,9 @@ router.get(
       logger.info({ response, styleId }, 'Received response from the COPY api');
       return res.sendResponse(response);
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, styleId: req?.params?.styleId },
+        { error, stack, message, styleId: req?.params?.styleId },
         'Error occured while Fetching style details from the COPY api'
       );
       return res.sendResponse('Internal Server Error', 500);
@@ -203,14 +215,16 @@ router.post(
         );
         return res.sendResponse(result.data);
       }
+      const { stack, message } = result.error;
       logger.error(
-        { styleId, payload, error: result.error },
+        { styleId, stack, message, payload, error: result.error },
         'Failed to create style copy in the COPY API'
       );
       return res.sendResponse(result.error, 500);
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, styleId: req?.params?.styleId, payload: req.body },
+        { error, stack, message, styleId: req?.params?.styleId, payload: req.body },
         'Error occurred while creating style copy in the COPY API'
       );
       return res.sendResponse('Internal Server Error', 500);
@@ -234,14 +248,16 @@ router.put(
       if (success) {
         return res.sendResponse(data);
       }
+      const { stack, message } = error;
       logger.error(
-        { success, data, error, styleId, payload },
+        { success, stack, message, data, error, styleId, payload },
         'Something went wrong while updating style details in the COPY api'
       );
       return res.sendResponse(error, error.status || 500);
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
-        { error, styleId: req?.params?.styleId, payload: req?.body },
+        { error, stack, message, styleId: req?.params?.styleId, payload: req?.body },
         'Error occured while updating style details in the COPY api'
       );
       return res.sendResponse('Internal Server Error', 500);

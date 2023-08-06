@@ -64,7 +64,8 @@ router.get(
         200
       );
     } catch (error) {
-      logger.error({ error }, 'Error while fetching token');
+      const { stack, message } = error;
+      logger.error({ stack, message, error }, 'Error while fetching token');
       return res.sendResponse('Error while fetching token', 401);
     }
   }
@@ -81,7 +82,8 @@ router.get(
     try {
       accessToken = await getAccessToken();
     } catch (error) {
-      logger.error({ error }, 'Failed to fetch access token');
+      const { stack, message } = error;
+      logger.error({ stack, message, error }, 'Failed to fetch access token');
       return res.sendResponse('Failed to fetch access token', 500);
     }
 
@@ -114,7 +116,8 @@ router.get(
 
       return res.sendResponse(members, 200);
     } catch (error) {
-      logger.error({ error }, 'Error while fetching Azure AD group members');
+      const { stack, message } = error;
+      logger.error({ stack, message, error }, 'Error while fetching Azure AD group members');
       return res.sendResponse('Failed to fetch members', 500);
     }
   }
