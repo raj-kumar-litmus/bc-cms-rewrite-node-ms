@@ -27,7 +27,7 @@ const chunkArray = (array, chunkSize) =>
   array.reduce((arr, item, idx) => (arr[(idx / chunkSize) | 0] ??= []).push(item) && arr, []);
 
 const constants = {
-  CHUNK_SIZE_STYLE_SEARCH: 6
+  CHUNK_SIZE_STYLE_SEARCH: 5 // todo.change this to 25
 };
 
 module.exports = {

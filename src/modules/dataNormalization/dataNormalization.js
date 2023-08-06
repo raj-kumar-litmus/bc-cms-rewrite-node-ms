@@ -393,8 +393,8 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
     const {
       body: { styles }
     } = req;
-    const success = [];
-    const failures = [];
+    let success = [];
+    let failures = [];
     const workflowExists = [];
 
     const chunkedStyleIds = chunkArray(styles, constants.CHUNK_SIZE_STYLE_SEARCH);
@@ -405,22 +405,32 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
           try {
             logger.info({ styleId, MERCH_API_DOMAIN_NAME }, '[Style search] Fetching Merch api');
             const { data, duration } = await AxiosInterceptor.get(
-              `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`,
+              `${MERCH_API_DOMAIN_NAME}/merchv3/products?styles=${styleId.join(',')}&variant=false`,
               {
                 httpsAgent
               }
             );
-            const { style, title, brandName, lastModified, lastModifiedUsername } = data;
+            // const { style, title, brandName, lastModified, lastModifiedUsername } = data;
             logger.info({ duration }, '[GET] Merch api response time');
             logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
-            success.push({ style, title, brandName, lastModified, lastModifiedUsername });
+            // success.push({ style, title, brandName, lastModified, lastModifiedUsername });
+            success = success.concat(
+              data.map(({ style, title, brandName, lastModified, lastModifiedUsername }) => ({
+                style,
+                title,
+                brandName,
+                lastModified,
+                lastModifiedUsername
+              }))
+            );
           } catch (err) {
             const { stack, message } = err;
             logger.error(
               { err, stack, message, styleId, MERCH_API_DOMAIN_NAME },
               'Could not find styleId in Merch api'
             );
-            failures.push(styleId);
+            failures = failures.concat(styleId); // todo.check this.
+            // failures.push(styleId);
           }
         } else {
           logger.info(
@@ -432,10 +442,20 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
       })
     );
     logger.info(
-      { success, failures, workflowExists, body: req.body },
+      {
+        success,
+        failures,
+        workflowExists,
+        body: req.body
+      },
       'Response from styleSearch api'
     );
-    return res.sendResponse({ success, failures, workflowExists });
+    return res.sendResponse({
+      success,
+      failures,
+      workflowExists,
+      missing: req.body?.styles?.filter((e) => !success?.map((m) => m?.style)?.includes(e))
+    });
   } catch (error) {
     const { stack, message } = error;
     logger.error(
