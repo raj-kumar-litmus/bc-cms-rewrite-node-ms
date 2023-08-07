@@ -1,6 +1,8 @@
 const express = require('express');
+const https = require('https');
 
 const { transformObject } = require('../../utils');
+const { AxiosInterceptor } = require('../../lib/axios');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
@@ -32,6 +34,9 @@ const {
 const { authorize } = require('../../middlewares');
 const { groups } = require('../../properties');
 const { logger } = require('../../lib/logger');
+
+const { MERCH_API_DOMAIN_NAME, ATTRIBUTE_API_DOMAIN_NAME } = process.env;
+const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
 const router = express.Router();
 
@@ -417,6 +422,7 @@ router.get(
         mongoPrisma.workbenchAudit.findMany({
           select: {
             id: true,
+            assignee: true,
             createdBy: true,
             createTs: true,
             auditType: true
@@ -484,6 +490,7 @@ router.get(
   async (req, res) => {
     try {
       const { workflowId, historyId } = req.params;
+      const { styleId } = req.query;
       logger.info({ params: req.params }, 'Fetching AuditLog');
       const auditLog = await mongoPrisma.workbenchAudit.findFirstOrThrow({
         where: {
@@ -497,12 +504,44 @@ router.get(
         return res.sendResponse('AuditLog not found.', 404);
       }
 
-      const filteredLog = {};
+      let filteredLog = {};
       Object.entries(auditLog).forEach(([key, value]) => {
         if (key !== 'workflowId' && value !== null) {
           filteredLog[key] = value;
         }
       });
+
+      if (styleId) {
+        const results = await Promise.allSettled([
+          AxiosInterceptor.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`, {
+            httpsAgent
+          }),
+          AxiosInterceptor.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
+            httpsAgent
+          })
+        ]);
+        const [attributeApiResponse, merchApiResponse] = results.map((result) => result.value);
+        const { defaultCatalog, brandName, inactive, ageCategory, genderCategory } =
+          merchApiResponse?.data || {};
+        const { productGroupName } = attributeApiResponse?.data || {};
+
+        logger.info({ duration: merchApiResponse?.duration }, '[GET] Merch api response time');
+        logger.info(
+          { duration: attributeApiResponse?.duration },
+          '[GET] Attribute api response time'
+        );
+        filteredLog = {
+          ...filteredLog,
+          productInfo: {
+            productGroupName,
+            defaultCatalog,
+            brandName,
+            inactive,
+            ageCategory,
+            genderCategory
+          }
+        };
+      }
 
       return res.sendResponse(filteredLog);
     } catch (error) {
@@ -861,17 +900,17 @@ router.patch(
               }
 
               logger.error({ stack, message, error: createError, styleId }, createError);
-              throw new Error(createError);
+              throw createError;
             } catch (createError) {
               logger.error({ stack, message, error: createError, styleId }, createError);
-              throw new Error(createError);
+              throw createError;
             }
           } else {
             logger.error(
               { stack, message, error, styleId },
               'Error occurred while fetching style details from the COPY api'
             );
-            throw new Error('Error occurred while fetching style details from the COPY api');
+            throw error;
           }
         }
       };

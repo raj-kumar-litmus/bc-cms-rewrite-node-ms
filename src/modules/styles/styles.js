@@ -29,23 +29,10 @@ const getStyle = async (styleId) => {
 };
 
 const getStyleAttributes = async (styleId) => {
-  try {
-    const response = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
-      {
-        httpsAgent
-      }
-    );
-    return response.data;
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      const notFoundError = new Error('Style not found.');
-      notFoundError.status = 404;
-      throw notFoundError;
-    } else {
-      throw new Error('An error occurred while fetching the style information.', 500);
-    }
-  }
+  const response = await axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`, {
+    httpsAgent
+  });
+  return response.data;
 };
 
 const upsertStyleAttributes = async (styleId, payload) => {
@@ -65,20 +52,10 @@ const upsertStyleAttributes = async (styleId, payload) => {
 };
 
 const getStyleCopy = async (styleId) => {
-  try {
-    const response = await axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
-      httpsAgent
-    });
-    return response.data;
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      const notFoundError = new Error('Style not found.');
-      notFoundError.status = 404;
-      throw notFoundError;
-    } else {
-      throw new Error('An error occurred while fetching the style information.', 500);
-    }
-  }
+  const response = await axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
+    httpsAgent
+  });
+  return response.data;
 };
 
 const createStyleCopy = async (payload) => {
