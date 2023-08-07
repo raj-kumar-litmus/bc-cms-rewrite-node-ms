@@ -4,7 +4,6 @@ const {
   getStyleAttributes,
   createStyleCopy,
   upsertStyleAttributes,
-  createStyleCopy,
   getStyleCopy,
   updateStyleCopy
 } = require('./styles');
@@ -14,7 +13,6 @@ module.exports = {
   getStyle,
   createStyleCopy,
   getStyleAttributes,
-  createStyleCopy,
   upsertStyleAttributes,
   getStyleCopy,
   updateStyleCopy

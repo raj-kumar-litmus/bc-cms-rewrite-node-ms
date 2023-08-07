@@ -395,49 +395,53 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
     } = req;
     let success = [];
     let failures = [];
-    const workflowExists = [];
+    let workflowExists = [];
 
-    const chunkedStyleIds = chunkArray(styles, constants.CHUNK_SIZE_STYLE_SEARCH);
+    const stylesWithWorkflow = await mongoPrisma.workflow.findMany({
+      where: {
+        OR: {
+          styleId: {
+            in: styles[0].split(','),
+            mode: 'insensitive'
+          }
+        }
+      }
+    });
+
+    workflowExists = workflowExists.concat(stylesWithWorkflow.map((e) => e.styleId));
+
+    const stylesWithoutWorkflow = styles[0].split(',').filter((e) => !workflowExists.includes(e));
+
+    const chunkedStyleIds = chunkArray(stylesWithoutWorkflow, constants.CHUNK_SIZE_STYLE_SEARCH);
+
     await Promise.all(
       chunkedStyleIds.map(async (styleId) => {
-        const count = await mongoPrisma.workflow.count({ where: { styleId } });
-        if (!count) {
-          try {
-            logger.info({ styleId, MERCH_API_DOMAIN_NAME }, '[Style search] Fetching Merch api');
-            const { data, duration } = await AxiosInterceptor.get(
-              `${MERCH_API_DOMAIN_NAME}/merchv3/products?styles=${styleId.join(',')}&variant=false`,
-              {
-                httpsAgent
-              }
-            );
-            // const { style, title, brandName, lastModified, lastModifiedUsername } = data;
-            logger.info({ duration }, '[GET] Merch api response time');
-            logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
-            // success.push({ style, title, brandName, lastModified, lastModifiedUsername });
-            success = success.concat(
-              data.map(({ style, title, brandName, lastModified, lastModifiedUsername }) => ({
-                style,
-                title,
-                brandName,
-                lastModified,
-                lastModifiedUsername
-              }))
-            );
-          } catch (err) {
-            const { stack, message } = err;
-            logger.error(
-              { err, stack, message, styleId, MERCH_API_DOMAIN_NAME },
-              'Could not find styleId in Merch api'
-            );
-            failures = failures.concat(styleId); // todo.check this.
-            // failures.push(styleId);
-          }
-        } else {
-          logger.info(
-            { styleId, MERCH_API_DOMAIN_NAME },
-            'Workflow already exists for this styleId'
+        try {
+          logger.info({ styleId, MERCH_API_DOMAIN_NAME }, '[Style search] Fetching Merch api');
+          const { data, duration } = await AxiosInterceptor.get(
+            `${MERCH_API_DOMAIN_NAME}/merchv3/products?styles=${styleId.join(',')}&variant=false`,
+            {
+              httpsAgent
+            }
           );
-          workflowExists.push(styleId);
+          logger.info({ duration }, '[GET] Merch api response time');
+          logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
+          success = success.concat(
+            data.map(({ style, title, brandName, lastModified, lastModifiedUsername }) => ({
+              style,
+              title,
+              brandName,
+              lastModified,
+              lastModifiedUsername
+            }))
+          );
+        } catch (err) {
+          const { stack, message } = err;
+          logger.error(
+            { err, stack, message, styleId, MERCH_API_DOMAIN_NAME },
+            'Could not find styleId in Merch api'
+          );
+          failures = failures.concat(styleId);
         }
       })
     );
@@ -453,8 +457,7 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
     return res.sendResponse({
       success,
       failures,
-      workflowExists,
-      missing: req.body?.styles?.filter((e) => !success?.map((m) => m?.style)?.includes(e))
+      workflowExists
     });
   } catch (error) {
     const { stack, message } = error;
