@@ -456,7 +456,10 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
     );
     return res.sendResponse({
       success,
-      failures,
+      failures: req.body.styles[0]
+        ?.split(',')
+        ?.filter((e) => !success.map((el) => el.style).includes(e))
+        ?.filter((el) => !workflowExists.includes(el)),
       workflowExists
     });
   } catch (error) {

@@ -152,7 +152,7 @@ const authorize = (allowedGroups) => (req, res, next) => {
       { authorized, user: req?.user },
       'Api access denied due to insufficient credentials'
     );
-    res.sendResponse('Unauthorized', 403);
+    res.sendResponse('Unauthorized', 401);
   }
 };
 

@@ -1,6 +1,6 @@
 const express = require('express');
 
-const { transformObject } = require('../../utils');
+const { transformObject, constants, chunkArray } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { mongoPrisma } = require('../prisma');
 const workflowEngine = require('./workflowEngine');
@@ -124,72 +124,56 @@ router.post(
   '/bulk',
   authorize([groups.ADMIN_GROUP_NAME]),
   validateMiddleware({ body: createWorkflowsDto }),
+  /* eslint-disable-next-line consistent-return */
   async (req, res) => {
     try {
       const {
-        body: { styles },
-        user: { email }
+        body: { styleIds }
+        // user: { email }
       } = req;
 
-      const createdWorkflows = [];
-      const failedWorkflows = [];
+      // const createdWorkflows = [];
+      // const failedWorkflows = [];
 
-      await Promise.all(
-        styles.map(async ({ styleId, brand, title }) => {
-          try {
-            const transformedData = transformObject(
-              {
-                styleId,
-                brand,
-                title,
-                createProcess: CreateProcess.WRITER_INTERFACE,
-                admin: email,
-                lastUpdatedBy: email
-              },
-              {
-                styleId: 'upperCase',
-                brand: 'lowerCase',
-                title: 'lowerCase',
-                admin: 'lowerCase',
-                lastUpdatedBy: 'lowerCase'
-              }
-            );
-            logger.info({ data: transformedData }, 'Creating work flow [Multiple]');
-            const workflow = await mongoPrisma.workflow.create({
-              data: transformedData
-            });
-            logger.info({ workflow }, 'Work flow created [Multiple]');
-            createdWorkflows.push({ workflow });
-          } catch (error) {
-            const { stack, message } = error;
-            logger.error(
-              { error, stack, message, styleId, brand, title },
-              'Error occured while creating workflows'
-            );
-            failedWorkflows.push({ styleId, brand, title });
-          }
-        })
-      );
+      const chunkedStyleIds = chunkArray(styleIds, constants.CHUNK_SIZE_STYLE_SEARCH);
 
-      if (failedWorkflows.length > 0) {
-        return res.sendResponse(
-          {
-            success: createdWorkflows,
-            failed: failedWorkflows
-          },
-          // revisit this
-          207
-        );
-      }
+      let data = [];
+      chunkedStyleIds.map(async (styles) => {
+        styles.map(async ({ styleId, brand = '', title = '' }) => {
+          const transformedData = transformObject(
+            {
+              styleId,
+              brand,
+              title,
+              createProcess: CreateProcess.WRITER_INTERFACE,
+              admin: 'pc.tempuser@temp.com', // todo. change this to email
+              lastUpdatedBy: 'pc.tempuser@temp.com' // todo. change this to email
+            },
+            {
+              styleId: 'upperCase',
+              brand: 'lowerCase',
+              title: 'lowerCase',
+              admin: 'lowerCase',
+              lastUpdatedBy: 'lowerCase'
+            }
+          );
+          data = data.concat(transformedData);
+        });
+      });
 
-      return res.sendResponse({ success: createdWorkflows }, 201);
-    } catch (error) {
-      const { stack, message } = error;
-      logger.error(
-        { error, stack, message, styles: req?.body?.styles },
-        'Error occured while creating multiple workflows'
-      );
-      return res.sendResponse('An error occurred while creating the workflows.', 500);
+      const response = await mongoPrisma.workflow.createMany({
+        data
+      });
+      // await mongoPrisma.$runCommandRaw({
+      //   insert: 'workflow',
+      //   skipDuplicates: true,
+      //   documents: data
+      // });
+
+      return res.sendResponse({ data, response }, 201);
+    } catch (err) {
+      const { stack, message } = err;
+      logger.error({ err, stack, message }, 'Error occured while creating workflows');
     } finally {
       await mongoPrisma.$disconnect();
     }
@@ -294,15 +278,16 @@ router.get(
   authorize([groups.ADMIN_GROUP_NAME, groups.WRITER_GROUP_NAME, groups.EDITOR_GROUP_NAME]),
   async (req, res) => {
     try {
-      const constants = {
-        CreateProcess,
-        Status,
-        WorkflowKeysEnum,
-        WorkflowAuditLogKeysEnum,
-        WorkflowAuditType
-      };
-
-      return res.sendResponse(constants, 200);
+      return res.sendResponse(
+        {
+          CreateProcess,
+          Status,
+          WorkflowKeysEnum,
+          WorkflowAuditLogKeysEnum,
+          WorkflowAuditType
+        },
+        200
+      );
     } catch (error) {
       const { stack, message } = error;
       logger.error({ stack, message, error }, 'Error occured while fetching constants');
