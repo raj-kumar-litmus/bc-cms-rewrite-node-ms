@@ -1,11 +1,11 @@
 const express = require('express');
-const axios = require('axios');
 const Joi = require('joi');
 
 const router = express.Router();
 
 const { postgresPrisma } = require('../prisma');
 const { logger } = require('../../lib/logger');
+const { AxiosInterceptor } = require('../../lib/axios');
 const { authorize, validateMiddleware } = require('../../middlewares');
 const { groups } = require('../../properties');
 const {
@@ -15,6 +15,8 @@ const {
   createSizeValueDto,
   arrayOfSizeMappingsSchema
 } = require('./dtos');
+
+const { MERCH_API_DOMAIN_NAME } = process.env;
 
 router.get('/scales/all', async (req, res) => {
   try {
@@ -61,8 +63,8 @@ router.get('/sizevalues', async (req, res) => {
 
 router.get('/productgroups', async (req, res) => {
   try {
-    const { data: productgroups } = await axios.get(
-      'http://merch01.bcinfra.net:8080/merchv3/light-product-groups'
+    const { data: productgroups } = await AxiosInterceptor.get(
+      `${MERCH_API_DOMAIN_NAME}/merchv3/light-product-groups`
     );
     return res.sendResponse({
       productgroups: productgroups.sort((a, b) => a?.name.localeCompare(b?.name))

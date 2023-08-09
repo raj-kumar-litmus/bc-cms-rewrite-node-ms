@@ -1,10 +1,10 @@
 const express = require('express');
-const axios = require('axios');
 const https = require('https');
 
 const { authorize } = require('../../middlewares');
 const { groups } = require('../../properties');
 const { logger } = require('../../lib/logger');
+const { AxiosInterceptor } = require('../../lib/axios');
 
 const { ATTRIBUTE_API_DOMAIN_NAME, COPY_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME } = process.env;
 const router = express.Router();
@@ -13,9 +13,12 @@ const httpsAgent = new https.Agent({ rejectUnauthorized: false });
 
 const getStyle = async (styleId) => {
   try {
-    const response = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
-      httpsAgent
-    });
+    const response = await AxiosInterceptor.get(
+      `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`,
+      {
+        httpsAgent
+      }
+    );
     return response.data;
   } catch (error) {
     if (error.response && error.response.status === 404) {
@@ -29,15 +32,18 @@ const getStyle = async (styleId) => {
 };
 
 const getStyleAttributes = async (styleId) => {
-  const response = await axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`, {
-    httpsAgent
-  });
+  const response = await AxiosInterceptor.get(
+    `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
+    {
+      httpsAgent
+    }
+  );
   return response.data;
 };
 
 const upsertStyleAttributes = async (styleId, payload) => {
   try {
-    const response = await axios.put(
+    const response = await AxiosInterceptor.put(
       `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
       payload,
       { httpsAgent }
@@ -52,7 +58,7 @@ const upsertStyleAttributes = async (styleId, payload) => {
 };
 
 const getStyleCopy = async (styleId) => {
-  const response = await axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
+  const response = await AxiosInterceptor.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
     httpsAgent
   });
   return response.data;
@@ -60,7 +66,7 @@ const getStyleCopy = async (styleId) => {
 
 const createStyleCopy = async (payload) => {
   try {
-    const response = await axios.post(`${COPY_API_DOMAIN_NAME}/copy-api/copy`, payload, {
+    const response = await AxiosInterceptor.post(`${COPY_API_DOMAIN_NAME}/copy-api/copy`, payload, {
       httpsAgent
     });
 
@@ -84,9 +90,13 @@ const updateStyleCopy = async (payload) => {
   const { style: styleId } = payload;
 
   try {
-    const response = await axios.put(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, payload, {
-      httpsAgent
-    });
+    const response = await AxiosInterceptor.put(
+      `${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`,
+      payload,
+      {
+        httpsAgent
+      }
+    );
 
     return { success: true, data: response.data };
   } catch (error) {

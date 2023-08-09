@@ -1,11 +1,12 @@
 const express = require('express');
-const axios = require('axios');
 const { validateMiddleware, authorize } = require('../../middlewares');
 const { groupsDto } = require('./dtos');
 const { properties, groups } = require('../../properties');
 const { deDuplicate } = require('../../utils');
 const { fetchGroupMembers } = require('./utils');
 const { logger } = require('../../lib/logger');
+
+const { AxiosInterceptor } = require('../../lib/axios');
 
 const router = express.Router();
 
@@ -33,7 +34,7 @@ const getAccessToken = async () => {
   );
   const {
     data: { access_token: accessToken }
-  } = await axios.post(
+  } = await AxiosInterceptor.post(
     URL,
     {
       grant_type: 'client_credentials',
