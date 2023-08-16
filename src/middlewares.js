@@ -1,3 +1,8 @@
+/* eslint-disable no-unused-vars */
+const jwt = require('jsonwebtoken');
+const { groups: groupNames, dummyAuth } = require('./properties');
+const { logger } = require('./lib/logger');
+
 const notFound = (req, res, next) => {
   res.status(404);
   const error = new Error(`🔍 - Not Found - ${req.originalUrl}`);
@@ -79,6 +84,77 @@ const responseInterceptor = (req, res, next) => {
 
   res.sendResponse = sendResponse;
   next();
+};
+
+const authenticationMiddleware = async (req, res, next) => {
+  if (process.env.SKIP_AUTH === 'true') {
+    try {
+      const { username, email } = dummyAuth;
+      if (!username || !email) {
+        throw new Error('Invalid dummyAuth configuration');
+      }
+
+      req.user = {
+        username,
+        email,
+        groups: [
+          groupNames.ADMIN_GROUP_NAME,
+          groupNames.EDITOR_GROUP_NAME,
+          groupNames.WRITER_GROUP_NAME
+        ]
+      };
+      next();
+      return;
+    } catch (error) {
+      return res.sendResponse('Invalid dummyAuth configuration', 500);
+    }
+  }
+  const token = req.headers.authorization;
+
+  if (!token) {
+    logger.error({ user: req?.user }, 'Api access denied due to invalid token');
+    return res.sendResponse('Unauthorized', 401);
+  }
+
+  try {
+    const decodedToken = jwt.decode(token.split(' ')[1], { complete: true });
+
+    const { name, preferred_username: preferredUsername, groups, exp } = decodedToken.payload;
+
+    if (Date.now() >= exp * 1000) {
+      return res.sendResponse('Token has expired', 401);
+    }
+
+    req.user = {
+      username: name,
+      email: preferredUsername,
+      groups
+    };
+    next();
+  } catch (error) {
+    logger.error({ user: req?.user }, 'Api access denied due to invalid token');
+    return res.sendResponse('Invalid token', 401);
+  }
+};
+
+const authorize = (allowedGroups) => (req, res, next) => {
+  if (process.env.SKIP_AUTH === 'true') {
+    next();
+    return;
+  }
+  const userGroups = req.user.groups;
+
+  const authorized = userGroups.some((userGroup) => allowedGroups.includes(userGroup));
+
+  if (authorized) {
+    next();
+  } else {
+    logger.error(
+      { authorized, user: req?.user },
+      'Api access denied due to insufficient credentials'
+    );
+    res.sendResponse('Unauthorized', 401);
+  }
 };
 
 module.exports = {

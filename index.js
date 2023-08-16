@@ -13,6 +13,7 @@ app.listen(port, () => {
   try {
     listenForMessages(NETSUITE_PUBSUB_TOPIC);
   } catch (err) {
-    logger.error({ err }, 'Error occuring while listening to pubsub calls');
+    const { stack, message } = err;
+    logger.error({ stack, message, err }, 'Error occuring while listening to pubsub calls');
   }
 });

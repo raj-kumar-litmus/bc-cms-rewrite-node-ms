@@ -200,6 +200,7 @@ const createWorkflow = async ({ styleId, email = 'pc.admin@backcountry.com' }) =
   const workflow = await mongoPrisma.workflow.create({
     data: { ...transformedData, brand: brandName, title }
   });
+  logger.info({ styleId, brandName, title, email }, 'Workflow created successfully');
   return {
     workflow
   };

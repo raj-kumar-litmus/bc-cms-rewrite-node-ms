@@ -1,244 +1,17 @@
 const express = require('express');
-const axios = require('axios');
 const https = require('https');
 
 const { postgresPrisma, mongoPrisma } = require('../prisma');
-const { groupBy } = require('../../utils');
+const { groupBy, chunkArray, constants } = require('../../utils');
 const { validateMiddleware } = require('../../middlewares');
 const { getStylesDto } = require('./dtos');
 const { logger } = require('../../lib/logger');
+const { AxiosInterceptor } = require('../../lib/axios');
 
 const { ATTRIBUTE_API_DOMAIN_NAME, COPY_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME } = process.env;
 const router = express.Router();
 
 const httpsAgent = new https.Agent({ rejectUnauthorized: false });
-
-const getStyle = async (styleId) => {
-  try {
-    const response = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
-      httpsAgent
-    });
-    return response.data;
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      const notFoundError = new Error('Style not found.');
-      notFoundError.status = 404;
-      throw notFoundError;
-    } else {
-      throw new Error('An error occurred while fetching the style information.', 500);
-    }
-  }
-};
-
-const getStyleAttributes = async (styleId) => {
-  try {
-    const response = await axios.get(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
-      {
-        httpsAgent
-      }
-    );
-    return response.data;
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      const notFoundError = new Error('Style not found.');
-      notFoundError.status = 404;
-      throw notFoundError;
-    } else {
-      throw new Error('An error occurred while fetching the style information.', 500);
-    }
-  }
-};
-
-const getStyleCopy = async (styleId) => {
-  try {
-    const response = await axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
-      httpsAgent
-    });
-    return response.data;
-  } catch (error) {
-    if (error.response && error.response.status === 404) {
-      const notFoundError = new Error('Style not found.');
-      notFoundError.status = 404;
-      throw notFoundError;
-    } else {
-      throw new Error('An error occurred while fetching the style information.', 500);
-    }
-  }
-};
-
-const upsertStyleAttributes = async (styleId, payload) => {
-  try {
-    const response = await axios.put(
-      `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
-      payload,
-      { httpsAgent }
-    );
-
-    return { success: true, data: response.data };
-  } catch (error) {
-    const errorMessage =
-      error.response?.data || 'An error occurred while updating product attributes';
-    return { success: false, error: errorMessage };
-  }
-};
-
-const createStyleCopy = async (payload) => {
-  try {
-    const response = await axios.post(`${COPY_API_DOMAIN_NAME}/copy-api/copy`, payload, {
-      httpsAgent
-    });
-
-    logger.info(
-      { data: response?.data, payload },
-      'Style copy created successfully in the COPY API'
-    );
-    return { success: true, data: response.data };
-  } catch (error) {
-    logger.error({ error, payload }, 'An error occurred while creating style copy in the COPY API');
-    const errorMessage = error.response?.data || 'Failed to create style copy';
-    return { success: false, error: errorMessage };
-  }
-};
-
-const updateStyleCopy = async (payload) => {
-  const { style: styleId } = payload;
-
-  try {
-    const response = await axios.put(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, payload, {
-      httpsAgent
-    });
-
-    return { success: true, data: response.data };
-  } catch (error) {
-    logger.error({ error, payload }, 'Error occured while updating style details in the copy api');
-    const errorMessage = error.response?.data || 'An error occurred while updating copy';
-    return { success: false, error: errorMessage };
-  }
-};
-
-// TODO: Move this to styles route
-router.get('/styles/:styleId/attributes', async (req, res) => {
-  try {
-    const { styleId } = req.params;
-    logger.info({ styleId }, 'Fetching style details from the Attribute api');
-    const response = await getStyleAttributes(styleId);
-    logger.info({ response, styleId }, 'Received response from the Attribute api');
-    return res.sendResponse(response);
-  } catch (error) {
-    logger.error(
-      { error, styleId: req?.params?.styleId },
-      'Error occured while Fetching style details from the Attribute api'
-    );
-    return res.sendResponse('Internal Server Error', 500);
-  }
-});
-
-// TODO: Move this to styles route
-router.put('/styles/:styleId/attributes', async (req, res) => {
-  try {
-    const { styleId } = req.params;
-    const payload = req.body;
-    logger.info({ styleId, payload }, 'Updating style details in the Attribute api');
-    const { success, data, error } = await upsertStyleAttributes(styleId, payload);
-    logger.info(
-      { success, data, error, styleId, payload },
-      'Updated style details from the Attribute api'
-    );
-    if (success) {
-      return res.sendResponse(data);
-    }
-    logger.error(
-      { success, data, error, styleId, payload },
-      'Something went wrong while updating style details in the Attribute api'
-    );
-    return res.sendResponse(error, error.status || 500);
-  } catch (error) {
-    logger.error(
-      { error, styleId: req?.params?.styleId, payload: req?.body },
-      'Error occured while updating style details in the Attribute api'
-    );
-    return res.sendResponse('Internal Server Error', 500);
-  }
-});
-
-// TODO: Move this to styles route
-router.get('/styles/:styleId/copy', async (req, res) => {
-  try {
-    const { styleId } = req.params;
-    logger.info({ styleId }, 'Fetching style details from the COPY api');
-    const response = await getStyleCopy(styleId);
-    logger.info({ response, styleId }, 'Received response from the COPY api');
-    return res.sendResponse(response);
-  } catch (error) {
-    if (error.status === 404) {
-      logger.error(
-        { error, styleId: req?.params?.styleId },
-        'Style not found while fetching style details from the COPY api'
-      );
-      return res.sendResponse('Style not found.', 404);
-    }
-    logger.error(
-      { error, styleId: req?.params?.styleId },
-      'Error occurred while fetching style details from the COPY api'
-    );
-    return res.sendResponse('Internal Server Error', 500);
-  }
-});
-
-// TODO: Move this to styles route
-router.post('/styles/:styleId/copy', async (req, res) => {
-  try {
-    const { styleId } = req.params;
-    const payload = req.body;
-    logger.info({ styleId, payload }, 'Creating style copy in the COPY API');
-    const result = await createStyleCopy(payload);
-
-    if (result.success) {
-      logger.info({ styleId, payload, result }, 'Style copy created successfully in the COPY API');
-      return res.sendResponse(result.data);
-    }
-    logger.error(
-      { styleId, payload, error: result.error },
-      'Failed to create style copy in the COPY API'
-    );
-    return res.sendResponse(result.error, 500);
-  } catch (error) {
-    logger.error(
-      { error, styleId: req?.params?.styleId, payload: req.body },
-      'Error occurred while creating style copy in the COPY API'
-    );
-    return res.sendResponse('Internal Server Error', 500);
-  }
-});
-
-// TODO: Move this to styles route
-router.put('/styles/:styleId/copy', async (req, res) => {
-  try {
-    const { styleId } = req.params;
-    const payload = req.body;
-    logger.info({ styleId, payload }, 'Updating style details in the COPY api');
-    const { success, data, error } = await updateStyleCopy(styleId, payload);
-    logger.info(
-      { success, data, error, styleId, payload },
-      'Updated style details from the COPY api'
-    );
-    if (success) {
-      return res.sendResponse(data);
-    }
-    logger.error(
-      { success, data, error, styleId, payload },
-      'Something went wrong while updating style details in the COPY api'
-    );
-    return res.sendResponse(error, error.status || 500);
-  } catch (error) {
-    logger.error(
-      { error, styleId: req?.params?.styleId, payload: req?.body },
-      'Error occured while updating style details in the COPY api'
-    );
-    return res.sendResponse('Internal Server Error', 500);
-  }
-});
 
 router.get('/genus', async (req, res) => {
   try {
@@ -284,7 +57,8 @@ router.get('/genus', async (req, res) => {
       }
     });
   } catch (error) {
-    logger.error({ error }, 'Error occured while fetching genus');
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error occured while fetching genus');
     return res.sendResponse(
       'An error occurred while retrieving the genus data. Please try again later.',
       500
@@ -325,7 +99,11 @@ router.get('/genus/:genusId/species', async (req, res) => {
       result
     });
   } catch (error) {
-    logger.error({ error, genusId: req?.params?.genusId }, 'Error occured while fetching species');
+    const { stack, message } = error;
+    logger.error(
+      { stack, message, error, genusId: req?.params?.genusId },
+      'Error occured while fetching species'
+    );
     return res.sendResponse('Error while fetching species details', 500);
   }
 });
@@ -360,17 +138,22 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
     let labels;
 
     try {
-      const response = await axios.get(
+      const response = await AxiosInterceptor.get(
         `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
         {
           httpsAgent
         }
       );
       data = response?.data;
+      const duration = response?.duration;
+      logger.info({ duration }, '[GET] Attribute api response time');
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
         {
           error,
+          stack,
+          message,
           genusId: req?.params?.genusId,
           speciesId: req?.params?.speciesId,
           styleId: req?.params?.styleId,
@@ -426,9 +209,12 @@ router.get('/genus/:genusId/hAttributes/:styleId', async (req, res) => {
       techSpecs: [...updatedTechSpecLabels]
     });
   } catch (error) {
+    const { stack, message } = error;
     logger.error(
       {
         error,
+        stack,
+        message,
         genusId: req?.params?.genusId,
         styleId: req?.params?.styleId,
         ATTRIBUTE_API_DOMAIN_NAME
@@ -493,17 +279,22 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
     let labels;
 
     try {
-      const response = await axios.get(
+      const response = await AxiosInterceptor.get(
         `${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`,
         {
           httpsAgent
         }
       );
       data = response?.data;
+      const duration = response?.duration;
+      logger.info({ duration }, '[GET] Attribute api response time');
     } catch (error) {
+      const { stack, message } = error;
       logger.error(
         {
           error,
+          stack,
+          message,
           genusId: req?.params?.genusId,
           speciesId: req?.params?.speciesId,
           styleId: req?.params?.styleId,
@@ -553,9 +344,12 @@ router.get('/genus/:genusId/species/:speciesId/hAttributes/:styleId', async (req
       techSpecs: [...updatedTechSpecLabels]
     });
   } catch (error) {
+    const { stack, message } = error;
     logger.error(
       {
         error,
+        stack,
+        message,
         genusId: req?.params?.genusId,
         speciesId: req?.params?.speciesId,
         styleId: req?.params?.styleId,
@@ -571,15 +365,20 @@ router.get('/merchProduct/:styleId', async (req, res) => {
   try {
     const { styleId } = req.params;
     logger.info({ styleId, MERCH_API_DOMAIN_NAME }, 'Fetching Merch api');
-    const { data } = await axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
-      httpsAgent
-    });
-    logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
+    const { data, duration } = await AxiosInterceptor.get(
+      `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`,
+      { httpsAgent }
+    );
+    logger.info({ duration }, '[GET] Merch api response time');
+    logger.info({ styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
     return res.sendResponse({ data });
   } catch (error) {
+    const { stack, message } = error;
     logger.error(
       {
         error,
+        stack,
+        message,
         styleId: req.params.styleId,
         MERCH_API_DOMAIN_NAME
       },
@@ -594,50 +393,95 @@ router.post('/styleSearch', validateMiddleware({ body: getStylesDto }), async (r
     const {
       body: { styles }
     } = req;
-    const success = [];
-    const failures = [];
-    const workflowExists = [];
+    let success = [];
+    let failures = [];
+    let workflowExists = [];
+
+    const stylesWithWorkflow = await mongoPrisma.workflow.findMany({
+      where: {
+        OR: {
+          styleId: {
+            in: styles[0].split(','),
+            mode: 'insensitive'
+          }
+        }
+      }
+    });
+
+    workflowExists = workflowExists.concat(stylesWithWorkflow.map((e) => e.styleId));
+
+    const stylesWithoutWorkflow = styles[0]
+      .split(',')
+      .filter(Boolean)
+      .filter((e) => !workflowExists.includes(e));
+
+    if (stylesWithoutWorkflow.length < 1) {
+      logger.error({ input: styles }, 'Workflow exists for all the inputs');
+      return res.sendResponse({
+        success: [],
+        failures: [],
+        workflowExists
+      });
+    }
+
+    const chunkedStyleIds = chunkArray(stylesWithoutWorkflow, constants.CHUNK_SIZE_STYLE_SEARCH);
 
     await Promise.all(
-      styles.map(async (styleId) => {
-        const count = await mongoPrisma.workflow.count({ where: { styleId } });
-        if (!count) {
-          try {
-            logger.info({ styleId, MERCH_API_DOMAIN_NAME }, '[Style search] Fetching Merch api');
-            const { data } = await axios.get(
-              `${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`,
-              {
-                httpsAgent
-              }
-            );
-            const { style, title, brandName, lastModified, lastModifiedUsername } = data;
-            logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
-            success.push({ style, title, brandName, lastModified, lastModifiedUsername });
-          } catch (err) {
-            logger.error(
-              { err, styleId, MERCH_API_DOMAIN_NAME },
-              'Could not find styleId in Merch api'
-            );
-            failures.push(styleId);
-          }
-        } else {
-          logger.info(
-            { styleId, MERCH_API_DOMAIN_NAME },
-            'Workflow already exists for this styleId'
+      chunkedStyleIds.map(async (styleId) => {
+        try {
+          logger.info({ styleId, MERCH_API_DOMAIN_NAME }, '[Style search] Fetching Merch api');
+          const { data, duration } = await AxiosInterceptor.get(
+            `${MERCH_API_DOMAIN_NAME}/merchv3/products?styles=${styleId.join(',')}&variant=false`,
+            {
+              httpsAgent
+            }
           );
-          workflowExists.push(styleId);
+          logger.info({ duration }, '[GET] Merch api response time');
+          logger.info({ data, styleId, MERCH_API_DOMAIN_NAME }, 'Response from Merch api');
+          success = success.concat(
+            data.map(({ style, title, brandName, lastModified, lastModifiedUsername }) => ({
+              id: Buffer.from(style).toString('base64'),
+              style,
+              title,
+              brandName,
+              lastModified,
+              lastModifiedUsername
+            }))
+          );
+        } catch (err) {
+          const { stack, message } = err;
+          logger.error(
+            { err, stack, message, styleId, MERCH_API_DOMAIN_NAME },
+            'Could not find styleId in Merch api'
+          );
+          failures = failures.concat(styleId);
         }
       })
     );
     logger.info(
-      { success, failures, workflowExists, body: req.body },
+      {
+        success,
+        failures,
+        workflowExists,
+        body: req.body
+      },
       'Response from styleSearch api'
     );
-    return res.sendResponse({ success, failures, workflowExists });
+    return res.sendResponse({
+      success,
+      failures: req.body.styles[0]
+        ?.split(',')
+        ?.filter((e) => !success.map((el) => el.style).includes(e))
+        ?.filter((el) => !workflowExists.includes(el)),
+      workflowExists
+    });
   } catch (error) {
+    const { stack, message } = error;
     logger.error(
       {
         error,
+        stack,
+        message,
         styleId: req.params.styleId,
         MERCH_API_DOMAIN_NAME
       },
@@ -654,37 +498,82 @@ router.get('/productInfo/:styleId', async (req, res) => {
       { styleId, COPY_API_DOMAIN_NAME, ATTRIBUTE_API_DOMAIN_NAME, MERCH_API_DOMAIN_NAME },
       'Fetching product Info'
     );
+    const getVendorSkus = async (productId) => {
+      try {
+        const response = await AxiosInterceptor.get(
+          `${MERCH_API_DOMAIN_NAME}/merchv3/vendor-skus?style=${productId}`,
+          {
+            httpsAgent
+          }
+        );
+        if (response && Array.isArray(response.data) && response.data.length > 0) {
+          response.data = [
+            ...new Set(
+              response.data.map((vendorSku) => {
+                return vendorSku.vendorSku;
+              })
+            )
+          ];
+        }
+        return response;
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          const notFoundError = new Error('Vendor Sku for style not found.');
+          notFoundError.status = 404;
+          throw notFoundError;
+        } else {
+          throw new Error("An error occurred while fetching the style's vendor sku information.");
+        }
+      }
+    };
+
     const results = await Promise.allSettled([
-      axios.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
+      AxiosInterceptor.get(`${COPY_API_DOMAIN_NAME}/copy-api/copy/${styleId}`, {
         httpsAgent
       }),
-      axios.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`, {
+      AxiosInterceptor.get(`${ATTRIBUTE_API_DOMAIN_NAME}/attribute-api/styles/${styleId}`, {
         httpsAgent
       }),
-      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
+      AxiosInterceptor.get(`${MERCH_API_DOMAIN_NAME}/merchv3/products/${styleId}`, {
         httpsAgent
       }),
-      axios.get(`${MERCH_API_DOMAIN_NAME}/merchv3/size-charts?shouldSkipChart=true`, {
+      AxiosInterceptor.get(`${MERCH_API_DOMAIN_NAME}/merchv3/size-charts?shouldSkipChart=true`, {
         httpsAgent
-      })
+      }),
+      getVendorSkus(styleId)
     ]);
-    const [copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart] = results.map(
-      (result) => result.value
-    );
+    const [copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart, vendorSkus] =
+      results.map((result) => result.value);
+    logger.info({ duration: merchApiResponse?.duration }, '[GET] Merch api response time');
+    logger.info({ duration: copyApiResponse?.duration }, '[GET] Copy api response time');
+    logger.info({ duration: attributeApiResponse?.duration }, '[GET] Attribute api response time');
+    logger.info({ duration: sizingChart?.duration }, '[GET] Sizing chart api response time');
+    logger.info({ duration: vendorSkus?.duration }, '[GET] Vendor skus api response time');
     logger.info(
-      { styleId, copyApiResponse, attributeApiResponse, merchApiResponse, sizingChart },
+      {
+        styleId,
+        copyApiResponse,
+        attributeApiResponse,
+        merchApiResponse,
+        sizingChart,
+        vendorSkus
+      },
       'Retrieved product Info from Backcountry apis'
     );
     return res.sendResponse({
       copyApiResponse: copyApiResponse?.data,
       merchApiResponse: merchApiResponse?.data,
       attributeApiResponse: attributeApiResponse?.data,
-      sizingChart: sizingChart?.data
+      sizingChart: sizingChart?.data,
+      vendorSkus: vendorSkus?.data
     });
-  } catch (err) {
+  } catch (error) {
+    const { stack, message } = error;
     logger.error(
       {
-        err,
+        error,
+        stack,
+        message,
         styleId: req.params.styleId,
         COPY_API_DOMAIN_NAME,
         ATTRIBUTE_API_DOMAIN_NAME,
@@ -696,12 +585,4 @@ router.get('/productInfo/:styleId', async (req, res) => {
   }
 });
 
-module.exports = {
-  router,
-  getStyle,
-  getStyleAttributes,
-  upsertStyleAttributes,
-  getStyleCopy,
-  createStyleCopy,
-  updateStyleCopy
-};
+module.exports = router;

@@ -25,7 +25,11 @@ const listenForMessages = (subscriptionNameOrId) => {
     }
   };
   subscription.on('message', messageHandler);
-  console.log(`Waiting for messages from subscription ::: ${subscriptionNameOrId}`);
+  subscription.on('error', (error) => {
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error occuring while subscribing to pubsub calls');
+  });
+  logger.info({ subscriptionNameOrId }, 'Waiting for messages from subscription');
 };
 
 module.exports = {
