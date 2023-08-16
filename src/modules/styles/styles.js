@@ -51,8 +51,7 @@ const upsertStyleAttributes = async (styleId, payload) => {
 
     return { success: true, data: response.data };
   } catch (error) {
-    const errorMessage =
-      error.response?.data || 'An error occurred while updating product attributes';
+    const errorMessage = `An error occurred while updating product attributes for ${styleId}`;
     return { success: false, error: errorMessage };
   }
 };
@@ -81,7 +80,7 @@ const createStyleCopy = async (payload) => {
       { stack, message, error, payload },
       'An error occurred while creating style copy in the COPY API'
     );
-    const errorMessage = error.response?.data || 'Failed to create style copy';
+    const errorMessage = 'Failed to create style copy';
     return { success: false, error: errorMessage };
   }
 };
@@ -105,7 +104,7 @@ const updateStyleCopy = async (payload) => {
       { stack, message, error, payload },
       'Error occured while updating style details in the copy api'
     );
-    const errorMessage = error.response?.data || 'An error occurred while updating copy';
+    const errorMessage = `An error occurred while updating copy for ${styleId}`;
     return { success: false, error: errorMessage };
   }
 };
@@ -207,7 +206,7 @@ router.post(
         { styleId, stack, message, payload, error: result.error },
         'Failed to create style copy in the COPY API'
       );
-      return res.sendResponse(result.error, 500);
+      return res.sendResponse(`Failed to create style copy in the COPY API for ${styleId}`, 500);
     } catch (error) {
       const { stack, message } = error;
       logger.error(
@@ -240,7 +239,10 @@ router.put(
         { success, stack, message, data, error, styleId, payload },
         'Something went wrong while updating style details in the COPY api'
       );
-      return res.sendResponse(error, error.status || 500);
+      return res.sendResponse(
+        `Something went wrong while updating style details in the COPY api for ${styleId}`,
+        error.status || 500
+      );
     } catch (error) {
       const { stack, message } = error;
       logger.error(

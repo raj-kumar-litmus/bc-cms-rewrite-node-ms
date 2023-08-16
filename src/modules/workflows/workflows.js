@@ -117,7 +117,7 @@ router.post(
       }
 
       return res.sendResponse(
-        error.message || 'An error occurred while creating the workflow.',
+        `An error occurred while creating the workflow for ${req?.body?.styleId}.`,
         error.status || 500
       );
     } finally {
@@ -378,7 +378,10 @@ router.get(
         { stack, message, error, id: req?.params?.id },
         'Error occured while retrieving a workflow'
       );
-      return res.sendResponse(error.message, error.status || 500);
+      return res.sendResponse(
+        `Error occured while retrieving a workflow for ${req?.params?.id}`,
+        error.status || 500
+      );
     }
   }
 );
@@ -843,6 +846,7 @@ router.patch(
   authorize([groups.ADMIN_GROUP_NAME, groups.WRITER_GROUP_NAME, groups.EDITOR_GROUP_NAME]),
   validateMiddleware({ body: workflowDetailsDto }),
   async (req, res) => {
+    let styleId;
     try {
       const { workflowId } = req.params;
       const currentSnapshot = req.body;
@@ -850,7 +854,7 @@ router.patch(
 
       const workflow = await findWorkflowById(workflowId);
 
-      const { styleId } = workflow;
+      styleId = workflow?.styleId;
 
       const { email } = req.user;
 
@@ -1061,7 +1065,7 @@ router.patch(
       );
 
       return res.sendResponse(
-        error.message || 'An error occurred while saving workflow for later',
+        `An error occurred while saving workflow for ${styleId}`,
         error.status || 500
       );
     } finally {

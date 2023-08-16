@@ -143,7 +143,6 @@ const authorize = (allowedGroups) => (req, res, next) => {
     return;
   }
   const userGroups = req.user.groups;
-
   const authorized = userGroups.some((userGroup) => allowedGroups.includes(userGroup));
 
   if (authorized) {
