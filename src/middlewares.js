@@ -161,5 +161,7 @@ module.exports = {
   notFound,
   // errorHandler,
   validateMiddleware,
-  responseInterceptor
+  responseInterceptor,
+  authenticationMiddleware,
+  authorize
 };
