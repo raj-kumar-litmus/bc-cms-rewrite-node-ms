@@ -8,6 +8,7 @@ const listenForMessages = (subscriptionNameOrId) => {
   const subscription = pubSubClient.subscription(subscriptionNameOrId);
 
   const messageHandler = async (message) => {
+    const workflowCreationStartTime = new Date();
     const { style: styleId } = JSON.parse(message.data.toString()) || {};
     logger.info({ styleId }, 'Create workflow message received from pubsub topic');
     try {
@@ -15,13 +16,18 @@ const listenForMessages = (subscriptionNameOrId) => {
         where: { styleId }
       });
       if (workflow) {
-        logger.warn({ styleId }, 'Workflow already exists');
+        const workflowCreationDuration = new Date() - workflowCreationStartTime;
+        logger.warn({ styleId, workflowCreationDuration }, 'Workflow already exists');
         return;
       }
       await createWorkflow({ styleId });
       message.ack();
+      const workflowCreationDuration = new Date() - workflowCreationStartTime;
+      logger.info({ styleId, workflowCreationDuration }, 'Create workflow message acknowledgement');
     } catch (error) {
-      console.log(error);
+      const workflowCreationDuration = new Date() - workflowCreationStartTime;
+      logger.error({ styleId, workflowCreationDuration }, 'Create workflow failure');
+      logger.error(error);
     }
   };
   subscription.on('message', messageHandler);

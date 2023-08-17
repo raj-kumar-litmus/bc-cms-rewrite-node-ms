@@ -181,8 +181,10 @@ const deepCompare = (obj1, obj2, ignoreFields = []) => {
 };
 
 const createWorkflow = async ({ styleId, email = 'pc.pubsub@backcountry.com' }) => {
+  const merchAPIStartTime = new Date();
   const { brandName, title } = await getStyle(styleId);
-  logger.info({ brandName, title }, 'Creating new workflow');
+  const merchAPIDuration = new Date() - merchAPIStartTime;
+  logger.info({ styleId, brandName, title, merchAPIDuration }, 'Creating new workflow');
   const transformedData = transformObject(
     {
       styleId,
@@ -197,10 +199,15 @@ const createWorkflow = async ({ styleId, email = 'pc.pubsub@backcountry.com' }) 
     }
   );
 
+  const databaseStartTime = new Date();
   const workflow = await mongoPrisma.workflow.create({
     data: { ...transformedData, brand: brandName, title }
   });
-  logger.info({ styleId, brandName, title, email }, 'Workflow created successfully');
+  const databaseDuration = new Date() - databaseStartTime;
+  logger.info(
+    { styleId, brandName, title, email, databaseDuration },
+    'Workflow created successfully'
+  );
   return {
     workflow
   };

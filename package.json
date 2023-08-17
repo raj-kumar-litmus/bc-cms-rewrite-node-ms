@@ -1,7 +1,7 @@
 {
   "name": "bc-cms-api",
   "version": "0.0.1",
-  "description": "Back Country CMS application API",
+  "description": "Backcountry CMS application API",
   "main": "index.js",
   "scripts": {
     "prestart": "npm run prisma:generate",
