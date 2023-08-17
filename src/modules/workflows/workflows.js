@@ -770,8 +770,8 @@ const updateBC = async (styleId, currentSnapshot, copyStatus) => {
         const attributes = await getStyleAttributes(styleId);
         return attributes;
       } catch (error) {
-        const { stack, message } = error;
-        if (error.status === 404) {
+        const { stack, message, response } = error;
+        if (response?.status === 404) {
           logger.error(
             { error, styleId },
             'Style not found while fetching style details from the attributes api, Hence creating a new attributes'
@@ -868,8 +868,8 @@ router.patch(
           const copy = await getStyleCopy(styleId);
           return copy;
         } catch (error) {
-          const { stack, message } = error;
-          if (error.status === 404) {
+          const { stack, message, response } = error;
+          if (response?.status === 404) {
             logger.error(
               { error, stack, message, styleId },
               'Style not found while fetching style details from the COPY api, Hence creating a new copy'
