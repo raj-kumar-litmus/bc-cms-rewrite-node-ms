@@ -38,7 +38,7 @@ const getStyleAttributes = async (styleId) => {
       httpsAgent
     }
   );
-  return response?.data ? response.data : {} ;
+  return response.data;
 };
 
 const upsertStyleAttributes = async (styleId, payload) => {

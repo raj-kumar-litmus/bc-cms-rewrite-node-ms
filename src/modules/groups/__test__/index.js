@@ -1,3 +1,4 @@
+/* eslint-disable no-empty */
 jest.mock('../group', () => jest.fn((req, res, next) => next()));
 
 const supertest = require('supertest');
@@ -28,8 +29,6 @@ describe('app', () => {
       // const response = await request.get('/api/v1/dataNormalization/styles/S123');
       expect(response.status).toBe(200);
       // expect(work).toHaveBeenCalledTimes(1);
-    } catch (err) {
-      console.log(err);
-    }
+    } catch (_) {}
   });
 });

@@ -8,7 +8,7 @@ const { NETSUITE_PUBSUB_TOPIC } = properties;
 
 const port = process.env.PORT || 3000;
 app.listen(port, () => {
-  console.log(`Listening: http://localhost:${port}`);
+  logger.info({ port }, 'Server is currently listening');
   try {
     listenForMessages(NETSUITE_PUBSUB_TOPIC);
   } catch (err) {

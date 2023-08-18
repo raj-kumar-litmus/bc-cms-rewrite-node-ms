@@ -95,7 +95,6 @@ const createScale = async (req, res) => {
 
     res.sendResponse(createdScale, 201);
   } catch (error) {
-    console.error(error);
     res.sendResponse('Error occurred while creating the scale', 500);
   }
 };

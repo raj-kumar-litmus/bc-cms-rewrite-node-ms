@@ -50,8 +50,6 @@ const findWorkflowById = async (id) => {
 
     return workflow;
   } catch (error) {
-    console.error(error);
-
     if (error.code === 'P2023') {
       throw new Error('Invalid workflow ID.');
     }
