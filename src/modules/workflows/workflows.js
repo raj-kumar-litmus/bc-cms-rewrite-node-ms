@@ -1074,31 +1074,4 @@ router.patch(
   }
 );
 
-// Endpoint to delete a workflow after unit tests
-if (process.env.NODE_ENV === 'local') {
-  router.delete('/:id', async (req, res) => {
-    try {
-      const { id } = req.params;
-
-      await mongoPrisma.workflow.delete({
-        where: {
-          styleId: id
-        }
-      });
-
-      return res.sendResponse(
-        {
-          message: 'Workflow deleted successfully.'
-        },
-        200
-      );
-    } catch (error) {
-      console.error(error);
-      return res.sendResponse('An error occurred while deleting the workflow.', 500);
-    } finally {
-      await mongoPrisma.$disconnect();
-    }
-  });
-}
-
 module.exports = router;

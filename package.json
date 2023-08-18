@@ -10,6 +10,8 @@
     "lint": "eslint .",
     "lint:fix": "eslint --fix",
     "test": "jest",
+    "coverage": "npx jest --coverage",
+    "test:single" : "jest src/modules/workflows/__test__/workflows.test.js --coverage",
     "prisma:generate:mongo": "npx prisma generate --schema=./prisma/mongoSchema.prisma --generator=mongoClient",
     "prisma:generate:postgres": "npx prisma generate --schema=./prisma/postgresSchema.prisma --generator=postgresClient",
     "prisma:generate": "npm run prisma:generate:mongo && npm run prisma:generate:postgres",
