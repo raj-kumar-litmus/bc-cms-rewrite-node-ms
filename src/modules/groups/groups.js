@@ -51,26 +51,22 @@ const getAccessToken = async () => {
   return accessToken ? `Bearer ${accessToken}` : undefined;
 };
 
-router.get(
-  '/token',
-  authorize([groups.ADMIN_GROUP_NAME, groups.WRITER_GROUP_NAME, groups.EDITOR_GROUP_NAME]),
-  async (req, res) => {
-    try {
-      const accessToken = await getAccessToken();
+router.get('/token', async (req, res) => {
+  try {
+    const accessToken = await getAccessToken();
 
-      return res.sendResponse(
-        {
-          accessToken
-        },
-        200
-      );
-    } catch (error) {
-      const { stack, message } = error;
-      logger.error({ stack, message, error }, 'Error while fetching token');
-      return res.sendResponse('Error while fetching token', 401);
-    }
+    return res.sendResponse(
+      {
+        accessToken
+      },
+      200
+    );
+  } catch (error) {
+    const { stack, message } = error;
+    logger.error({ stack, message, error }, 'Error while fetching token');
+    return res.sendResponse('Error while fetching token', 401);
   }
-);
+});
 
 router.get(
   '/:type/members',
